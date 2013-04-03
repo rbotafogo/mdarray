@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 ##########################################################################################
+# @author Rodrigo Botafogo
+#
 # Copyright © 2013 Rodrigo Botafogo. All Rights Reserved. Permission to use, copy, modify, 
 # and distribute this software and its documentation, without fee and without a signed 
 # licensing agreement, is hereby granted, provided that the above copyright notice, this 
@@ -69,8 +71,8 @@ class MDArray
   attr_reader :nc_array
   attr_reader :local_index               # internal helper index for this array
   attr_reader :local_iterator
-  # @binary_operator and @unary_operator are instance variables that allow overwriting the
-  # class variables @@binary_operator and @@unary_operator
+  # binary_operator and unary_operator are instance variables that allow overwriting the
+  # class variables binary_operator and unary_operator
   attr_accessor :binary_operator
   attr_accessor :unary_operator 
   attr_accessor :coerced
@@ -91,7 +93,11 @@ class MDArray
   MDArray.function_map = Map.new
 
   #------------------------------------------------------------------------------------
-  #
+  # Initializes an MDArray
+  # @param type [String] the type of the mdarray: boolean, byte, int, short, long,
+  #   float, double
+  # @param storage [Array] a ruby array with the initialization data to the MDArray
+  # @param section True if this is an mdarray section
   #------------------------------------------------------------------------------------
 
   def initialize(type, storage, section = false)
@@ -130,7 +136,7 @@ class MDArray
   alias size :get_size
 
   #------------------------------------------------------------------------------------
-  #
+  # Gets the shape of the array
   #------------------------------------------------------------------------------------
 
   def get_shape
@@ -140,7 +146,7 @@ class MDArray
   alias shape :get_shape
 
   #------------------------------------------------------------------------------------
-  #
+  # Gets the element type of this array
   #------------------------------------------------------------------------------------
 
   def get_element_type
@@ -150,7 +156,8 @@ class MDArray
   alias dtype :get_element_type
 
   #------------------------------------------------------------------------------------
-  # Prints the content of the netcdf_array. Mainly for debugging purposes
+  # Prints the content of the netcdf_array. Mainly for debugging purposes.
+  # @param max_size [int]
   #------------------------------------------------------------------------------------
   
   def to_string(max_size = 3)
@@ -163,7 +170,7 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Prints the array
   #------------------------------------------------------------------------------------
   
   def to_s
@@ -195,7 +202,11 @@ class MDArray
   end
 
   #---------------------------------------------------------------------------------------
-  #
+  # Returns the upcasted type between the type of this array and another array
+  # @param other_val [MDArray] the other array
+  # @param force_cast [Type] will return force_cast.  This is used when one wants to
+  #   force the resulting type on a new array.
+  # @return upcasted type between the two arrays or forced type
   #---------------------------------------------------------------------------------------
 
   def get_type(other_val, force_cast = nil)
@@ -220,7 +231,8 @@ class MDArray
   end
 
   #---------------------------------------------------------------------------------------
-  #
+  # Prints a list of all available functions know to MDArray.  Should be reimplemented.
+  # For debuging only for now.
   #---------------------------------------------------------------------------------------
 
   def self.print_function_map
@@ -238,7 +250,8 @@ class MDArray
   end # print_function_map
 
   #---------------------------------------------------------------------------------------
-  #
+  # Prints a list of all available functions know to MDArray is csv.  Should be 
+  # reimplemented. For debuging only for now.
   #---------------------------------------------------------------------------------------
 
   def self.function_map_to_csv
@@ -254,7 +267,19 @@ class MDArray
   end # print_function_map
 
   #------------------------------------------------------------------------------------
-  #
+  # Makes a new binary operator for this MDArray.  All binary operators are created
+  # using this method or the one in module FunctionCreation.
+  # @param name [String] name of the new binary operator
+  # @param exec_type execution type of the binary operator.  Existing execution types
+  #   at present are: :default, :fill, :in_place, :reduce.
+  # @param func the function to be applied for this binary operator.  For instance,
+  #   lets say we are build the "add" binary operator.  exec_type is :default, func
+  #   is a ruby proc Proc.new { |val1, val2| val1 + val2 }
+  # @param force_type forces the type of the resulting array after executing the 
+  #   binary operator.  For instance, if we force type "int", then even adding two
+  #   double arrays the resulting array will be of type int
+  # @param pre_condition Proc to be executed before the operator's execution
+  # @param post_condition Proc to be executed after the operator's execution
   #------------------------------------------------------------------------------------
 
   def self.make_binary_op(name, exec_type, func, force_type = nil, pre_condition = nil,
@@ -271,7 +296,19 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Makes a new unary operator for this MDArray.  All unary operators are created
+  # using this method or the one in module FunctionCreation.
+  # @param name [String] name of the new binary operator
+  # @param exec_type execution type of the binary operator.  Existing execution types
+  #   at present are: :default, :fill, :in_place, :reduce.
+  # @param func the function to be applied for this binary operator.  For instance,
+  #   lets say we are build the "add" binary operator.  exec_type is :default, func
+  #   is a ruby proc Proc.new { |val1, val2| val1 + val2 }
+  # @param force_type forces the type of the resulting array after executing the 
+  #   binary operator.  For instance, if we force type "int", then even adding two
+  #   double arrays the resulting array will be of type int
+  # @param pre_condition Proc to be executed before the operator's execution
+  # @param post_condition Proc to be executed after the operator's execution
   #------------------------------------------------------------------------------------
 
   def self.make_unary_op(name, exec_type, func, force_type = nil, pre_condition = nil,
@@ -288,7 +325,17 @@ class MDArray
   end
 
   #---------------------------------------------------------------------------------------
-  #
+  # Selects the best function to use at execution time for a given operation.  MDArray
+  # allow for many implementations of the same function.  For instance, one could
+  # implement the add operation as a ruby proc Proc.new { |val1, val2| val1 + val2 } or
+  # as a Java method.  At execution time the system will select the best function to 
+  # execute given a set of decision paramenters.
+  # At this time, this method needs to be improved.
+  # @param name the name of the function
+  # @param scope [String] a given scope defined by the user, used as a decision parameter
+  # @param return_type the return type of the function
+  # @param input1_type the type of the first argument to the function
+  # @param input2_type the type of the second argument to the function
   #---------------------------------------------------------------------------------------
 
   def self.select_function(name, scope = nil, return_type = nil, input1_type = nil, 
@@ -323,7 +370,7 @@ class MDArray
   #------------------------------------------------------------------------------------
 
   #------------------------------------------------------------------------------------
-  #
+  # @return IteratorFast a fast iterator onto the this array.
   #------------------------------------------------------------------------------------
 
   def get_iterator_fast
@@ -359,10 +406,9 @@ require_relative 'mdarray/function_creation'
 require_relative 'mdarray/ruby_functions'
 require_relative 'mdarray/operators'
 require_relative 'mdarray/ruby_operators'
-require_relative 'mdarray/fast_non_numerical'
+# require_relative 'mdarray/fast_non_numerical'
 require_relative 'mdarray/access'
 require_relative 'mdarray/slices'
 require_relative 'mdarray/printing'
 require_relative 'mdarray/counter'
 # require_relative 'mdarray/statistics'
-

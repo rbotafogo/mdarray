@@ -26,7 +26,7 @@
 class MDArray
 
   #------------------------------------------------------------------------------------
-  #
+  # Given two types returns the upcasted one
   #------------------------------------------------------------------------------------
 
   def self.upcast(type1, type2)
@@ -70,6 +70,10 @@ class MDArray
 
   #------------------------------------------------------------------------------------
   # Builds a new MDArray
+  # @param type the type of the new mdarray to build, could be boolean, byte, short,
+  #  int, long, float, double, string, structure
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.build(type, shape, storage = nil)
@@ -90,7 +94,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a boolean mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.boolean(shape, storage = nil)
@@ -98,7 +104,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a byte mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.byte(shape, storage = nil)
@@ -106,7 +114,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a char mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.char(shape, storage = nil)
@@ -114,6 +124,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
+  # Builds a byte mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #
   #------------------------------------------------------------------------------------
 
@@ -122,7 +135,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds an int mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.int(shape, storage = nil)
@@ -130,6 +145,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
+  # Builds a long mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #
   #------------------------------------------------------------------------------------
 
@@ -138,7 +156,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a float mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.float(shape, storage = nil)
@@ -146,7 +166,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a double mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.double(shape, storage = nil)
@@ -154,7 +176,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a string mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.string(shape, storage = nil)
@@ -162,7 +186,9 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Builds a structure mdarray
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.structure(shape, storage = nil)
@@ -175,19 +201,18 @@ class MDArray
   # coordinate ``(x, y, z)``.
   # Parameters
   # ----------
-  # <tt>&block<tt>: a block to be executed
-  #    The block is called with N parameters, each of which
-  #  represents the coordinates of the array varying along a
-  #  specific axis.  For example, if `shape` were ``(2, 2)``, then
-  #  the parameters would be two arrays, ``[[0, 0], [1, 1]]`` and
-  #  ``[[0, 1], [0, 1]]``.  `fn` must be capable of operating on
-  #  arrays, and should return a scalar value.
-  # shape : (N,) tuple of ints
+  # @param type : data-type, optional
+  #    Data-type of the coordinate arrays passed to `fn`
+  # @param shape : (N,) tuple of ints
   #   Shape of the output array, which also determines the shape of
   #   the coordinate arrays passed to `fn`.
-  # dtype : data-type, optional
-  #    Data-type of the coordinate arrays passed to `fn`.  By default,
-  #   `dtype` is float.
+  # @param &block: a block to be executed
+  #   The block is called with N parameters, each of which
+  #   represents the coordinates of the array varying along a
+  #   specific axis.  For example, if `shape` were ``(2, 2)``, then
+  #   the parameters would be two arrays, ``[[0, 0], [1, 1]]`` and
+  #   ``[[0, 1], [0, 1]]``.  `fn` must be capable of operating on
+  #   arrays, and should return a scalar value.
   #------------------------------------------------------------------------------------
 
   def self.fromfunction(type, shape, &block)
@@ -201,7 +226,10 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Build mdarray and fills it with the given value
+  # @param type type of the mdarray
+  # @param shape
+  # @param value the given value to fill in the mdarray
   #------------------------------------------------------------------------------------
 
   def self.init_with(type, shape, value)
@@ -217,7 +245,17 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Return evenly spaced values within a given interval.
+  # Values are generated within the half-open interval [start, stop) (in other words, 
+  # the interval including start but excluding stop). For integer arguments the function 
+  # is equivalent to the Python built-in range function, but returns an mdarray rather 
+  # than a list.
+  # When using a non-integer step, such as 0.1, the results will often not be 
+  # consistent. It is better to use linspace for these cases.
+  # @param start
+  # @param stop
+  # @param step
+  # @return int mdarray
   #------------------------------------------------------------------------------------
 
   def self.arange(*args)
@@ -246,7 +284,16 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Return evenly spaced values within a given interval.
+  # Values are generated within the half-open interval [start, stop) (in other words, 
+  # the interval including start but excluding stop). For integer arguments the function 
+  # is equivalent to the Python built-in range function, but returns an mdarray rather 
+  # than a list.
+  # @param type the desired type of the new mdarray
+  # @param start
+  # @param stop
+  # @param step
+  # @returns mdarray of the given type
   #------------------------------------------------------------------------------------
 
   def self.typed_arange(type, *args)

@@ -19,14 +19,14 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-# require 'simplecov'
+require 'simplecov'
 
-=begin
+#=begin
 SimpleCov.start do
   @filters = []
   add_group "MDArray", "F:/rbotafogo/cygwin/home/zxb3/Desenv/MDArray/src/lib"
 end
-=end
+#=end
 
 # MDArray main object is the homogeneous multidimensional array. It is a table
 # of elements (usually numbers), all of the same type, indexed by a tuple of 

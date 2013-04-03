@@ -20,6 +20,12 @@ task :install_gem => [:make_gem] do
   sh "gem install #{$gem_name}-#{$version}.gem"
 end
 
+desc 'Make documentation'
+task :make_doc do
+  sh "yard doc lib/*.rb lib/**/*.rb"
+end
+
+
 =begin
 Rake::TestTask.new do |t|
   t.libs << "test"

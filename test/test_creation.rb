@@ -23,7 +23,6 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-# require 'env'
 require 'mdarray'
 
 
@@ -234,6 +233,25 @@ class MDArrayTest < Test::Unit::TestCase
       end
 
     end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "create array from arange" do
+
+      arr = MDArray.arange(10)
+      assert_equal("0 1 2 3 4 5 6 7 8 9 ", arr.to_string)
+      arr = MDArray.arange(2, 30)
+      assert_equal("2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 ", 
+                   arr.to_string)
+      arr = MDArray.arange(2, 30, 3)
+      assert_equal("2 5 8 11 14 17 20 23 26 29 ", arr.to_string)
+      # inconsistent result, better to use linspace
+      arr = MDArray.arange(2, 30, 2.5)
+
+    end
+
 
     #-------------------------------------------------------------------------------------
     #
