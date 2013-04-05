@@ -11,7 +11,7 @@ desc 'default task'
 task :default => [:install_gem]
 
 desc 'Makes a Gem'
-task :make_gem => 'mdarray-0.4.0.gem' do
+task :make_gem do
   sh "gem build #{$gem_name}.gemspec"
 end
 
@@ -25,6 +25,10 @@ task :make_doc do
   sh "yard doc lib/*.rb lib/**/*.rb"
 end
 
+desc 'Push project to github'
+task :push do
+  sh "git push origin master"
+end
 
 =begin
 Rake::TestTask.new do |t|
