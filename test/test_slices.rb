@@ -21,6 +21,9 @@ class MDArrayTest < Test::Unit::TestCase
       end
 
       @b = MDArray.int([2, 2])
+      @c = MDArray.fromfunction("double", [2, 3, 4]) do |x, y, z|
+        x + y + z
+      end
       
     end
 
@@ -36,38 +39,56 @@ class MDArrayTest < Test::Unit::TestCase
 =end
 
     #-------------------------------------------------------------------------------------
-    #
+    # Create a new Array using same backing store as this Array, by fixing the specified 
+    # dimension at the specified index value. This reduces rank by 1.
     #-------------------------------------------------------------------------------------
 
-    should "slice array along axes" do
+    should "slice an array" do
 
-      @a.each_along_axes([3]) do |slice|
-        slice.print
-        print "\n"
-      end
+      # @c rank is [2, 3, 4]. @c is the following array
+      # [[[0.00 1.00 2.00 3.00]
+      #  [1.00 2.00 3.00 4.00]
+      #  [2.00 3.00 4.00 5.00]]
+      # 
+      # [[1.00 2.00 3.00 4.00]
+      #  [2.00 3.00 4.00 5.00]
+      #  [3.00 4.00 5.00 6.00]]]
+      
+      # take a slice of c on the first dimension (0) and taking only the first (0) index,
+      # we should get the following array:
+      # [[0.00 1.00 2.00 3.00]
+      #  [1.00 2.00 3.00 4.00]
+      #  [2.00 3.00 4.00 5.00]]
+      arr = @c.slice(0, 0)
+      assert_equal(1, arr[0, 1])
+      assert_equal(4, arr[2, 2])
+      assert_equal(5, arr[2, 3])
 
-      # each_along_axes returns sub-arrays (sections) of the original array. Each section
-      # is taken by walking along the given axis and getting the all elements of the
-      # axis that were not given.  For instance, array @a shape is [1, 20, 10, 7].  Slicing
-      # along axes [0, 2] will get the following sections of @a: 
-      # section([0, 0, 0, 0], [1, 20, 1, 7]), section ([0, 0, 1, 0], [1, 20, 1, 7]),
-      # section([0, 0, 2, 0], [1, 20, 1, 7])...
-      # This is actually getting all values for every security for the 20 days.
+      # take a slice of c on the first dimension (0) and taking only the second (1) index,
+      # we should get the following array:
+      # [[1.00 2.00 3.00 4.00]
+      #  [2.00 3.00 4.00 5.00]
+      #  [3.00 4.00 5.00 6.00]]
+      arr = @c.slice(0, 1)
+      assert_equal(2, arr[0, 1])
+      assert_equal(4, arr[0, 3])
+      assert_equal(5, arr[1, 3])
 
-      @a.each_along_axes([0, 2]) do |slice|
-        slice.print
-        p slice.cum_op(MDArray.method(:add))
-        print "\n"
-      end
+      # take a slice of c on the second dimension (1) and taking only the second (1) index,
+      # we should get the following array:
+      # [[1.00 2.00 3.00 4.00]
+      #  [2.00 3.00 4.00 5.00]]
+      arr = @c.slice(1, 1)
+      assert_equal(2, arr[0, 1])
+      assert_equal(2, arr[1, 0])
 
-      # Here we are getting 7 arrays for "open", "close", "High", "Low", etc. each
-      # containing all the 20 days for each security.  So, the first array has 20 elements
-      # each with the "open" value for the first security. The second array returns 
-      # has 20 elements, each with the "close" value for the first security.
-      @a.each_along_axes([2, 3]) do |slice|
-        slice.print
-        print "\n"
-      end
+      # take a slice of c on the third dimension (2) and taking only the third (2) index,
+      # we should get the following array:
+      # [[2.00 3.00 4.00]
+      #  [3.00 4.00 5.00]]
+      arr = @c.slice(2, 2)
+      assert_equal(3, arr[0, 1])
+      assert_equal(5, arr[1, 2])
 
     end
 
@@ -81,8 +102,8 @@ class MDArrayTest < Test::Unit::TestCase
       # 20 -> 20 days
       # 10 -> number os secs
       # 7 - > number of values
-
-      # b is a section of @a, starting a position (0) and taking only the first two 
+      
+      # b is a section of @a, starting at position (0) and taking only the first two 
       # elements of the first dimension.  Getting all values, for all secs for the first
       # 2 days
       b = @a.section([0, 0, 0, 0], [1, 2, 10, 7])
@@ -92,6 +113,8 @@ class MDArrayTest < Test::Unit::TestCase
       ind.each do |elmt|
         assert_equal(@a.get(elmt), b.get(elmt))
       end
+      
+=begin
 
       # getting "open" for the first 2 days of the 3rd sec 
       b = @a.section([0, 0, 3, 0], [1, 2, 1, 1])
@@ -139,8 +162,49 @@ class MDArrayTest < Test::Unit::TestCase
       b = @a.section([0, 0, 0, 0], [1, 1, 10, 1])
       # b.print
 
+=end
     end
     
+=begin
+    #-------------------------------------------------------------------------------------
+    # each_along_axes returns sub-arrays (sections) of the original array. Each section
+    # is taken by walking along the given axis and getting all elements of the
+    # axis that were not given.
+    #-------------------------------------------------------------------------------------
+
+    should "slice array along axes" do
+
+      # For instance, array @a shape is [1, 20, 10, 7].  Slicing along the third axes
+      # will get the following sections of @a:
+      # section([0, 0, 0, 0], [1, 20, 1, 1]), section([0, 0, 0, 1], [1, 20, 1, 1]), ...
+      # In this case, we get 7 arrays 
+      @a.each_along_axes([3]) do |slice|
+        slice.print
+        print "\n"
+      end
+
+      # For instance, array @a shape is [1, 20, 10, 7].  Slicing
+      # along axes [0, 2] will get the following sections of @a: 
+      # section([0, 0, 0, 0], [1, 20, 1, 7]), section ([0, 0, 1, 0], [1, 20, 1, 7]),
+      # section([0, 0, 2, 0], [1, 20, 1, 7])...
+      # This is actually getting all values for every security for the 20 given days.
+
+      @a.each_along_axes([0, 2]) do |slice|
+        slice.print
+        # p slice.cum_op(MDArray.method(:add))
+        print "\n"
+      end
+
+      # Here we are getting 7 arrays for "open", "close", "High", "Low", etc. each
+      # containing all the 20 days for each security.  So, the first array has 20 elements
+      # each with the "open" value for the first security. The second array returns 
+      # has 20 elements, each with the "close" value for the first security.
+      @a.each_along_axes([2, 3]) do |slice|
+        slice.print
+        print "\n"
+      end
+=end
+
   end
-  
+    
 end

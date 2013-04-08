@@ -101,16 +101,15 @@ class MDArray
 
   end
 
-  #------------------------------------------------------------------------------------
+  #---------------------------------------------------------------------------------------
   # Create a new Array as a subsection of this Array, without rank reduction. No data 
   # is moved, so the new Array references the same backing store as the original.
-  # Parameters:
-  # origin - int array specifying the starting index. Must be same rank as original Array.
-  # shape - int array specifying the extents in each dimension. This becomes the shape 
-  # of the returned Array. Must be same rank as original Array.
-  # stride - int array specifying the strides in each dimension. If null, assume all ones.
-  # Returns:
-  # the new Array
+  # @param origin ruby array specifying the starting index. Must be same rank as original 
+  #   Array.
+  # @param shape ruby array specifying the extents in each dimension. This becomes the 
+  #   shape of the returned Array. Must be same rank as original Array.
+  # @param reduce true if the array should be reduced by removing dimensions of size 1
+  # @returns new Array
   # Throws:
   # InvalidRangeException - if ranges is invalid
   #------------------------------------------------------------------------------------
@@ -138,7 +137,18 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Create a new Array as a subsection of this Array, without rank reduction. No data 
+  # is moved, so the new Array references the same backing store as the original.
+  # @param origin ruby array specifying the starting index. Must be same rank as 
+  #   original Array.
+  # @param shape ruby array specifying the extents in each dimension. This becomes the 
+  #   shape of the returned Array. Must be same rank as original Array.
+  # @param stride array specifying the strides in each dimension. If null, assume all 
+  #   ones.
+  # @param reduce true if the array should be reduced by removing dimensions of size 1
+  # @returns new Array
+  # Throws:
+  # InvalidRangeException - if ranges is invalid
   #------------------------------------------------------------------------------------
 
   def section_with_stride(origin, shape, stride, reduce = false)
@@ -166,6 +176,22 @@ class MDArray
 
   def section?
     @section
+  end
+
+  #------------------------------------------------------------------------------------
+  # Create a new Array using same backing store as this Array, by fixing the specified 
+  # dimension at the specified index value. This reduces rank by 1.
+  # @param dim dimension to fix
+  # @param val value in which to fix the dimension
+  #------------------------------------------------------------------------------------
+
+  def slice(dim, val)
+    
+    arr = @nc_array.slice(dim, val)
+    slice = MDArray.new(@type, arr, true)
+    copy_print_parameters(slice)
+    return slice
+
   end
 
   #------------------------------------------------------------------------------------
