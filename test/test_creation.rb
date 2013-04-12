@@ -355,7 +355,6 @@ class MDArrayTest < Test::Unit::TestCase
 
       struct = MDArray.structure([10])
       struct[0] = m
-      struct.print
 
     end
 

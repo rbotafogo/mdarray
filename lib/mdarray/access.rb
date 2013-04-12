@@ -189,30 +189,6 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def each_along_axes(axes)
-    
-    counter = Counter.new(self)
-
-    sizes = Array.new
-    (0..rank - 1).each do |axis|
-      if (axes.include?(axis))
-        sizes[axis] = 1
-      else
-        sizes[axis] = shape[axis]
-      end
-    end
-
-    counter.each_along_axes(axes) do |ct|
-      # yield ct, sizes if block_given?
-      yield section(ct, sizes, true) if block_given?
-    end
-
-  end
-
-  #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
   

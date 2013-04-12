@@ -119,13 +119,11 @@ class MDArrayTest < Test::Unit::TestCase
 
       counter = MDArray::Counter.new(@a)
       counter.each_along_axes([0, 2]) do |counter|
-        p counter
+        counter
       end
 
-      printf "\n"
-
       counter.each_along_axes([0, 1, 2]) do |counter|
-        p counter
+        counter
       end
 
     end
@@ -137,21 +135,6 @@ class MDArrayTest < Test::Unit::TestCase
   end
   
 end
-
-=begin      
-    #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-
-    should "issue errors if range is used as index" do
-
-      index = MDArray::Index.new(@a)
-      index.set_start([/1:1/, /0:2/, 1, 1])
-
-    end
-
-=end
-
 
 =begin
     should "allow partial access to the array" do

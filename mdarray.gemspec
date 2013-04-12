@@ -17,13 +17,12 @@ EOF
 
   gem.authors  = ['Rodrigo Botafogo']
   gem.email    = 'rodrigo.a.botafogo@gmail.com'
-  gem.homepage = 'http://github.com/rbotafogo/mdarray'
+  gem.homepage = 'http://github.com/rbotafogo/mdarray/wiki'
 
-  gem.add_dependency('rake')
-  gem.add_development_dependency('rspec', [">= 2.0.0"])
-  gem.add_development_dependency('simplecov')
-  gem.add_development_dependency('yard')
-  gem.add_development_dependency('kramdown')
+  gem.add_dependency('map', [">= 6.3.0"])
+  gem.add_development_dependency('simplecov', [">= 0.7.1"])
+  gem.add_development_dependency('yard', [">= 0.8.5.2"])
+  gem.add_development_dependency('kramdown', [">= 1.0.1"])
 
   # ensure the gem is built out of versioned files
   gem.files = Dir['Rakefile', 'version.rb', '{lib,test}/**/*.rb', '{bin,man,spec,vendor}/**/*', 

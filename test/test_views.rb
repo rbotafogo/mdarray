@@ -2,7 +2,6 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-require 'env'
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase
@@ -26,17 +25,6 @@ class MDArrayTest < Test::Unit::TestCase
       end
       
     end
-
-    #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-=begin
-    should "get section with range" do
-
-      @b[/1:2:3/, /1:5/, /3:4/, 1]
-
-    end
-=end
 
     #-------------------------------------------------------------------------------------
     # Create a new Array using same backing store as this Array, by fixing the specified 
@@ -114,9 +102,15 @@ class MDArrayTest < Test::Unit::TestCase
         assert_equal(@a.get(elmt), b.get(elmt))
       end
       
-=begin
-
-      # getting "open" for the first 2 days of the 3rd sec 
+      # getting "open" for the first 2 days of the 2nd sec.  Values are organized
+      # as follows:
+      # (open, close, high, low, volume, e1, e2).
+      # Start at: [0, 0, 3, 0] => 
+      #   0 -> first year, 0 -> first day, 3 -> 2nd sec, 0 -> first value 
+      # Specification: [1, 2, 1, 1] =>
+      #   1 -> get only first year, 2 -> take 2 days from day 0 to day 1, 
+      #   1 -> take one security, already selected the 2nd one, 1 -> only one value
+      #   in this case the first one was selected.
       b = @a.section([0, 0, 3, 0], [1, 2, 1, 1])
       assert_equal(40.00, b[0, 0, 0, 0])
       assert_equal(41.00, b[0, 1, 0, 0])
@@ -162,49 +156,136 @@ class MDArrayTest < Test::Unit::TestCase
       b = @a.section([0, 0, 0, 0], [1, 1, 10, 1])
       # b.print
 
-=end
     end
     
-=begin
     #-------------------------------------------------------------------------------------
     # each_along_axes returns sub-arrays (sections) of the original array. Each section
     # is taken by walking along the given axis and getting all elements of the
     # axis that were not given.
     #-------------------------------------------------------------------------------------
 
-    should "slice array along axes" do
+    should "split array in subarrays with or without reduction" do
 
-      # For instance, array @a shape is [1, 20, 10, 7].  Slicing along the third axes
-      # will get the following sections of @a:
-      # section([0, 0, 0, 0], [1, 20, 1, 1]), section([0, 0, 0, 1], [1, 20, 1, 1]), ...
-      # In this case, we get 7 arrays 
-      @a.each_along_axes([3]) do |slice|
-        slice.print
-        print "\n"
+      # 1 -> first year (only 1 year)
+      # 20 -> 20 days
+      # 10 -> number os secs
+      # 7 - > number of values
+
+      # Should generate 1 array with all elements, since the first dimension has only 
+      # one element.  For this test cannot reduce the array as this would have @a and 
+      # slice have different dimensions
+      @a.each_slice([0], false) do |slice|
+        slice.each_with_counter do |value, counter|
+          assert_equal(value, @a.get(counter))
+        end
       end
+ 
+      # Should generate 20 arrays one for each day.  Since slice uses the same backing
+      # store as @a, there isn't much of memory waist.
+      arrays = Array.new
+      @a.each_slice([1]) do |slice|
+        arrays << slice
+      end
+      
+      arrays[0].reset_traversal
+      @a.slice(1, 0).each do |val|
+        assert_equal(val, arrays[0].get_next)
+      end
+
+      # Should generate 10 arrays one for each security
+      arrays.clear
+      @a.each_slice([2]) do |slice|
+        arrays << slice
+      end
+
+      arrays[6].reset_traversal
+      @a.slice(2, 6).each do |val|
+        assert_equal(val, arrays[6].get_next)
+      end
+
+      # For instance, array @a shape is [1, 20, 10, 7].  Slicing along the fourth axes
+      # (index 3) will get the following sections of @a:
+      # section([0, 0, 0, 0], [1, 20, 10, 1], true), 
+      #   section([0, 0, 0, 1], [1, 20, 10, 1], true),
+      #   section([0, 0, 0, 2], [1, 20, 10, 1], true),
+      #   ...
+      #   section([0, 0, 0, 6], [1, 20, 10, 1], true),
+      
+      # In this case, we get 7 arrays.  First for all opens, sencond for all closes,
+      #  third for all highs, fourth for all closes, etc.
+      arrays.clear
+      @a.each_slice([3]) do |slice|
+        arrays << slice
+      end
+      assert_equal(7, arrays.size)
+
+
+      # Although method slice only slices on one dimension, we can each_slice on multiple
+      # dimensions
 
       # For instance, array @a shape is [1, 20, 10, 7].  Slicing
-      # along axes [0, 2] will get the following sections of @a: 
-      # section([0, 0, 0, 0], [1, 20, 1, 7]), section ([0, 0, 1, 0], [1, 20, 1, 7]),
-      # section([0, 0, 2, 0], [1, 20, 1, 7])...
-      # This is actually getting all values for every security for the 20 given days.
-
-      @a.each_along_axes([0, 2]) do |slice|
-        slice.print
-        # p slice.cum_op(MDArray.method(:add))
-        print "\n"
+      # along axes [1, 2] will generate 200 arrays = 20 * 10. 20 days times 10 secs. In this
+      # case we will have one array for every day and every securities quote (open, close, etc.)
+      arrays.clear
+      @a.each_slice([1, 2]) do |slice|
+        arrays << slice
       end
 
-      # Here we are getting 7 arrays for "open", "close", "High", "Low", etc. each
-      # containing all the 20 days for each security.  So, the first array has 20 elements
-      # each with the "open" value for the first security. The second array returns 
-      # has 20 elements, each with the "close" value for the first security.
-      @a.each_along_axes([2, 3]) do |slice|
-        slice.print
-        print "\n"
+      # We can get the equivalent of arrays[0] above by doing the following set of operations
+      # @a.slice(1,0);
+      # now slice it again at (1, 0), since now the second dimension has become the first
+      # reduce the array so that only 1 dimension is left
+      assert_equal(arrays[0].to_string, @a.slice(1, 0).slice(1, 0).reduce.to_string)
+
+
+      # Changing the order of axis in the parameter list does change the final result as 
+      # each_slice moves first the last axis in the array given.  In this example, it will
+      # first increment axis 1 and then axis 2.  On the prvious example, axis 2 was
+      # incremented prior to axis 1.
+      arr2 = Array.new
+      @a.each_slice([2, 1]) do |slice|
+        arr2 << slice
       end
-=end
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------
+
+    should "permute array indices" do
+
+      # c shape is [2, 3, 4]
+      # b is the same array as c... no permutation was done.
+      # b shape still is [2, 3, 4].  Both b and @c point to the same backing store
+      b = @c.permute([0, 1, 2])
+      assert_equal([2, 3, 4], b.shape)
+      # b shape is now [3, 2, 4]
+      b = @c.permute([1, 0, 2])
+      assert_equal([3, 2, 4], b.shape)
+      # b shape is now [3, 4, 2]
+      b = @c.permute([1, 2, 0])
+      assert_equal([3, 4, 2], b.shape)
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    # Creates views of an array by transposing original arrays dimensions.  Uses the same
+    # backing store as the original array.
+    #-------------------------------------------------------------------------------------
+
+    should "permute array indices" do
+
+      # c shape is [2, 3, 4]
+      # b shape is now [3, 2, 4] by transposing the first two dimensions
+      b = @c.transpose(0, 1)
+      assert_equal([3, 2, 4], b.shape)
+
+      # b shape is now [2, 4, 3]
+      b = @c.transpose(1, 2)
+      assert_equal([2, 4, 3], b.shape)
+
+    end
 
   end
-    
+
 end

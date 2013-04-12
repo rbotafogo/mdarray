@@ -17,7 +17,7 @@ end
 
 desc 'Install the gem in the standard location'
 task :install_gem => [:make_gem] do
-  sh "gem install #{$gem_name}-#{$version}.gem"
+  sh "gem install #{$gem_name}-#{$version}-java.gem"
 end
 
 desc 'Make documentation'

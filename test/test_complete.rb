@@ -54,16 +54,16 @@ end
 # * itemsize: ??
 # Differently from NumPy, it is not possible to get the internal buffer
 
-
-require 'test_creation'
-require 'test_access'
-require 'test_operator'      # Fix user's operators contruction
-require 'arithmetic_casting'
-require 'test_comparison'
-# require 'test_boolean'
-require 'test_shape'
-require 'test_counter'
-require 'test_trigonometry'
-# require 'test_statistics'
-# require 'test_slices'
-# require 'test_speed'
+require_relative 'test_creation'
+require_relative 'test_access'
+require_relative 'test_operator'
+require_relative 'arithmetic_casting'
+require_relative 'test_comparison'
+# require_relative 'test_boolean'
+require_relative 'test_shape'
+require_relative 'test_counter'
+require_relative 'test_trigonometry'
+require_relative 'test_views'
+require_relative 'test_printing'
+# require_relative 'test_statistics'
+# require_relative 'test_speed'

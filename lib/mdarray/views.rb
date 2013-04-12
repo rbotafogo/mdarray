@@ -183,6 +183,7 @@ class MDArray
   # dimension at the specified index value. This reduces rank by 1.
   # @param dim dimension to fix
   # @param val value in which to fix the dimension
+  # @return new array sliced at the given dimension on the specified value
   #------------------------------------------------------------------------------------
 
   def slice(dim, val)
@@ -191,6 +192,46 @@ class MDArray
     slice = MDArray.new(@type, arr, true)
     copy_print_parameters(slice)
     return slice
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def each_slice(axes, reduce = true)
+    
+    counter = Counter.new(self)
+
+    sizes = Array.new
+    (0..rank - 1).each do |axis|
+      if (axes.include?(axis))
+        sizes[axis] = 1
+      else
+        sizes[axis] = shape[axis]
+      end
+    end
+
+    counter.each_along_axes(axes) do |ct|
+      yield section(ct, sizes, reduce) if block_given?
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # Create a new Array using same backing store as this Array, by transposing two of 
+  # the indices.
+  # @param dim1 first dimension index
+  # @param dim2 second dimension index
+  # @return new array with dimensions transposed
+  #------------------------------------------------------------------------------------
+
+  def transpose(dim1, dim2)
+
+    arr = @nc_array.transpose(dim1, dim2)
+    transpose = MDArray.new(@type, arr, true)
+    copy_print_parameters(transpose)
+    return transpose
 
   end
 

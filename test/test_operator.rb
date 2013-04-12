@@ -306,29 +306,28 @@ class MDArrayTest < Test::Unit::TestCase
       # array will be double
       c = @a.addd(@b)
       assert_equal("double", c.type)
-      c.print
 
       # request that resulting array of type int is ignored when using addd
       c = @a.addd(@b, "int")
       assert_equal("double", c.type)
 
-=begin
-
-      MDArray.make_binary_operators("perc_inc", 
-                                    Proc.new { |val1, val2| (val2 - val1) / val1 })
+      # Crete method perc_inc and add it into the double MDArray.
+      UserFunction.binary_operator("perc_inc", :default, 
+                                   Proc.new { |val1, val2| (val2 - val1) / val1 },
+                                   "double")
 
       result = @c.perc_inc @i
       assert_equal("0.06951871657754005 0.12359550561797755 -0.3036211699164345 0.018099547511312233 ", result.to_string)
 
       # do it in place
-      # "0.06951871514320374 0.1235954761505127 -0.3036211431026459 0.018099529668688774 "
+      UserFunction.binary_operator("perc_inc!", :in_place, 
+                                   Proc.new { |val1, val2| (val2 - val1) / val1 },
+                                   "double")
 
-      # @c.binary_operator = FastBinaryOperator
-      # @c.binary_operator = BinaryOperator
+      # "0.06951871514320374 0.1235954761505127 -0.3036211431026459 0.018099529668688774 "
 
       @c.perc_inc! @i
       assert_equal("0.06951871657754005 0.12359550561797755 -0.3036211699164345 0.018099547511312233 ", @c.to_string)
-=end
 
     end
     
