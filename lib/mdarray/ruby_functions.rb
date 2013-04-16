@@ -75,4 +75,5 @@ end # UserFunction
 require_relative 'ruby_generic_functions'
 require_relative 'ruby_numeric_functions'
 require_relative 'ruby_math'
+require_relative 'ruby_boolean_functions'
 require_relative 'ruby_stats'

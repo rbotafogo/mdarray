@@ -19,3 +19,4 @@ second dimension has a length of 3.
 [[ 1., 0., 0.],
  [ 0., 1., 2.]]
 
+MDArray wiki can be found at: https://github.com/rbotafogo/mdarray/wiki

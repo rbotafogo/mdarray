@@ -21,6 +21,8 @@
 
 require 'simplecov'
 
+require_relative 'env'
+
 #=begin
 SimpleCov.start do
   @filters = []

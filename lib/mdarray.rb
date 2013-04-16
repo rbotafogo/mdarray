@@ -194,7 +194,7 @@ class MDArray
 
   #---------------------------------------------------------------------------------------
   # Checks to see if this array is compatible with another array.  Two arrays are
-  # compatible if they have the same shape
+  # compatible if they have the same shape and have operatable types.
   #---------------------------------------------------------------------------------------
 
   def compatible(array)
@@ -211,19 +211,33 @@ class MDArray
 
   def get_type(other_val, force_cast = nil)
 
+    # if force_cast given the type if force_cast type
     if (force_cast != nil)
       type = force_cast
-    elsif (other_val.is_a? Numeric)
-      # if type is integer, then make it the smaller possible integer and then let upcast
-      # do its work
-      if (other_val.integer?)
-        type = "short"
+
+    # if operation done in a numeric type then result is the upcast of this type and
+    # the other_val's type
+    elsif (MDArray.numerical.include?(@type))
+      if (other_val.is_a? Numeric)
+        # if type is integer, then make it the smaller possible integer and then let upcast
+        # do its work
+        if (other_val.integer?)
+          type = "short"
+        else
+          type = "double"
+        end
+        type = MDArray.upcast(@type, type)
+      elsif ((other_val.is_a? MDArray) && MDArray.numerical.include?(other_val.type))
+        type = MDArray.upcast(@type, other_val.type)
       else
-        type = "double"
+        raise "Cannot operate numerical type (#{@type}) with non-numerical type (#{other_val.class})"
       end
-      type = MDArray.upcast(@type, type)
+      
+     # It is a non-numerical type, so both types need to be the same
+    elsif ((other_val.is_a? MDArray) && @type == other_val.type)
+      type = @type
     else
-      type = MDArray.upcast(@type, other_val.type)
+      raise "Cannot operate numerical type (#{@type}) with non-numerical type (#{other_val.class})"
     end
 
     return type
@@ -406,7 +420,6 @@ require_relative 'mdarray/function_creation'
 require_relative 'mdarray/ruby_functions'
 require_relative 'mdarray/operators'
 require_relative 'mdarray/ruby_operators'
-# require_relative 'mdarray/fast_non_numerical'
 require_relative 'mdarray/access'
 require_relative 'mdarray/views'
 require_relative 'mdarray/printing'

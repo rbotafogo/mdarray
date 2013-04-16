@@ -51,6 +51,9 @@ class MDArrayTest < Test::Unit::TestCase
       @h = MDArray.byte([1], [13])
       @i = MDArray.double([4], [2.0, 6.0, 5.0, 9.0])
 
+      @bool1 = MDArray.boolean([4], [true, false, true, false])
+      @bool2 = MDArray.boolean([4], [false, false, true, true])
+
     end # setup
 
     #-------------------------------------------------------------------------------------
@@ -240,6 +243,17 @@ class MDArrayTest < Test::Unit::TestCase
       @c.ceil!
       assert_equal("2.0 6.0 8.0 9.0 ", @c.to_string)
  
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "not allow operation between numeric and non-numeric types" do
+      
+      assert_raise (RuntimeError) { result = @c + @bool1 }
+      assert_raise (RuntimeError) { result = @c + "this is a test" }
+
     end
 
     #------------------------------------------------------------------------------------
