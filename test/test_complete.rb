@@ -26,7 +26,7 @@ require 'simplecov'
 #=begin
 SimpleCov.start do
   @filters = []
-  add_group "MDArray", "F:/rbotafogo/cygwin/home/zxb3/Desenv/MDArray/lib"
+  add_group "MDArray", "mdarray-0.4.2-java/lib"
 end
 #=end
 
