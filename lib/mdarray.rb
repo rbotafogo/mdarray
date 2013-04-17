@@ -202,49 +202,6 @@ class MDArray
   end
 
   #---------------------------------------------------------------------------------------
-  # Returns the upcasted type between the type of this array and another array
-  # @param other_val [MDArray] the other array
-  # @param force_cast [Type] will return force_cast.  This is used when one wants to
-  #   force the resulting type on a new array.
-  # @return upcasted type between the two arrays or forced type
-  #---------------------------------------------------------------------------------------
-
-  def get_type(other_val, force_cast = nil)
-
-    # if force_cast given the type if force_cast type
-    if (force_cast != nil)
-      type = force_cast
-
-    # if operation done in a numeric type then result is the upcast of this type and
-    # the other_val's type
-    elsif (MDArray.numerical.include?(@type))
-      if (other_val.is_a? Numeric)
-        # if type is integer, then make it the smaller possible integer and then let upcast
-        # do its work
-        if (other_val.integer?)
-          type = "short"
-        else
-          type = "double"
-        end
-        type = MDArray.upcast(@type, type)
-      elsif ((other_val.is_a? MDArray) && MDArray.numerical.include?(other_val.type))
-        type = MDArray.upcast(@type, other_val.type)
-      else
-        raise "Cannot operate numerical type (#{@type}) with non-numerical type (#{other_val.class})"
-      end
-      
-     # It is a non-numerical type, so both types need to be the same
-    elsif ((other_val.is_a? MDArray) && @type == other_val.type)
-      type = @type
-    else
-      raise "Cannot operate numerical type (#{@type}) with non-numerical type (#{other_val.class})"
-    end
-
-    return type
-
-  end
-
-  #---------------------------------------------------------------------------------------
   # Prints a list of all available functions know to MDArray.  Should be reimplemented.
   # For debuging only for now.
   #---------------------------------------------------------------------------------------
@@ -424,4 +381,4 @@ require_relative 'mdarray/access'
 require_relative 'mdarray/views'
 require_relative 'mdarray/printing'
 require_relative 'mdarray/counter'
-# require_relative 'mdarray/statistics'
+require_relative 'mdarray/ruby_stats'

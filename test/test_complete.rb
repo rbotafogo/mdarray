@@ -21,12 +21,12 @@
 
 require 'simplecov'
 
-require_relative 'env'
+#require_relative 'env'
 
 #=begin
 SimpleCov.start do
   @filters = []
-  add_group "MDArray", "F:/rbotafogo/cygwin/home/zxb3/Desenv/MDArray/src/lib"
+  add_group "MDArray", "F:/rbotafogo/cygwin/home/zxb3/Desenv/MDArray/lib"
 end
 #=end
 
@@ -56,16 +56,20 @@ end
 # * itemsize: ??
 # Differently from NumPy, it is not possible to get the internal buffer
 
+#=begin
 require_relative 'test_creation'
 require_relative 'test_access'
 require_relative 'test_operator'
 require_relative 'arithmetic_casting'
 require_relative 'test_comparison'
-# require_relative 'test_boolean'
+require_relative 'test_boolean'
 require_relative 'test_shape'
 require_relative 'test_counter'
 require_relative 'test_trigonometry'
 require_relative 'test_views'
 require_relative 'test_printing'
-# require_relative 'test_statistics'
+require_relative 'test_statistics'
+#=end
+
 # require_relative 'test_speed'
+

@@ -26,7 +26,7 @@ module BooleanFunctions
                          ruby_unary_function("#{method.to_s}_ruby", 
                                              instance_variable_get("@#{method.to_s}")))
   end
-
+  
   alias :| :or
     alias :& :and
 

@@ -1,0 +1,11 @@
+2013-04-17  Rodrigo Botafogo
+
+	* ruby_boolean_functions.rb: Added boolean operations and, or, not
+	* ruby_stats.rb: Simple statistics with methods sum, min, max, mean, weighted_mean
+	* slices.rb: Renamed to views.rb.  Added methods for getting subarrays from an
+	array with the same backstore.  Added: slice, each_slice, transpose
+	* mdarray.gemspec Fixed dependencies
+	* mdarray.rb: Cleaned some code
+	* operators.rb: Cleaned some code
+	* hierarchy.rb: Cleaned some code
+	* ver 0.4.2

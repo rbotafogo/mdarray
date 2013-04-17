@@ -10,7 +10,11 @@ module RubyStats
   # Statistics
   #======================================================================================
 
-=begin
+
+  #---------------------------------------------------------------------------------------
+  # Sums all values
+  #---------------------------------------------------------------------------------------
+
   func = ["ruby_sum", "RubyFunction", Proc.new { |sum, val| sum + val }, "*", "*", "void"] 
   make_unary_op("sum", "reduce", func, nil, Proc.new { 0 })
 
@@ -19,29 +23,25 @@ module RubyStats
   #---------------------------------------------------------------------------------------
 
   pre_calc = Proc.new { |arr1, *args| arr1[0] }
-
-  calc = Proc.new { |min, val| min = (min < val)? min : val } 
-
-  make_unary_op("min", :reduce, calc, nil, pre_calc)
+  calc = Proc.new { |min, val| min = ((min < val)? min : val) } 
+  func = ["ruby_min", "RubyFunction", calc, "*", "*", "void"] 
+  make_unary_op("min", :reduce, func, nil, pre_calc)
 
   #---------------------------------------------------------------------------------------
   # calculates the maximum
   #---------------------------------------------------------------------------------------
 
   pre_calc = Proc.new { |arr1, *args| arr1[0] }
-
   calc = Proc.new { |max, val| max = (max > val)? max : val }
-
-  make_unary_op("max", :reduce, calc, nil, pre_calc)
+  func = ["ruby_max", "RubyFunction", calc, "*", "*", "void"] 
+  make_unary_op("max", :reduce, func, nil, pre_calc)
 
   #---------------------------------------------------------------------------------------
   # calculates the mean
   #---------------------------------------------------------------------------------------
 
   pre_calc = Proc.new { 0 }
-
   calc = Proc.new { |start, val| start += val }
-
   post_calc = Proc.new do |result, *args|
     arr = args.shift
     if (arr.size == 0)
@@ -49,21 +49,19 @@ module RubyStats
     end
     result / arr.size
   end
-
-  make_unary_op("mean", :reduce, calc, nil, pre_calc, post_calc)
+  func = ["ruby_mean", "RubyFunction", calc, "*", "*", "void"] 
+  make_unary_op("mean", :reduce, func, nil, pre_calc, post_calc)
 
   #---------------------------------------------------------------------------------------
   # calculates the weighted mean
   #---------------------------------------------------------------------------------------
 
   pre_calc = Proc.new { [0, 0] }
-
   calc = Proc.new do |result, val, weight|
     result[0] += (val * weight)
     result[1] += weight
     result
   end
-
   post_calc = Proc.new do |result, *args|
     arr = args.shift
     if (arr.size == 0)
@@ -71,9 +69,24 @@ module RubyStats
     end
     [result[0] / result[1], arr.size] 
   end
+  func = ["ruby_weighted_mean", "RubyFunction", calc, "*", "*", "void"] 
+  make_binary_op("weighted_mean", :reduce, func, nil, pre_calc, post_calc)
+  
+end # RubyStats
 
-  make_binary_op("weighted_mean", :reduce, calc, nil, pre_calc, post_calc)
+##########################################################################################
+#
+##########################################################################################
 
+class DoubleMDArray
+
+  include RubyStats
+  
+end
+
+
+
+=begin
   #---------------------------------------------------------------------------------------
   # Expectation value
   #---------------------------------------------------------------------------------------
@@ -98,8 +111,10 @@ module RubyStats
     end
     result / arr.size
   end
-=end
-=begin
+
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
 
   def mean
     expectation_value(Proc.identity, Proc.everywhere)[0]
@@ -145,5 +160,3 @@ module RubyStats
   # calculates the mean
 
 =end
-
-end # RubyStats

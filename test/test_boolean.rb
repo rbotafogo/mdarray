@@ -2,8 +2,9 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-require 'env'
 require 'mdarray'
+
+require_relative 'env'
 
 class MDArrayTest < Test::Unit::TestCase
 
@@ -57,8 +58,8 @@ class MDArrayTest < Test::Unit::TestCase
       result = @bool2 | @bool1
       assert_equal("true false true true ", result.to_string)
 
-      #result = !@bool1
-      #assert_equal("false true false true ", result.to_string)
+      result = @bool1.not
+      assert_equal("false true false true ", result.to_string)
       
     end
 

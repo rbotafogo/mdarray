@@ -43,6 +43,7 @@ class RubyBinaryOperator < BinaryOperator
     get_args(*args) do |op1_iterator, op2_iterator, shape, *other_args|
       result = MDArray.build(@type, shape)
       res_iterator = result.get_iterator_fast
+
       if (@coerced)
         while (res_iterator.has_next?)
           res_iterator.set_next(@do_func.call(op2_iterator.get_next, 

@@ -124,6 +124,43 @@ class BinaryOperator < Operator
   private
   
   #---------------------------------------------------------------------------------------
+  # Checks type compatibility for this operands.  If types are compatible then if needed
+  # returns the upcasted type.
+  # @returns proper type for the resulting array for the given operands
+  #---------------------------------------------------------------------------------------
+
+  def get_type
+
+    # if operation done in a numeric type then result is the upcast of this type and
+    # the other_val's type
+    if (@op1.is_a? NumericalMDArray)
+      if (@op2.is_a? Numeric)
+        # if type is integer, then make it the smaller possible integer and then let upcast
+        # do its work
+        if (@op2.integer?)
+          type = "short"
+        else
+          type = "double"
+        end
+      elsif (@op2.is_a? NumericalMDArray)
+        type = @op2.type
+      else
+        raise "Cannot operate numerical type (#{@op1.type}) with non-numerical type (#{@op2.class})"
+      end
+      type = MDArray.upcast(@op1.type, type)
+      
+      # It is a non-numerical type, so both types need to be the same
+    elsif ((@op2.is_a? MDArray) && (@op1.type == @op2.type))
+      type = @op1.type
+    else
+      raise "Cannot operate numerical type (#{@op1.type}) with non-numerical type (#{@op2.class})"
+    end
+    
+    return type
+    
+  end
+  
+  #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------
 
@@ -131,9 +168,9 @@ class BinaryOperator < Operator
 
     @op1 = args.shift
     @op2 = args.shift
+
     requested_type = args.shift
-    @type = (@force_type)? @force_type : (requested_type)? requested_type : 
-      @op1.get_type(@op2)
+    @type = (@force_type)? @force_type : (requested_type)? requested_type : get_type
     @coerced = @op1.coerced
     func = MDArray.select_function(@name, MDArray.functions, @type)
     if (func.is_a? Proc)
@@ -152,27 +189,35 @@ class BinaryOperator < Operator
   def get_args(*args)
 
     parse_args(*args)
-    if (@op2.is_a? Numeric)
-      op2_iterator = Const.new(@op2)
-    elsif (@op2.is_a? NumericalMDArray)
-      if (@op1.compatible(@op2))
+
+    if (@op1.is_a? NumericalMDArray)
+      if (@op2.is_a? Numeric)
+        op2_iterator = Const.new(@op2)
+      elsif (@op2.is_a? NumericalMDArray)
+        if (!@op1.compatible(@op2))
+          raise "Invalid operation - arrays are incompatible"
+        end
         op2_iterator = @op2.get_iterator_fast
-      else
+      else # Operation with another user defined type
+        false
+        # *TODO: make it more general using coerce if other_val type is not recognized
+        # if (arg is not recognized)
+        #  self_equiv, arg_equiv = arg.coerce(self)
+        #  self_equiv * arg_equiv
+        # end
+      end
+      
+    else  # NonNumericalMDArray
+      if (!@op1.compatible(@op2))
         raise "Invalid operation - arrays are incompatible"
       end
-    else
-      false
-      # *TODO: make it more general using coerce if other_val type is not recognized
-      # if (arg is not recognized)
-      #  self_equiv, arg_equiv = arg.coerce(self)
-      #  self_equiv * arg_equiv
-      # end
+      op2_iterator = @op2.get_iterator_fast
     end
-
+    
     yield @op1.get_iterator_fast, op2_iterator, @op1.shape, *@other_args
-
+    
   end
-
+  
 end # BinaryOperator
 
 ##########################################################################################
