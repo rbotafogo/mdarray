@@ -4,8 +4,6 @@ require 'shoulda'
 
 require 'mdarray'
 
-require_relative 'env'
-
 class MDArrayTest < Test::Unit::TestCase
 
   context "Arithmetic Tests" do

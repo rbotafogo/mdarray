@@ -2,7 +2,6 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-require 'env'
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase

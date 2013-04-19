@@ -1,11 +1,7 @@
-# Add path to CLASSPATH
+require 'java'
 
-def add_path(path)
+$CLASSPATH << "#{File.dirname(__FILE__)}/../vendor/"
 
-  $CLASSPATH << `cygpath -p -m #{path}`.tr("\n", "")
-
+Dir["#{File.dirname(__FILE__)}/../vendor/*.jar"].each do |jar|
+   require jar
 end
-
-add_path("../vendor/netcdfAll-4.3.16.jar")
-add_path(":../vendor/parallelcolt-0.9.4.jar")
-add_path(":../target/mdarray_helper.jar")

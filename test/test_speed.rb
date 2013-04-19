@@ -3,7 +3,6 @@ require "test/unit"
 require 'shoulda'
 require 'jruby/profiler'
 
-require 'env'
 require 'benchmark'
 
 require 'mdarray'
