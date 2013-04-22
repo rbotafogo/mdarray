@@ -1,0 +1,61 @@
+require 'rbconfig'
+
+PROJECT_DIR = File.expand_path("..",Dir.pwd)
+VENDOR_DIR = "#{PROJECT_DIR}/vendor"
+
+BUILD_DIR = "build"
+CLASSES_DIR = "#{BUILD_DIR}/classes"
+
+TARGET_DIR = "#{PROJECT_DIR}/target"
+
+jars = Dir["#{VENDOR_DIR}/*.jar"]
+
+unless RUBY_PLATFORM == 'java'
+  abort 'Please run with JRuby'
+end
+
+#-----------------------------------------------------------------------------------------
+desc 'Compile java classes'
+task :compile do
+
+  classes    = Dir['**/*.java']
+  sh "javac -classpath #{jars.join(':')} -d #{CLASSES_DIR} #{classes.join(' ')}"
+
+end
+
+#-----------------------------------------------------------------------------------------
+desc 'Make jar file'
+task :jar do
+
+  Dir.chdir("build/classes")
+  classes = Dir['**/*.class']
+  p classes
+  sh "jar -cf #{TARGET_DIR}/helper.jar #{classes.join(' ')}"
+
+end
+
+#-----------------------------------------------------------------------------------------
+desc 'Clean files'
+task :clean do
+  
+  files = Dir['**/*.class']
+  p "#{files.join(' ')}"
+  
+end
+
+
+
+=begin
+desc 'Build JRuby extension'
+task :compile do
+  classes    = Dir['ext/java/src/hello/*.java']
+  jruby_home = Config::CONFIG['prefix']
+  jruby_jar  = File.join(jruby_home, 'lib', 'jruby.jar')
+
+  mkdir_p 'pkg/classes'
+  sh "javac -classpath #{jruby_jar} -d pkg/classes #{classes.join(' ')}"
+
+  sh "jar cf lib/hello/hello.jar -C pkg/classes ."
+
+end
+=end

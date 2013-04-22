@@ -29,15 +29,6 @@ class RubyBinaryOperator < BinaryOperator
   #
   #---------------------------------------------------------------------------------------
 
-  def initialize(name, exec_type, force_type = nil, pre_condition = nil, 
-                 post_condition = nil)
-    super(name, 2, exec_type, force_type, pre_condition, post_condition)
-  end
-
-  #---------------------------------------------------------------------------------------
-  #
-  #---------------------------------------------------------------------------------------
-
   def default(*args)
 
     get_args(*args) do |op1_iterator, op2_iterator, shape, *other_args|
@@ -114,15 +105,6 @@ end # RubyBinaryOperator
 ##########################################################################################
 
 class RubyUnaryOperator < UnaryOperator
-
-  #---------------------------------------------------------------------------------------
-  #
-  #---------------------------------------------------------------------------------------
-
-  def initialize(name, exec_type, force_type = nil, pre_condition = nil, 
-                 post_condition = nil)
-    super(name, 1, exec_type, force_type, pre_condition, post_condition)
-  end
 
   #---------------------------------------------------------------------------------------
   #

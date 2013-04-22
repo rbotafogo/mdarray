@@ -76,6 +76,7 @@ class MDArrayTest < Test::Unit::TestCase
       # c = [20 31 42 53]
       # chage the way operators work by changing the binary_operator parameter.
       # @a.binary_operator = BinaryOperator
+
       c = @a + @b
       assert_equal(20, c[0])
 
@@ -122,6 +123,7 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
+=begin
     #-------------------------------------------------------------------------------------
     # Array operations are done elementwise
     #-------------------------------------------------------------------------------------
@@ -345,6 +347,7 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
     
+=end
   end
-  
+
 end

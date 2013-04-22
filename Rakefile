@@ -30,11 +30,12 @@ task :push do
   sh "git push origin master"
 end
 
-=begin
 Rake::TestTask.new do |t|
   t.libs << "test"
   t.test_files = FileList['test/test_complete.rb']
+  t.ruby_opts = ["--server", "-Xinvokedynamic.constants=true", "-J-Xmn512m", 
+                 "-J-Xms1024m", "-J-Xmx1024m"]
   t.verbose = true
   t.warning = true
 end
-=end
+
