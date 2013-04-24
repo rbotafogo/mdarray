@@ -123,7 +123,7 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
-=begin
+#=begin
     #-------------------------------------------------------------------------------------
     # Array operations are done elementwise
     #-------------------------------------------------------------------------------------
@@ -263,7 +263,6 @@ class MDArrayTest < Test::Unit::TestCase
     #------------------------------------------------------------------------------------
 
     should "allow users operator's creation" do
-      
 
       # creating a binary_op as it takes two MDArrays as arguments.  The method "total_sum"
       # will make a cumulative sum of all sums of array1[i] + array2[i].  To achieve this
@@ -347,7 +346,9 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
     
-=end
+#=end
+    
   end
+
 
 end

@@ -108,6 +108,8 @@ class MDArray
     @local_iterator = nil
     @section = section
     @coerced = false            # should never be set by the user! For internal use only!
+    @binary_operator = nil
+    @unary_operator = nil
 
     # initialize printing defaults
     printing_defaults

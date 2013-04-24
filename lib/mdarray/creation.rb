@@ -25,6 +25,13 @@
 
 class MDArray
 
+  class << self
+    
+    attr_accessor :binary_operator
+    attr_accessor :unary_operator
+
+  end
+
   #------------------------------------------------------------------------------------
   # Given two types returns the upcasted one
   #------------------------------------------------------------------------------------
@@ -42,28 +49,12 @@ class MDArray
   #
   #------------------------------------------------------------------------------------
 
-  def self.binary_operator=(operator)
-    @@binary_operator = operator
-  end
-
-  def self.binary_operator
-    @@binary_operator
-  end
-
-  def self.unary_operator=(operator)
-    @@unary_operator = operator
-  end
-
-  def self.unary_operator
-    @@unary_operator
-  end
-
   def get_binary_op
-    (@binary_operator)? @binary_operator : @@binary_operator
+    (@binary_operator)? @binary_operator : MDArray.binary_operator
   end
 
   def get_unary_op
-    (@unary_operator)? @unary_operator : @@unary_operator
+    (@unary_operator)? @unary_operator : MDArray.unary_operator
   end
 
   # Factory Methods

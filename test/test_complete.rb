@@ -56,7 +56,7 @@ end
 # * itemsize: ??
 # Differently from NumPy, it is not possible to get the internal buffer
 
-=begin
+#=begin
 require_relative 'test_creation'
 require_relative 'test_access'
 require_relative 'test_operator'
@@ -69,7 +69,7 @@ require_relative 'test_trigonometry'
 require_relative 'test_views'
 require_relative 'test_printing'
 require_relative 'test_statistics'
-=end
+#=end
 
-require_relative 'test_performance'
+#require_relative 'test_performance'
 
