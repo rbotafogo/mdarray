@@ -129,19 +129,31 @@ class FastBinaryOperator < BinaryOperator
     get_args(*args) do |op1, op2, shape, *other_args|
       helper = Java::RbMdarrayLoopsBinops::ReduceBinaryOperator
       calc = @pre_condition_result
-      if (calc.is_a? Array)
-        p "this is wrong!!! fast_operator reduce will fail"
-        helper.send("applyArr", calc, op1, op2, @do_func)
-        calc = start
-      else
-        calc = helper.send("apply", calc, op1, op2, @do_func)
-      end
+      calc = helper.send("apply", calc, op1, op2, @do_func)
     end
 
     return calc
 
   end
   
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
+
+  def complex_reduce(*args)
+
+    calc = nil
+
+    get_args(*args) do |op1, op2, shape, *other_args|
+      helper = Java::RbMdarrayLoopsBinops::ComplexReduceBinaryOperator
+      calc = @pre_condition_result
+      calc = helper.send("apply", calc, op1, op2, @do_func)
+    end
+
+    return calc
+
+  end
+
 end # FastBinaryOperator
 
 ##########################################################################################

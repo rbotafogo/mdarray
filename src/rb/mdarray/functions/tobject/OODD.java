@@ -22,5 +22,5 @@
 package rb.mdarray.functions.tobject;
 
 public interface OODD {
-    public Object apply(Object o, double val1, double val2);
+    public Object[] apply(Object[] o, double val1, double val2);
 }

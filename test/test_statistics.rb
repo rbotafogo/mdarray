@@ -25,11 +25,13 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "do stats operations" do
 
+      # MDArray.binary_operator = RubyBinaryOperator
+
       assert_equal(49995000, @a.sum)
       assert_equal(0, @a.min)
       assert_equal(9999, @a.max)
       assert_equal(4999.5, @a.mean)
-      # assert_equal(6666.333333333333, @a.weighted_mean(@weight)[0])
+      assert_equal(6666.333333333333, @a.weighted_mean(@weight)[0])
 
     end
 

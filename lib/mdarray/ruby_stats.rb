@@ -70,7 +70,7 @@ module RubyStats
     [result[0] / result[1], arr.size] 
   end
   func = ["ruby_weighted_mean", "RubyFunction", calc, "*", "*", "void"] 
-  make_binary_op("weighted_mean", :reduce, func, nil, pre_calc, post_calc)
+  make_binary_op("weighted_mean", :complex_reduce, func, nil, pre_calc, post_calc)
   
 end # RubyStats
 

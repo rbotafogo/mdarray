@@ -98,6 +98,8 @@ class RubyBinaryOperator < BinaryOperator
     
   end
 
+  alias :complex_reduce :reduce
+
 end # RubyBinaryOperator
 
 ##########################################################################################

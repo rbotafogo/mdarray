@@ -21,6 +21,7 @@
 
 package rb.mdarray.loops.binops;
 
+
 import ucar.ma2.*;
 import rb.mdarray.functions.tboolean.*;
 import rb.mdarray.functions.tbyte.*;
@@ -32,24 +33,16 @@ import rb.mdarray.functions.tlong.*;
 import rb.mdarray.functions.tobject.*;
 import rb.mdarray.functions.tshort.*;
 
-public class ReduceBinaryOperator {
+public class ComplexReduceBinaryOperator {
 
-    public static double apply(double calc, Array op1, double op2, DDDD func) {
-	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
-	    calc = (func.apply(calc, iteratorOp1.getDoubleNext(), op2));
-	}
-	return calc;
-    }
-
-    public static double apply(double calc, Array op1, Array op2, DDDD func) {
+    public static Object[] apply(Object[] calc, Array op1, Array op2, OODD func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
-	    calc = (func.apply(calc, iteratorOp1.getDoubleNext(),
-			      iteratorOp2.getDoubleNext()));
+	    calc = func.apply(calc, iteratorOp1.getDoubleNext(), 
+			      iteratorOp2.getDoubleNext());
 	}
 	return calc;
-    }    
+    }
 
 }
