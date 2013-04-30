@@ -103,8 +103,8 @@ class MDArray
   #---------------------------------------------------------------------------------------
   # When set is used to assign to an element, it is assumed that the index does not need
   # correction, for instance, no negative index is allowed.  If one wants to use 
-  # negative indexes, then method set should be used.  So mat[-1, 0, 0] = 10, raises an
-  # exection while mat.set([-1, 0, 0], 10) sets the last value for the first dimension.
+  # negative indexes, then method [] should be used.  So mat.set([-1, 0, 0], 10), raises 
+  # an exection while mat[-1, 0, 0] = 10 sets the last value for the first dimension.
   # *<tt>index</tt>: array with the index position
   # *<tt>value</tt>: value to be set
   #---------------------------------------------------------------------------------------

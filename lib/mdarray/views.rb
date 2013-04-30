@@ -27,7 +27,7 @@ class MDArray
   #------------------------------------------------------------------------------------
 
   def copy
-    MDArray.new(@nc_array.copy())
+    MDArray.build_from_nc_array(@type, @nc_array.copy())
   end
 
   #------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ class MDArray
       nc_array = @nc_array.reshapeNoCopy(new_shape)
     end
 
-    MDArray.new(@type, nc_array)
+    MDArray.build_from_nc_array(@type, nc_array)
 
   end
 
@@ -73,7 +73,7 @@ class MDArray
     end
     
     shape = MDArray.get_shape(nc_array)
-    MDArray.new(@type, nc_array)
+    MDArray.build_from_nc_array(@type, nc_array)
     
   end
 
@@ -97,7 +97,7 @@ class MDArray
       raise "Illegal argument"
     end
 
-    MDArray.new(@type, perm)
+    MDArray.build_from_nc_array(@type, perm)
 
   end
 
@@ -130,7 +130,7 @@ class MDArray
       return arr.get()
     end
 
-    section = MDArray.new(@type, arr, true)
+    section = MDArray.build_from_nc_array(@type, arr, true)
     copy_print_parameters(section)
     return section
 
@@ -164,7 +164,7 @@ class MDArray
     end
 
     # this is an array section, set it to true
-    section = MDArray.new(@type, arr, true)
+    section = MDArray.build_from_nc_array(@type, arr, true)
     copy_print_parameters(section)
     return section
 
@@ -189,7 +189,7 @@ class MDArray
   def slice(dim, val)
     
     arr = @nc_array.slice(dim, val)
-    slice = MDArray.new(@type, arr, true)
+    slice = MDArray.build_from_nc_array(@type, arr, true)
     copy_print_parameters(slice)
     return slice
 
@@ -229,7 +229,7 @@ class MDArray
   def transpose(dim1, dim2)
 
     arr = @nc_array.transpose(dim1, dim2)
-    transpose = MDArray.new(@type, arr, true)
+    transpose = MDArray.build_from_nc_array(@type, arr, true)
     copy_print_parameters(transpose)
     return transpose
 

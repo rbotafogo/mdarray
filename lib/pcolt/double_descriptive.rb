@@ -64,7 +64,7 @@ module DDescriptive
     @sample_skew = nil
     @sample_skew_standard_error = nil
     @sample_variance = nil
-    @size = nil
+    @list_size = nil
     @skew = nil
     @sorted_data = nil
     @standard_deviation = nil
@@ -141,7 +141,7 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def harmonic_mean
-    @harmonic_mean ||= DoubleDescriptive.harmoniMean(size, sum_of_inversions)
+    @harmonic_mean ||= DoubleDescriptive.harmoniMean(list_size, sum_of_inversions)
   end
 
   #------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def median
-    @median ||= DoubleDescriptive.meanDeviation(sorted_data, mean)
+    @median ||= DoubleDescriptive.median(sorted_data)
   end
 
   #------------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ module DDescriptive
 
   def pooled_mean(other_val)
     other_val.reset_statistics
-    DoubleDescriptive.pooledMean(size, mean, other_val.size, other_val.mean)
+    DoubleDescriptive.pooledMean(list_size, mean, other_val.list_size, other_val.mean)
   end
 
   #------------------------------------------------------------------------------------
@@ -241,7 +241,8 @@ module DDescriptive
 
   def pooled_variance(other_val)
     other_val.reset_statistics
-    DoubleDescriptive.pooledVariance(size, vairance, other_val.size, other_val.variance)
+    DoubleDescriptive.pooledVariance(list_size, vairance, other_val.list_size, 
+                                     other_val.variance)
   end
 
   #------------------------------------------------------------------------------------
@@ -281,7 +282,7 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def rms
-    @rms ||= DoubleDescriptive.rms(size, sum_of_squares)
+    @rms ||= DoubleDescriptive.rms(list_size, sum_of_squares)
   end
 
   #------------------------------------------------------------------------------------
@@ -291,7 +292,7 @@ module DDescriptive
 
   def sample_kurtosis
     @sample_kurtosis ||= 
-      DoubleDescriptive.sampleKurtosis(size, moment4, sample_variance)
+      DoubleDescriptive.sampleKurtosis(list_size, moment4, sample_variance)
   end
 
   #------------------------------------------------------------------------------------
@@ -300,7 +301,7 @@ module DDescriptive
   
   def sample_kurtosis_standard_error
     @sample_kurtosis_standard_error ||=
-      DoubleDescriptive.sampleKurtosisStandardError(size)
+      DoubleDescriptive.sampleKurtosisStandardError(list_size)
   end
 
   #------------------------------------------------------------------------------------
@@ -309,7 +310,7 @@ module DDescriptive
 
   def sample_skew
     @sample_skew ||= 
-      DoubleDescriptive.sampleSkew(size, moment3, sample_variance)
+      DoubleDescriptive.sampleSkew(list_size, moment3, sample_variance)
   end
 
   #------------------------------------------------------------------------------------
@@ -318,15 +319,7 @@ module DDescriptive
 
   def sample_skew_standard_error
     @sample_skew_standard_error ||=
-      DoubleDescriptive.sampleSkewStandardError(size)
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def size
-    @size ||= @double_array_list.size
+      DoubleDescriptive.sampleSkewStandardError(list_size)
   end
 
   #------------------------------------------------------------------------------------
@@ -375,7 +368,7 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def standard_error
-    @standard_error ||= DoubleDescriptive.standardError(size, variance)
+    @standard_error ||= DoubleDescriptive.standardError(list_size, variance)
   end
 
   #------------------------------------------------------------------------------------
@@ -440,7 +433,7 @@ module DDescriptive
 
   def sum_of_squared_deviations
     @sum_of_squared_deviations ||= 
-      DoubleDescriptive.sumOfSquaredDeviations(size, variance)
+      DoubleDescriptive.sumOfSquaredDeviations(list_size, variance)
   end
 
   #------------------------------------------------------------------------------------
@@ -465,7 +458,7 @@ module DDescriptive
 
   def variance
     @variance ||= 
-      DoubleDescriptive.variance(size, sum, sum_of_square)
+      DoubleDescriptive.variance(list_size, sum, sum_of_square)
   end
 
   #------------------------------------------------------------------------------------
@@ -473,7 +466,8 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def weighted_mean(weights)
-    DoubleDescriptive.weightedMean(@double_array_list, weights)
+    weights.reset_statistics
+    DoubleDescriptive.weightedMean(@double_array_list, weights.double_array_list)
   end
 
   #------------------------------------------------------------------------------------
@@ -482,6 +476,20 @@ module DDescriptive
 
   def winsorized_mean(left, right)
     DoubleDescriptive.winsorizedMean(sorted_data, mean, left, right)
+  end
+ 
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  private
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def list_size
+    @list_size ||= @double_array_list.size
   end
 
 end # DoubleDescriptive
