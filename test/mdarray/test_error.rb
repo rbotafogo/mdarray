@@ -40,11 +40,14 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "correct error!" do
 
-      # creates an array from a function (actually a block).  The name fromfunction
-      # is preserved to maintain API compatibility with NumPy (is it necessary?)
-      arr = MDArray.fromfunction("double", [5, 5, 5, 5, 5, 5, 5, 5]) do |x|
-        x.inject(:+)
-      end
+      arr = MDArray.double("VALE3_short.csv", true)
+      arr.print
+
+      arr = MDArray.float("VALE3_short.csv", true)
+      arr.print
+
+      arr = MDArray.int("VALE3_short.csv", true)
+      arr.print
 
     end
     

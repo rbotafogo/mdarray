@@ -30,92 +30,46 @@ module DDescriptive
   include_package "cern.jet.stat.tdouble"
 
   #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def reset_statistics
-
-    to_double_array_list
-    fast_reset
-
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def fast_reset
-
-    @kurtosis = nil
-    @durbin_watson = nil
-    @geometric_mean = nil
-    @kurtosis = nil
-    @lag1 = nil
-    @max = nil
-    @mean = nil
-    @mean_deviation = nil
-    @median = nil
-    @min = nil
-    @moment3 = nil
-    @moment4 = nil
-    @product = nil
-    @sample_kurtosis = nil
-    @sample_kurtosis_standard_error = nil
-    @sample_skew = nil
-    @sample_skew_standard_error = nil
-    @sample_variance = nil
-    @list_size = nil
-    @skew = nil
-    @sorted_data = nil
-    @standard_deviation = nil
-    @standard_error = nil
-    @sum = nil
-    @sum_of_inversions = nil
-    @sum_of_logarithms = nil
-    @sum_of_squares = nil
-    @sum_of_squared_deviations = nil
-    @variance = nil
-
-  end
-
-  #------------------------------------------------------------------------------------
+  # Returns the auto-correlation of a data sequence.
   # @param lag lag between the two measures to auto correlate
   #------------------------------------------------------------------------------------
 
   def auto_correlation(lag)
-    DoubleDescriptive.autoCorrelation(@double_array_list, lag, mean, variance)
+    DoubleDescriptive.autoCorrelation(@array_list, lag, mean, variance)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the correlation of two data sequences.
   #------------------------------------------------------------------------------------
 
   def correlation(other_val)
     other_val.reset_statistics
-    DoubleDescriptive.correlation(@double_array_list, standard_deviation, 
+    DoubleDescriptive.correlation(@array_list, standard_deviation, 
                                   other_val.double_array_list, 
                                   other_val.standard_deviation)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the covariance of two data sequences, which is cov(x,y) = (1/(size()-1)) * 
+  # Sum((x[i]-mean(x)) * (y[i]-mean(y))) .
   #------------------------------------------------------------------------------------
 
   def covariance(other_val)
     other_val.reset_statistics
-    DoubleDescriptive.covariance(@double_array_list, other_val.double_array_list)
+    DoubleDescriptive.covariance(@array_list, other_val.double_array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Durbin-Watson computation.
   #------------------------------------------------------------------------------------
 
   def durbin_watson
-    @durbin_watson ||= DoubleDescriptive.durbinWatson(@double_array_list)
+    @durbin_watson ||= DoubleDescriptive.durbinWatson(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Computes the frequency (number of occurances, count) of each distinct value in the 
+  # given sorted data.
   #------------------------------------------------------------------------------------
 
   def frequencies
@@ -129,15 +83,15 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the geometric mean of a data sequence.
   #------------------------------------------------------------------------------------
 
   def geometric_mean
-    @geometric_mean ||= DoubleDescriptive.geometricMean(@double_array_list)
+    @geometric_mean ||= DoubleDescriptive.geometricMean(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the harmonic mean of a data sequence.
   #------------------------------------------------------------------------------------
 
   def harmonic_mean
@@ -145,7 +99,8 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the kurtosis (aka excess) of a data sequence, which is -3 + 
+  # moment(data,4,mean) / standardDeviation4.
   #------------------------------------------------------------------------------------
 
   def kurtosis
@@ -154,39 +109,39 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the lag-1 autocorrelation of a dataset.
   #------------------------------------------------------------------------------------
 
   def lag1
-    @lag1 ||= DoubleDescriptive.lag1(@double_array_list, mean)
+    @lag1 ||= DoubleDescriptive.lag1(@array_list, mean)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the largest member of a data sequence.
   #------------------------------------------------------------------------------------
 
   def max
-    @max ||= DoubleDescriptive.max(@double_array_list)
+    @max ||= DoubleDescriptive.max(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the arithmetic mean of a data sequence; That is Sum( data[i] ) / data.size()
   #------------------------------------------------------------------------------------
 
   def mean
-    @mean ||= DoubleDescriptive.mean(@double_array_list)
+    @mean ||= DoubleDescriptive.mean(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the mean deviation of a dataset.
   #------------------------------------------------------------------------------------
 
   def mean_deviation
-    @mean_deviation ||= DoubleDescriptive.meanDeviation(@double_array_list, mean)
+    @mean_deviation ||= DoubleDescriptive.meanDeviation(@array_list, mean)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the median of a sorted data sequence.
   #------------------------------------------------------------------------------------
 
   def median
@@ -194,20 +149,22 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the smallest member of a data sequence.
   #------------------------------------------------------------------------------------
 
   def min
-    @min ||= DoubleDescriptive.min(@double_array_list)
+    @min ||= DoubleDescriptive.min(@array_list)
   end
 
   #------------------------------------------------------------------------------------
+  # Returns the moment of k-th order with constant c of a data sequence, which is 
+  # Sum( (data[i]-c)k ) / data.size().
   # @param k integer
   # @param c double
   #------------------------------------------------------------------------------------
 
   def moment(k, c)
-    DoubleDescriptive.moment(@double_array_list, k, c)
+    DoubleDescriptive.moment(@array_list, k, c)
   end
 
   #------------------------------------------------------------------------------------
@@ -227,7 +184,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the pooled mean of two data sequences.
   #------------------------------------------------------------------------------------
 
   def pooled_mean(other_val)
@@ -236,7 +193,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the pooled variance of two data sequences.
   #------------------------------------------------------------------------------------
 
   def pooled_variance(other_val)
@@ -246,14 +203,16 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the product of a data sequence, which is Prod( data[i] ) .
   #------------------------------------------------------------------------------------
 
   def product
-    @product ||= DoubleDescriptive.product(@double_array_list)
+    @product ||= DoubleDescriptive.product(@array_list)
   end
 
   #------------------------------------------------------------------------------------
+  # Returns the phi-quantile; that is, an element elem for which holds that phi percent 
+  # of data elements are less than elem.
   # @param phi double
   #------------------------------------------------------------------------------------
 
@@ -262,6 +221,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
+  # Returns how many percent of the elements contained in the receiver are <= element.
   # @param elmt double
   #------------------------------------------------------------------------------------
 
@@ -270,6 +230,16 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def quantiles
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # Returns the linearly interpolated number of elements in a list less or equal to a 
+  # given element.
   # @param elmt double
   #------------------------------------------------------------------------------------
 
@@ -278,7 +248,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Root mean square
+  # Returns the RMS (Root-Mean-Square) of a data sequence.
   #------------------------------------------------------------------------------------
 
   def rms
@@ -286,8 +256,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # @param mean double
-  # @param sample_variance double
+  # Returns the sample kurtosis (aka excess) of a data sequence.
   #------------------------------------------------------------------------------------
 
   def sample_kurtosis
@@ -296,7 +265,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Return the standard error of the sample kurtosis.
   #------------------------------------------------------------------------------------
   
   def sample_kurtosis_standard_error
@@ -305,7 +274,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sample skew of a data sequence.
   #------------------------------------------------------------------------------------
 
   def sample_skew
@@ -314,7 +283,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Return the standard error of the sample skew.
   #------------------------------------------------------------------------------------
 
   def sample_skew_standard_error
@@ -323,7 +292,35 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sample standard deviation.
+  #------------------------------------------------------------------------------------
+  def sample_standard_deviation
+    @sample_standard_deviation ||=
+      DoubleDescriptive.sampleStandardDeviation(list_size, sample_variance)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Returns the sample variance of a data sequence.
+  #------------------------------------------------------------------------------------
+
+  def sample_variance
+    @sample_variance ||=
+      DoubleDescriptive.sampleVariance(list_size, sum, sum_of_squares)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Returns the sample weighted variance of a data sequence.
+  #------------------------------------------------------------------------------------
+
+  def sample_weighted_variance
+    @sample_weighted_variance ||=
+      DoubleDescriptive.sampleWeightedVariance(sum_of_weights, sum_of_products, 
+                                               sum_of_squared_products)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Returns the skew of a data sequence, which is moment(data,3,mean) / 
+  # standardDeviation.
   #------------------------------------------------------------------------------------
 
   def skew
@@ -339,6 +336,14 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
+  # ??
+  #------------------------------------------------------------------------------------
+
+  def sort
+    @sorted_data.elements.trimToSize.to_a
+  end
+
+  #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
@@ -348,15 +353,15 @@ module DDescriptive
       return @sorted_data
     end
 
-    list = @double_array_list.clone().elements()
+    list = @array_list.clone().elements()
     comp = Proc.new { |val1, val2| val1 <=> val2 }
-    Java::CernColt::Sorting.parallelQuickSort(list, 0, list.size, comp)
+    Java::CernColt::Sorting.parallelQuickSort(list, 0, @array_list.size(), comp)
     @sorted_data = Java::CernColtListTdouble::DoubleArrayList.new(list)
 
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the standard deviation from a variance.
   #------------------------------------------------------------------------------------
 
   def standard_deviation
@@ -364,7 +369,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the standard error of a data sequence.
   #------------------------------------------------------------------------------------
 
   def standard_error
@@ -372,7 +377,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Modifies a data sequence to be standardized.
   #------------------------------------------------------------------------------------
 
   def standardize
@@ -380,72 +385,65 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sum of a data sequence.
   #------------------------------------------------------------------------------------
 
   def sum
-    @sum ||= DoubleDescriptive.sum(@double_array_list)
+    @sum ||= DoubleDescriptive.sum(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sum of inversions of a data sequence, which is Sum( 1.0 / data[i]).
   #------------------------------------------------------------------------------------
 
   def sum_of_inversions
-    @sum_of_inversions ||= DoubleDescriptive.sumOfInversions(@double_array_list)
+    @sum_of_inversions ||= DoubleDescriptive.sumOfInversions(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sum of logarithms of a data sequence, which is Sum( Log(data[i]).
   #------------------------------------------------------------------------------------
 
   def sum_of_logarithms
-    @sum_of_logarithms ||= DoubleDescriptive.sumOfLogarithms(@double_array_list)
+    @sum_of_logarithms ||= DoubleDescriptive.sumOfLogarithms(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns Sum( (data[i]-c)k ); optimized for common parameters like c == 0.0 and/or
+  # k == -2
   #------------------------------------------------------------------------------------
 
   def sum_of_power_deviations(k, c)
-    DoubleDescriptive.sumOfPowerDeviations(@double_array_list, k, c)
+    DoubleDescriptive.sumOfPowerDeviations(@array_list, k, c)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sum of powers of a data sequence, which is Sum ( data[i]k ).
   #------------------------------------------------------------------------------------
 
   def sum_of_powers(k)
-    DoubleDescriptive.sumOfPowers(@double_array_list, k)
+    DoubleDescriptive.sumOfPowers(@array_list, k)
   end
 
   #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def sum_of_square
-    @sum_of_square ||= DoubleDescriptive.sumOfSquares(@double_array_list)
-  end
-
-  #------------------------------------------------------------------------------------
-  #
+  # Returns the sum of squared mean deviation of of a data sequence.
   #------------------------------------------------------------------------------------
 
   def sum_of_squared_deviations
-    @sum_of_squared_deviations ||= 
-      DoubleDescriptive.sumOfSquaredDeviations(list_size, variance)
+    @sum_of_square_deviations ||=
+      DoubleDescriptive.sumOfSquareDeviations(list_size, variance)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the sum of squares of a data sequence.
   #------------------------------------------------------------------------------------
 
   def sum_of_squares
-    @sum_of_squares ||= DoubleDescriptive.sumOfSquares(@double_array_list)
+    @sum_of_squares ||= DoubleDescriptive.sumOfSquares(@array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the trimmed mean of a sorted data sequence.
   #------------------------------------------------------------------------------------
 
   def trimmed_mean(left, right)
@@ -453,25 +451,34 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the variance from a standard deviation.
   #------------------------------------------------------------------------------------
 
   def variance
     @variance ||= 
-      DoubleDescriptive.variance(list_size, sum, sum_of_square)
+      DoubleDescriptive.variance(list_size, sum, sum_of_squares)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the weighted mean of a data sequence.
   #------------------------------------------------------------------------------------
 
   def weighted_mean(weights)
     weights.reset_statistics
-    DoubleDescriptive.weightedMean(@double_array_list, weights.double_array_list)
+    DoubleDescriptive.weightedMean(@array_list, weights.double_array_list)
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Returns the weighted RMS (Root-Mean-Square) of a data sequence.
+  #------------------------------------------------------------------------------------
+
+  def weighted_rms
+    @weighted_rms ||=
+      DoubleDescriptive.weightedRMS(sum_of_products, sum_of_squared_products)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Returns the winsorized mean of a sorted data sequence.
   #------------------------------------------------------------------------------------
 
   def winsorized_mean(left, right)
@@ -489,18 +496,7 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def list_size
-    @list_size ||= @double_array_list.size
+    @list_size ||= @array_list.size
   end
 
 end # DoubleDescriptive
-
-
-##########################################################################################
-#
-##########################################################################################
-
-class DoubleMDArray
-
-  include DDescriptive
-
-end # DoubleMDArray

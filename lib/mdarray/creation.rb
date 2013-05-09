@@ -68,7 +68,17 @@ class MDArray
   #------------------------------------------------------------------------------------
 
   def self.build(type, shape, storage = nil)
-    
+
+    if (shape.is_a? String)
+      # building from csv
+      # using shape as filename
+      # using storage as flag for headers
+      storage = (storage)? storage : false
+      parameters = Csv.read_numeric(shape, storage)
+      shape=[parameters[0], parameters[1]]
+      storage = parameters[2]
+    end
+
     dtype = DataType.valueOf(type.upcase)
     jshape = shape.to_java :int
 
@@ -83,6 +93,11 @@ class MDArray
     return klass.new(type, nc_array)
 
   end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
 
   #------------------------------------------------------------------------------------
   #

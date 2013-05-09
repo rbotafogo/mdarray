@@ -49,28 +49,8 @@ class Colt
   
 end # Colt
 
-##########################################################################################
-# Reopens class MDArray so that we can add helper methods to interface with Colt
-##########################################################################################
-
-class MDArray
-
-  attr_reader :double_array_list
-
-  #------------------------------------------------------------------------------------
-  # Converts the mdarray to an DoubleArrayList usable by Parallel Colt
-  #------------------------------------------------------------------------------------
-
-  def to_double_array_list
-    
-    base_array = @nc_array.get1DJavaArray(Java::double.java_class)
-    @double_array_list = Java::CernColtListTdouble::DoubleArrayList.new(base_array)
-
-  end
-
-end # MDArray
-
-require_relative 'double_descriptive'
+require_relative 'stat_list'
+require_relative 'colt_mdarray'
 
 # MDArray.functions = "CernFunctions"
 

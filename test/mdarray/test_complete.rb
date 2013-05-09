@@ -21,14 +21,7 @@
 
 require 'simplecov'
 
-require_relative 'env.rb'
-
-=begin
-SimpleCov.start do
-  @filters = []
-  add_group "MDArray", "mdarray-0.4.2-java/lib"
-end
-=end
+# require '../env.rb'
 
 # MDArray main object is the homogeneous multidimensional array. It is a table
 # of elements (usually numbers), all of the same type, indexed by a tuple of 
@@ -68,8 +61,5 @@ require_relative 'test_counter'
 require_relative 'test_trigonometry'
 require_relative 'test_views'
 require_relative 'test_printing'
-require_relative 'test_statistics'
-#=end
-
 #require_relative 'test_performance'
-
+#=end

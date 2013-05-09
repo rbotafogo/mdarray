@@ -13,11 +13,11 @@ class Csv
     attr_reader :epoch
   end
 
-  def self.read_double(filename, headers = false)
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
 
-  end
-
-  def self.read(filename)
+  def self.read_numeric(filename, headers = false)
 
     buffer = Array.new
     lines = 0
@@ -28,10 +28,21 @@ class Csv
                   # headers: true,
                   converters: [:numeric, :date]} ) do |row|
 
+      if (headers)
+        headers = false
+        next
+      end
+
       columns ||= row.size
       lines += 1
 
       row.each do |data|
+
+        if (row.size != columns)
+          raise "Data does not have the same number of columns for all lines"
+        end
+
+        # if it is a Date, then convert it to seconds since epoch
         if (data.is_a? Date)
           buffer << data.to_time.to_i
         end
@@ -43,7 +54,7 @@ class Csv
 
     end
 
-    MDArray.double([lines - 1, columns], buffer)
+    [lines, columns, buffer]
 
   end
 
