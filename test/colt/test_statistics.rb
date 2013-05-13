@@ -49,13 +49,20 @@ class MDArrayTest < Test::Unit::TestCase
       # second dimension and get the second column. 
       open = vale3.slice(1,1)
       
+      # lets also get the high value.
+      high = vale3.slice(1,2)
+      
       # getting descriptive statistics for the open value.  open is a new MDArray, so
       # we need to reset_statistics for open as well.
       open.reset_statistics
 
       p "auto_correlation: #{open.auto_correlation(10)}"
+      p "Correlation (open x high): #{open.correlation(high)}"
+      p "Covariance (open x high): #{open.covariance(high)}"
       p "Durbin Watson: #{open.durbin_watson}"
+      p "Frequencies: "
       p "Geometric mean: #{open.geometric_mean}"
+      p "Harmonic mean: #{open.harmonic_mean}"
       p "Kurtosis: #{open.kurtosis}"
       p "Lag1: #{open.lag1}"
       p "Max: #{open.max}"
@@ -65,11 +72,35 @@ class MDArrayTest < Test::Unit::TestCase
       p "Min: #{open.min}"
       p "Moment3: #{open.moment3}"
       p "Moment4: #{open.moment4}"
+      p "Pooled mean: #{open.pooled_mean(high)}"
+      p "Pooled variance: #{open.pooled_variance(high)}"
       p "Product: #{open.product}"
+      p "Quantile (20%): #{open.quantile(0.2)}"
+      p "Quantile inverse: #{open.quantile_inverse(35.0)}"
+      p "Rank interporlated (33.0): #{open.rank_interpolated(33.0)}"
+      p "RMS: #{open.rms}"
+      p "Sample kurtosis: #{open.sample_kurtosis}"
+      p "Sample covariance (open x high): #{open.sample_covariance(high)}"
+      p "Sample kurtosis standard error: #{open.sample_kurtosis_standard_error}"
+      p "Sample skew: #{open.sample_skew}"
+      p "Sample skew standard error: #{open.sample_skew_standard_error}"
+      p "Sample standard deviation: #{open.sample_standard_deviation}"
+      p "Sample variance: #{open.sample_variance}"
       p "Skew: #{open.skew}"
       p "Standard deviation: #{open.standard_deviation}"
       p "Standard error: #{open.standard_error}"
+      p "Sum: #{open.sum}"
+      p "Sum of inversions: #{open.sum_of_inversions}"
+      p "Sum of logarithms: #{open.sum_of_logarithms}"
+      p "Sum of power deviations: #{open.sum_of_power_deviations(0, 2)}"
+      p "Sum of powers (2.0): #{open.sum_of_powers(2)}"
+      p "Sum of squares: #{open.sum_of_squares}"
+      p "Sum of squared deviations: #{open.sum_of_squared_deviations}"
+      p "Trimmed mean (2, 2): #{open.trimmed_mean(2, 2)}"
       p "Variance: #{open.variance}"
+      p "Weighted mean: "
+      p "Weighted rms: "
+      p "Winsorized mean (2, 2): #{open.winsorized_mean(2, 2)}"
 
     end
 

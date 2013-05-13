@@ -53,11 +53,13 @@ class DoubleMDArray
 
   def self.colt_stats
 
-    stats = [:auto_correlation, :correlation, :covariance, :durbin_watson, :frequencies, 
-             :geometric_mean, :harmonic_mean, :kurtosis, :lag1, :max, :mean, 
+    stats = [:array_list, :auto_correlation, :correlation, :covariance, :durbin_watson, 
+             :frequencies, 
+             :geometric_mean, :harmonic_mean, :kurtosis, :lag1, :list_size, :max, :mean, 
              :mean_deviation, :median, :min, :moment, :moment3, :moment4, :pooled_mean, 
              :pooled_variance, :product, :quantile, :quantile_inverse, 
-             :rank_interpolated, :rms, :sample_kurtosis, :sample_kurtosis_standard_error, 
+             :rank_interpolated, :rms, :sample_covariance, :sample_kurtosis, 
+             :sample_kurtosis_standard_error, 
              :sample_skew, :sample_skew_standard_error, :sample_standard_deviation,
              :sample_variance, :sample_weighted_variance, :skew, :split, 
              :standard_deviation, :standard_error, :standardize, :sum, 

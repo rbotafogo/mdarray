@@ -19,7 +19,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-# require '../env.rb'
+require '../env.rb'
 
 #=begin
 require_relative 'test_stat_list'

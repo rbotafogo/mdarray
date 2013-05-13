@@ -39,24 +39,21 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Returns the correlation of two data sequences.
+  # Returns the correlation of two data sequences. 
+  # That is covariance(data1,data2)/(standardDev1*standardDev2).
   #------------------------------------------------------------------------------------
 
   def correlation(other_val)
-    other_val.reset_statistics
-    DoubleDescriptive.correlation(@array_list, standard_deviation, 
-                                  other_val.double_array_list, 
-                                  other_val.standard_deviation)
+    covariance(other_val) / (standard_deviation * other_val.standard_deviation)
   end
 
   #------------------------------------------------------------------------------------
-  # Returns the covariance of two data sequences, which is cov(x,y) = (1/(size()-1)) * 
-  # Sum((x[i]-mean(x)) * (y[i]-mean(y))) .
+  # Returns the covariance of two data sequences. 
+  # That is cov(x,y) = Sum((x[i]-mean(x)) * (y[i]-mean(y))) / size().
   #------------------------------------------------------------------------------------
 
   def covariance(other_val)
-    other_val.reset_statistics
-    DoubleDescriptive.covariance(@array_list, other_val.double_array_list)
+    sample_covariance(other_val) * (list_size - 1) / list_size
   end
 
   #------------------------------------------------------------------------------------
@@ -95,7 +92,7 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def harmonic_mean
-    @harmonic_mean ||= DoubleDescriptive.harmoniMean(list_size, sum_of_inversions)
+    @harmonic_mean ||= DoubleDescriptive.harmonicMean(list_size, sum_of_inversions)
   end
 
   #------------------------------------------------------------------------------------
@@ -114,6 +111,14 @@ module DDescriptive
 
   def lag1
     @lag1 ||= DoubleDescriptive.lag1(@array_list, mean)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def list_size
+    @list_size ||= @array_list.size
   end
 
   #------------------------------------------------------------------------------------
@@ -168,7 +173,7 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # The third central moment.  That is: moment(data,3,mean)
   #------------------------------------------------------------------------------------
   
   def moment3
@@ -184,7 +189,8 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Returns the pooled mean of two data sequences.
+  # Returns the pooled mean of two data sequences. 
+  # That is (size1 * mean1 + size2 * mean2) / (size1 + size2).
   #------------------------------------------------------------------------------------
 
   def pooled_mean(other_val)
@@ -194,11 +200,12 @@ module DDescriptive
 
   #------------------------------------------------------------------------------------
   # Returns the pooled variance of two data sequences.
+  # That is: size1 * variance1 + size2 * variance2) / (size1 + size2)
   #------------------------------------------------------------------------------------
 
   def pooled_variance(other_val)
     other_val.reset_statistics
-    DoubleDescriptive.pooledVariance(list_size, vairance, other_val.list_size, 
+    DoubleDescriptive.pooledVariance(list_size, variance, other_val.list_size, 
                                      other_val.variance)
   end
 
@@ -239,7 +246,10 @@ module DDescriptive
 
   #------------------------------------------------------------------------------------
   # Returns the linearly interpolated number of elements in a list less or equal to a 
-  # given element.
+  # given element. The rank is the number of elements <= element. Ranks are of the form 
+  # {0, 1, 2,..., sortedList.size()}. If no element is <= element, then the rank is 
+  # zero. If the element lies in between two contained elements, then linear 
+  # interpolation is used and a non integer value is returned.
   # @param elmt double
   #------------------------------------------------------------------------------------
 
@@ -256,6 +266,16 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
+  # Returns the sample covariance of two data sequences. 
+  # That is cov(x,y) = (1/(size()-1)) * Sum((x[i]-mean(x)) * (y[i]-mean(y))) .
+  #------------------------------------------------------------------------------------
+
+  def sample_covariance(other_val)
+    other_val.reset_statistics
+    DoubleDescriptive.covariance(@array_list, other_val.array_list)
+  end
+
+  #------------------------------------------------------------------------------------
   # Returns the sample kurtosis (aka excess) of a data sequence.
   #------------------------------------------------------------------------------------
 
@@ -265,7 +285,9 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Return the standard error of the sample kurtosis.
+  # Return the standard error of the sample kurtosis. Ref: R.R. Sokal, F.J. Rohlf, 
+  # Biometry: the principles and practice of statistics in biological research (W.H. 
+  # Freeman and Company, New York, 1998, 3rd edition) p. 138.
   #------------------------------------------------------------------------------------
   
   def sample_kurtosis_standard_error
@@ -283,7 +305,9 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Return the standard error of the sample skew.
+  # Return the standard error of the sample skew. Ref: R.R. Sokal, F.J. Rohlf, 
+  # Biometry: the principles and practice of statistics in biological research (W.H. 
+  # Freeman and Company, New York, 1998, 3rd edition) p. 138.
   #------------------------------------------------------------------------------------
 
   def sample_skew_standard_error
@@ -292,8 +316,16 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Returns the sample standard deviation.
+  # Returns the sample standard deviation. Ref: R.R. Sokal, F.J. Rohlf, Biometry: the 
+  # principles and practice of statistics in biological research (W.H. Freeman and 
+  # Company, New York, 1998, 3rd edition) p. 53. The standard deviation calculated as 
+  # the sqrt of the variance underestimates the unbiased standard deviation. It needs 
+  # to be multiplied by this correction factor: 
+  # 1) if (n > 30): Cn = 1+1/(4*(n-1)), else
+  # 2) Cn = Math.sqrt((n - 1) * 0.5) * Gamma.gamma((n - 1) * 0.5) / Gamma.gamma(n * 0.5)
+  # The sample standard deviation is Cn * size
   #------------------------------------------------------------------------------------
+
   def sample_standard_deviation
     @sample_standard_deviation ||=
       DoubleDescriptive.sampleStandardDeviation(list_size, sample_variance)
@@ -396,16 +428,16 @@ module DDescriptive
   # Returns the sum of inversions of a data sequence, which is Sum( 1.0 / data[i]).
   #------------------------------------------------------------------------------------
 
-  def sum_of_inversions
-    @sum_of_inversions ||= DoubleDescriptive.sumOfInversions(@array_list)
+  def sum_of_inversions(from = 0, to = list_size - 1)
+    @sum_of_inversions ||= DoubleDescriptive.sumOfInversions(@array_list, from, to)
   end
 
   #------------------------------------------------------------------------------------
   # Returns the sum of logarithms of a data sequence, which is Sum( Log(data[i]).
   #------------------------------------------------------------------------------------
 
-  def sum_of_logarithms
-    @sum_of_logarithms ||= DoubleDescriptive.sumOfLogarithms(@array_list)
+  def sum_of_logarithms(from = 0, to = list_size - 1)
+    @sum_of_logarithms ||= DoubleDescriptive.sumOfLogarithms(@array_list, from, to)
   end
 
   #------------------------------------------------------------------------------------
@@ -431,7 +463,7 @@ module DDescriptive
 
   def sum_of_squared_deviations
     @sum_of_square_deviations ||=
-      DoubleDescriptive.sumOfSquareDeviations(list_size, variance)
+      DoubleDescriptive.sumOfSquaredDeviations(list_size, variance)
   end
 
   #------------------------------------------------------------------------------------
@@ -446,7 +478,7 @@ module DDescriptive
   # Returns the trimmed mean of a sorted data sequence.
   #------------------------------------------------------------------------------------
 
-  def trimmed_mean(left, right)
+  def trimmed_mean(left = 0, right = 0)
     DoubleDescriptive.trimmedMean(sorted_data, mean, left, right)
   end
 
@@ -483,20 +515,6 @@ module DDescriptive
 
   def winsorized_mean(left, right)
     DoubleDescriptive.winsorizedMean(sorted_data, mean, left, right)
-  end
- 
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  private
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def list_size
-    @list_size ||= @array_list.size
   end
 
 end # DoubleDescriptive
