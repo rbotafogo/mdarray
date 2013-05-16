@@ -19,16 +19,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-require 'simplecov'
-
 require 'env.rb'
-
-=begin
-SimpleCov.start do
-  @filters = []
-  add_group "MDArray", "mdarray-0.4.2-java/lib"
-end
-=end
 
 require 'mdarray/test_complete'
 require 'colt/test_complete'

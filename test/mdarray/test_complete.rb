@@ -19,8 +19,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-require 'simplecov'
-
+# require 'simplecov'
 # require '../env.rb'
 
 # MDArray main object is the homogeneous multidimensional array. It is a table

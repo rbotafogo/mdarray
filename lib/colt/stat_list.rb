@@ -63,11 +63,11 @@ class StatList
   end
 
   #------------------------------------------------------------------------------------
-  # Returns the elements currently stored, including invalid elements between size and 
-  # capacity, if any.
+  # Returns the elements currently stored.  Trims the list to the maximum size.
   #------------------------------------------------------------------------------------
 
   def elements
+    @array_list.trimToSize
     @array_list.elements().to_a
   end
 
@@ -145,46 +145,6 @@ class StatList
 
   def to_s
     print
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def reset_statistics
-
-    @durbin_watson = nil
-    @geometric_mean = nil
-    @kurtosis = nil
-    @lag1 = nil
-    @max = nil
-    @mean = nil
-    @mean_deviation = nil
-    @median = nil
-    @min = nil
-    @moment3 = nil
-    @moment4 = nil
-    @product = nil
-    @sample_kurtosis = nil
-    @sample_kurtosis_standard_error = nil
-    @sample_skew = nil
-    @sample_skew_standard_error = nil
-    @sample_standard_deviation = nil
-    @sample_variance = nil
-    @sample_weighted_variance = nil
-    @list_size = nil
-    @skew = nil
-    @sorted_data = nil
-    @standard_deviation = nil
-    @standard_error = nil
-    @sum = nil
-    @sum_of_inversions = nil
-    @sum_of_logarithms = nil
-    @sum_of_squared_deviations = nil
-    @sum_of_squares = nil
-    @variance = nil
-    @weighted_rms = nil
-
   end
 
   #------------------------------------------------------------------------------------

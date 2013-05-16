@@ -30,6 +30,48 @@ module DDescriptive
   include_package "cern.jet.stat.tdouble"
 
   #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def reset_statistics
+
+    @distinct_values = nil
+    @durbin_watson = nil
+    @frequencies = nil
+    @geometric_mean = nil
+    @kurtosis = nil
+    @lag1 = nil
+    @max = nil
+    @mean = nil
+    @mean_deviation = nil
+    @median = nil
+    @min = nil
+    @moment3 = nil
+    @moment4 = nil
+    @product = nil
+    @sample_kurtosis = nil
+    @sample_kurtosis_standard_error = nil
+    @sample_skew = nil
+    @sample_skew_standard_error = nil
+    @sample_standard_deviation = nil
+    @sample_variance = nil
+    @sample_weighted_variance = nil
+    @list_size = nil
+    @skew = nil
+    @sorted_data = nil
+    @standard_deviation = nil
+    @standard_error = nil
+    @sum = nil
+    @sum_of_inversions = nil
+    @sum_of_logarithms = nil
+    @sum_of_squared_deviations = nil
+    @sum_of_squares = nil
+    @variance = nil
+    @weighted_rms = nil
+
+  end
+
+  #------------------------------------------------------------------------------------
   # Returns the auto-correlation of a data sequence.
   # @param lag lag between the two measures to auto correlate
   #------------------------------------------------------------------------------------
@@ -70,13 +112,19 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def frequencies
+    
+    if (@frequencies == nil)
+      distinct_values = Java::CernColtListTdouble::DoubleArrayList.new
+      frequencies = Java::CernColtListTint::IntArrayList.new
+      DoubleDescriptive.frequencies(sorted_data, distinct_values, frequencies)
+      distinct_values.trimToSize()
+      frequencies.trimToSize()
+      @distinct_values = distinct_values.elements().to_a
+      @frequencies = frequencies.elements().to_a
+    end
 
-    distinct_values = Java::CernColtListTdouble::DoubleArrayList.new
-    frequencies = Java::CernColtListTint::IntArrayList.new
-    DoubleDescriptive.frequencies(sorted_data, distinct_values, frequencies)
-    {:distinct_values => distinct_values.elements().to_a, 
-      :frequencies => frequencies.elements().to_a}
-
+      { :distinct_values => @distinct_values, :frequencies => @frequencies}
+    
   end
 
   #------------------------------------------------------------------------------------
@@ -106,7 +154,8 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Returns the lag-1 autocorrelation of a dataset.
+  # Returns the lag-1 autocorrelation of a dataset; Note that this method has semantics 
+  # different from autoCorrelation(..., 1);
   #------------------------------------------------------------------------------------
 
   def lag1
@@ -237,10 +286,15 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # @param percentages the percentages for which quantiles are to be computed. Each 
+  # percentage must be in the interval [0.0,1.0].
   #------------------------------------------------------------------------------------
 
-  def quantiles
+  def quantiles(percs)
+
+    percs = Java::CernColtListTdouble::DoubleArrayList.new(percs.to_java(Java::double))
+    res = DoubleDescriptive.quantiles(sorted_data, percs)
+    res.elements().to_a
 
   end
 
@@ -342,12 +396,21 @@ module DDescriptive
 
   #------------------------------------------------------------------------------------
   # Returns the sample weighted variance of a data sequence.
+  #   That is (sum_of_squared_products - sum_of_products * sum_of_products / 
+  #   sum_of_weights) / (sum_of_weights - 1)
+  # where:
+  #   sum_of_weights = Sum ( weights[i] )
+  #   sum_of_products = Sum ( data[i] * weights[i] )
+  #   sum_of_squared_products = Sum( data[i] * data[i] * weights[i] )
   #------------------------------------------------------------------------------------
 
-  def sample_weighted_variance
-    @sample_weighted_variance ||=
-      DoubleDescriptive.sampleWeightedVariance(sum_of_weights, sum_of_products, 
-                                               sum_of_squared_products)
+  def sample_weighted_variance(weights)
+
+    weights = Java::CernColtListTdouble::DoubleArrayList.new(weights.to_java(Java::double))
+    sum_of_weights = DoubleDescriptive.sum(weights)
+    sum_of_products, sum_of_squared_products = weighted_sums(weights)
+    DoubleDescriptive.sampleWeightedVariance(sum_of_weights, sum_of_products, 
+                                             sum_of_squared_products)
   end
 
   #------------------------------------------------------------------------------------
@@ -360,19 +423,45 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Splits (partitions) a list into sublists such that each sublist contains the 
+  # elements with a given range. splitters= (a,b,c,...,y,z) defines the ranges [-inf,a), 
+  # [a,b), [b,c), ..., [y,z), [z,inf].
+  # Examples:
+  #   data = (1,2,3,4,5,8,8,8,10,11). 
+  #   splitters=(2,8) yields 3 bins: (1), (2,3,4,5) (8,8,8,10,11). 
+  #   splitters=() yields 1 bin: (1,2,3,4,5,8,8,8,10,11). 
+  #   splitters=(-5) yields 2 bins: (), (1,2,3,4,5,8,8,8,10,11). 
+  #   splitters=(100) yields 2 bins: (1,2,3,4,5,8,8,8,10,11), ().
+  # @para splitters - the points at which the list shall be partitioned (must be sorted 
+  #   ascending).
+  # @return the sublists (an array with length == splitters.size() + 1. Each sublist is 
+  #   returned sorted ascending.
   #------------------------------------------------------------------------------------
   
-  def split
+  def split(splitters)
+
+    split = Java::CernColtListTdouble::DoubleArrayList.new(splitters.to_java(Java::double))
+    res = DoubleDescriptive.split(sorted_data, split)
+    lists = res.to_a
+    bins = Array.new
+
+    lists.each do |list|
+      list.trimToSize()
+      bins << list.elements().to_a
+    end
+    
+    bins
 
   end
 
   #------------------------------------------------------------------------------------
-  # ??
+  # Returns a list with the sorted elements
   #------------------------------------------------------------------------------------
 
   def sort
-    @sorted_data.elements.trimToSize.to_a
+    sorted_data
+    @sorted_data.trimToSize()
+    @sorted_data.elements.to_a
   end
 
   #------------------------------------------------------------------------------------
@@ -409,11 +498,12 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
-  # Modifies a data sequence to be standardized.
+  # Modifies a data sequence to be standardized. Changes each element data[i] as 
+  # follows: data[i] = (data[i]-mean)/standardDeviation.
   #------------------------------------------------------------------------------------
 
-  def standardize
-    p "not implemented yet"
+  def standardize!
+    DoubleDescriptive.standardize(@array_list, mean, standard_deviation)
   end
 
   #------------------------------------------------------------------------------------
@@ -458,6 +548,29 @@ module DDescriptive
   end
 
   #------------------------------------------------------------------------------------
+  # Returns the sum of the product with another array.T
+  # hat is, Sum( data[i] * other_val[i] )
+  # @param other_val: ruby array or a CernColtListTdouble::DoubleArrayList (when called
+  # internally.
+  #------------------------------------------------------------------------------------
+
+  def weighted_sums(other_val, from = 0, to = list_size - 1)
+
+    if (other_val.is_a? Array)
+      weights = Java::CernColtListTdouble::DoubleArrayList.new(other_val.to_java(Java::double))
+    elsif (other_val.is_a? Java::CernColtListTdouble::DoubleArrayList)
+      weights = other_val
+    else
+      raise "#{other_val} is not a valid weight array"
+    end
+
+    in_out = [0.0, 0.0].to_java Java::double
+    DoubleDescriptive.incrementalWeightedUpdate(@array_list, weights, from, to, in_out)
+    [in_out[0], in_out[1]]
+
+  end
+
+  #------------------------------------------------------------------------------------
   # Returns the sum of squared mean deviation of of a data sequence.
   #------------------------------------------------------------------------------------
 
@@ -496,17 +609,20 @@ module DDescriptive
   #------------------------------------------------------------------------------------
 
   def weighted_mean(weights)
-    weights.reset_statistics
-    DoubleDescriptive.weightedMean(@array_list, weights.double_array_list)
+    weights = Java::CernColtListTdouble::DoubleArrayList.new(weights.to_java(Java::double))
+    DoubleDescriptive.weightedMean(@array_list, weights)
   end
 
   #------------------------------------------------------------------------------------
   # Returns the weighted RMS (Root-Mean-Square) of a data sequence.
   #------------------------------------------------------------------------------------
 
-  def weighted_rms
-    @weighted_rms ||=
-      DoubleDescriptive.weightedRMS(sum_of_products, sum_of_squared_products)
+  def weighted_rms(weights)
+
+    weights = Java::CernColtListTdouble::DoubleArrayList.new(weights.to_java(Java::double))
+    sum_of_products, sum_of_squared_products = weighted_sums(weights)
+    DoubleDescriptive.weightedRMS(sum_of_products, sum_of_squared_products)
+
   end
 
   #------------------------------------------------------------------------------------

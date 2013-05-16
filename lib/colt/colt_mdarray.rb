@@ -57,15 +57,16 @@ class DoubleMDArray
              :frequencies, 
              :geometric_mean, :harmonic_mean, :kurtosis, :lag1, :list_size, :max, :mean, 
              :mean_deviation, :median, :min, :moment, :moment3, :moment4, :pooled_mean, 
-             :pooled_variance, :product, :quantile, :quantile_inverse, 
+             :pooled_variance, :product, :quantile, :quantile_inverse, :quantiles, 
              :rank_interpolated, :rms, :sample_covariance, :sample_kurtosis, 
              :sample_kurtosis_standard_error, 
              :sample_skew, :sample_skew_standard_error, :sample_standard_deviation,
              :sample_variance, :sample_weighted_variance, :skew, :split, 
-             :standard_deviation, :standard_error, :standardize, :sum, 
-             :sum_of_inversions, :sum_of_logarithms, :sum_of_power_deviations, 
-             :sum_of_powers, :sum_of_squares, :sum_of_squared_deviations, :trimmed_mean,
-             :variance, :weighted_mean, :weighted_rms, :winsorized_mean]
+             :standard_deviation, :standard_error, :sum, 
+             :sum_of_inversions, :sum_of_logarithms, :sum_of_powers, 
+             :sum_of_power_deviations, :sum_of_squares, :sum_of_squared_deviations, 
+             :trimmed_mean,
+             :variance, :weighted_mean, :weighted_rms, :weighted_sums, :winsorized_mean]
 
 =begin
     # undefine all methods.  Need for now, on furture versions we should be able to
@@ -79,6 +80,11 @@ class DoubleMDArray
     # define all statistics methods from colt
     stats.each do |method|
       define_method(method) { |*args| @stat_list.send(method, *args) }
+    end
+
+    define_method(:standardize) do |*args| 
+      @stat_list.standardize!(*args)
+      @stat_list.elements
     end
 
   end

@@ -39,62 +39,90 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "work with stat_lists" do
 
-      # Creates a DoubleStatList of size 10
+      # Creates a DoubleStatList of capacity 10
       @list = DoubleStatList.new(10)
 
       @list.add(2.25)
       @list.add(5.0)
 
-      @list.print
-
-      p @list[0]
-      p @list[1]
-      p @list.mean
+      assert_equal(2.25, @list[0])
+      assert_equal(5.0, @list[1])
+      assert_equal(3.625, @list.mean)
 
       # Search for element in the list
-      p "binary search"
-      p @list.binary_search(5)
-      
-      p @list.index_of(5.0)
+      assert_equal(1, @list.binary_search(5))
+      assert_equal(1, @list.index_of(5.0))
 
-      p @list.last_index_of(5.0)
+      @list.add(3.0)
+      @list.add(5.0)
+      
+      assert_equal(3, @list.last_index_of(5.0))
+
+      list2 = @list.copy
+      # changing the value of @list
+      @list[0] = 10
+      assert_equal(10, @list[0])
+      # list2 is unchanged
+      assert_equal(2.25, list2[0])
 
       @list.shuffle
       @list.print
 
-      list2 = @list.copy
-      
-      @list.print
-      list2.print
+      # mean is now wrong... we've added/changed elements in @list, but we still get the
+      assert_equal(3.625, @list.mean)
 
-      # changing the value of @list
-      @list[0] = 10
-      @list.print
-
-      # list2 is unchanged
-      list2.print
-
-      # mean is now wrong... we've added an element to the list
-      p @list.mean
       # to make it right we need to reset_statistics.  Whenever an element on the 
       # list is changed it is required to call reset_statistics
       @list.reset_statistics
-      p @list.mean
+      assert_equal(5.75, @list.mean)
 
+    end
+    
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
 
+    should "be memory efficient when possible" do
 
+      # read file VALE3.  This file has a header that we need to discard.  VALE3 
+      # contains quote values from brazilian company VALE as obtained from Yahoo finance
+      # (quote vale3.SA)
+      vale3 = MDArray.double("#{$COLT_TEST_DIR}/VALE3_short.csv", true)
 
-      # Creates a DoubleStatList with given initial capacity
-      @list = DoubleStatList.new(20)
-      p @list.elements
+      # calling reset_statistics on vale3, creates a stat_list for vale3
+      vale3.reset_statistics
 
-      @list.trim_to_size
-      p @list.elements
+      # get vale3 stat_list.  This should not copy any data... let's check it
+      list = vale3.stat_list
+      
+      # let's change a value in list
+      list[0] = 10
+      assert_equal(10, list[0])
+      assert_equal(10, vale3[0, 0])
 
+      # Getting the open value
+      open = vale3.slice(1, 1)
+      
+      # open and vale3 should use the same backing store
+      open[0] = 5
+      assert_equal(5, open[0])
+      assert_equal(5, vale3[0,1])
 
+      # now... doing reset_statistics on open will not use the same backing store
+      # as open is not contigous in memory and copying is necessary.  This is the
+      # cost integrating NetCDF and Parallel Colt.  It might actually be a good 
+      # idea in some cases to make a copy and operate on contigous memory than using
+      # indexing to move over the array.
+      open.reset_statistics
+      open_list = open.stat_list
+      open_list[0] = 1000
+      assert_equal(1000, open_list[0])
+      assert_equal(5, open[0])
+
+      
 
     end
     
   end
-
+  
 end

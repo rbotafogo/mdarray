@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
 
   gem.summary     = "Multi dimensional array similar to narray and numpy."
   gem.description = <<-EOF 
-"Multi dimensional array similar to Masahiro Tanaka's narray and numpy.  
+"Multi dimensional array similar to Masahiro Tanaka's Narray and NumPy.  
 It is specifically targeted to JRuby as it uses Java-NetCDF library as base Array."
 EOF
 
@@ -25,7 +25,9 @@ EOF
   gem.add_development_dependency('kramdown', [">= 1.0.1"])
 
   # ensure the gem is built out of versioned files
-  gem.files = Dir['Rakefile', 'version.rb', '{lib,test}/**/*.rb', '{bin,man,spec,vendor}/**/*', 
+  gem.files = Dir['Rakefile', 'version.rb', '{lib,test}/**/*.rb', 'test/**/*.csv',
+                  'test/**/*.xlsx',
+                  '{bin,doc,spec,vendor,target}/**/*', 
                   'README*', 'LICENSE*'] # & `git ls-files -z`.split("\0")
 
   gem.test_files = Dir['test/*.rb']
