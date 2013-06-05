@@ -77,14 +77,13 @@ class MDArray
   attr_accessor :unary_operator 
   attr_accessor :coerced
   
-  @numerical = ["byte", "short", "int", "long", "float", "double"]
+  @numerical = ["numeric", "byte", "short", "int", "long", "float", "double"]
   @non_numerical = ["boolean", "char", "string", "sequence"]
 
   class << self
     
     attr_accessor :functions
     attr_accessor :function_map
-
     attr_reader :numerical
     attr_reader :non_numerical
 
@@ -264,7 +263,7 @@ class MDArray
       op.exec(self, op2, requested_type, *args)
     end
 
-    MDArray.register_function(name, func)
+    MDArray.register_function(name, func, exec_type)
 
   end
 
@@ -293,7 +292,23 @@ class MDArray
       op.exec(self, requested_type, *args)
     end
 
-    MDArray.register_function(name, func)
+    MDArray.register_function(name, func, exec_type)
+
+  end
+
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
+
+  def self.calc_value(given_type, function_type, match, partial_match, no_match)
+
+    if (given_type == function_type)
+      match
+    elsif (function_type == "*")
+      partial_match
+    else
+      no_match
+    end
 
   end
 
@@ -311,7 +326,7 @@ class MDArray
   # @param input2_type the type of the second argument to the function
   #---------------------------------------------------------------------------------------
 
-  def self.select_function(name, scope = nil, return_type = nil, input1_type = nil, 
+  def self.select_function(name, package = nil, return_type = nil, input1_type = nil, 
                            input2_type = nil)
 
     list = MDArray.function_map[name]
@@ -319,20 +334,58 @@ class MDArray
     func = nil
 
     list.each do |function|
+      value = (package == function.package)? 2 : 1
+      # p "package: #{package}; function package: #{function.package}"
+      # p value
+      value *= calc_value(return_type, function.return_type, 32, 16, 0)
+      # p "return_type: #{return_type}; func_ret_type: #{function.return_type}"
+      # p value
+      value *= calc_value(input1_type, function.input1_type, 8, 4, 0)
+      # p "input1_type: #{input1_type}; func_input1_type: #{function.input1_type}"
+      # p value
+      value *= calc_value(input2_type, function.input2_type, 2, 1, 0)
+      # p "input2_type: #{input2_type}; func_input2_type: #{function.input2_type}"
+      # p value
+      if (value == 0)
+        next
+      elsif (value > best_value)
+        func = function
+        best_value = value
+      end
+    end
+
+#=begin
+    if (name == "add")
+      p "MDArray.select_function"
+      # p "package: #{package}; function package: #{function.package}"
+      p "selected function #{func.function}"
+    end
+#=end
+
+    if (best_value > 0)
+      func
+    else
+      raise "No method to process operator: #{name}"
+    end
+
+=begin
+    list.each do |function|
 
       value = 0
-      value += (scope == function.scope)? 8 : 0
+      value += (package == function.package)? 8 : 0
       value += (return_type == function.return_type)? 4 : 0
       value += (input1_type == function.input1_type)? 2 : 0
       value += (input2_type == function.input2_type)? 1 : 0
       if (value > best_value)
-        func = function.function
+        # func = function.function
+        func = function
         best_value = value
         # p "best value: #{best_value}, func: #{func}"
       end
     end
 
     func
+=end
 
   end
 
@@ -385,5 +438,6 @@ require_relative 'mdarray/views'
 require_relative 'mdarray/printing'
 require_relative 'mdarray/counter'
 require_relative 'mdarray/ruby_stats'
+require_relative 'mdarray/lazy_mdarray'
 require_relative 'mdarray/csv'
 require_relative 'colt/colt'

@@ -1,7 +1,17 @@
 require 'rbconfig'
 
-# Home directory for MDArray
-$MDARRAY_HOME_DIR = ".."
+=begin
+ENV.each do |val|
+  p val
+end
+=end
+
+# Home directory for MDArray.
+if $INSTALL_DIR
+  $MDARRAY_HOME_DIR = $INSTALL_DIR
+else
+  $MDARRAY_HOME_DIR = ".."
+end  
 
 # MDArray Test directory
 $MDARRAY_TEST_DIR = "./mdarray"
@@ -9,11 +19,14 @@ $MDARRAY_TEST_DIR = "./mdarray"
 # Colt Test directory
 $COLT_TEST_DIR = "./colt"
 
+# Need to change this variable before publication
+$MDARRAY_ENV = 'cygwin'
+
 ##########################################################################################
 # If we need to test for coverage
 ##########################################################################################
 
-if ENV['COVERAGE'] == 'true'
+if $COVERAGE == 'true'
 
   require 'simplecov'
   
@@ -29,7 +42,7 @@ end
 # Prepare environment to work inside Cygwin
 ##########################################################################################
 
-if ENV['MDARRAY_ENV'] == 'cygwin'
+if $MDARRAY_ENV == 'cygwin'
 
   # RbConfig::CONFIG['host_os'] # returns mswin32 on Windows, for example
   # p Config::CONFIG

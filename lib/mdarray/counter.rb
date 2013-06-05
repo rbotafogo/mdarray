@@ -179,6 +179,16 @@ class MDArray
     end
 
     #------------------------------------------------------------------------------------
+    # Gets the element at the given counter.  Assumes that the counter is of the proper
+    # shape. Also, counter should be an int java array
+    #------------------------------------------------------------------------------------
+
+    def jget(counter)
+      jset_counter_fast(counter)
+      get_at_counter
+    end
+
+    #------------------------------------------------------------------------------------
     # Gets element at current counter.  Can be done fast, as counter is always of the 
     # proper shape.
     #------------------------------------------------------------------------------------
@@ -322,6 +332,21 @@ class MDArray
 
       begin
         @nc_index.set(counter.to_java :int)
+      rescue java.lang.ArrayIndexOutOfBoundsException
+        raise RangeError, "Invalid counter: #{counter}"
+      end
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    # Sets this index to point to the given counter.  Assumes that the counter respects 
+    # the shape constraints. Also, in this case, the counter should be an int java array.
+    #-------------------------------------------------------------------------------------
+
+    def jset_counter_fast(counter)
+
+      begin
+        @nc_index.set(counter)
       rescue java.lang.ArrayIndexOutOfBoundsException
         raise RangeError, "Invalid counter: #{counter}"
       end
@@ -500,6 +525,15 @@ class MDArray
       @nc_index.getCurrentCounter().to_a
     end
 
+    #-------------------------------------------------------------------------------------
+    # Returns the current counter as a java array.  This is for performance improvement.
+    # Should be used carefully so that it doesn't permeate ruby code.
+    #-------------------------------------------------------------------------------------
+
+    def jget_current_counter
+      @nc_index.getCurrentCounter()
+    end
+
   end # Counter
 
   
@@ -543,6 +577,15 @@ class MDArray
     
     def get_current_counter
       @iterator.getCurrentCounter().to_a
+    end
+
+    #-------------------------------------------------------------------------------------
+    # Returns the current counter as a java array.  This is for performance improvement.
+    # Should be used carefully so that it doesn't permeate ruby code.
+    #-------------------------------------------------------------------------------------
+
+    def jget_current_counter
+      @iterator.getCurrentCounter()
     end
 
     #------------------------------------------------------------------------------------
@@ -610,7 +653,6 @@ class MDArray
   #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------
-
 
   class IteratorFastByte < IteratorFast
 

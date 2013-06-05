@@ -154,6 +154,8 @@ class Proc
     lambda { |arg| return arg }
   end
 
+  alias :apply :call
+
 end # Proc
 
 

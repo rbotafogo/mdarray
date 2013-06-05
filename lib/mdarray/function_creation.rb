@@ -29,16 +29,20 @@ module FunctionCreation
   #
   #------------------------------------------------------------------------------------
 
-  def make_binary_op(name, exec_type, func, force_type = nil, pre_condition = nil,
-                     post_condition = nil)
+  def make_binary_op(name, exec_type, func, helper_class, force_type = nil, 
+                     pre_condition = nil, post_condition = nil)
 
     define_method(name) do |op2, requested_type = nil, *args|
-      binary_op = get_binary_op
+      if (@type == "lazy" || ((op2.is_a? MDArray) && op2.type == "lazy"))
+        binary_op = LazyBinaryOperator
+      else
+        binary_op = get_binary_op
+      end
       op = binary_op.new(name, exec_type, force_type, pre_condition, post_condition)
       op.exec(self, op2, requested_type, *args)
     end
 
-    MDArray.register_function(name, func)
+    MDArray.register_function(name, func, 2, helper_class)
 
   end
 
@@ -46,23 +50,8 @@ module FunctionCreation
   #
   #------------------------------------------------------------------------------------
 
-  def make_binary_operators(name, func, default = true, in_place = true)
-
-    if (default)
-      make_binary_op(name, "default", func)
-    end
-    if (in_place)
-      make_binary_op(name + "!", "in_place", func)
-    end
-
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def make_unary_op(name, exec_type, func, force_type = nil, pre_condition = nil,
-                    post_condition = nil)
+  def make_unary_op(name, exec_type, func, helper_class, force_type = nil, 
+                    pre_condition = nil, post_condition = nil)
     
     define_method(name) do |requested_type = nil, *args|
       unary_op = get_unary_op
@@ -70,31 +59,8 @@ module FunctionCreation
       op.exec(self, requested_type, *args)
     end
 
-    MDArray.register_function(name, func)
+    MDArray.register_function(name, func, 1, helper_class)
 
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def make_unary_operators(name, func, default = true, in_place = true)
-
-    if (default)
-      make_unary_op(name, "default", func)
-    end
-    if (in_place)
-      make_unary_op(name + "!", "in_place", func)
-    end
-
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def make_comparison_op(name, func)
-    make_binary_op(name, "default", func, "boolean")
   end
 
 end # FunctionCreation

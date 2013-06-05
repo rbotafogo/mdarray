@@ -19,7 +19,7 @@ desc 'Compile java classes'
 task :compile do
 
   classes    = Dir['**/*.java']
-  sh "javac -classpath #{jars.join(':')} -d #{CLASSES_DIR} #{classes.join(' ')}"
+  sh "javac -classpath #{jars.join(';')} -d #{CLASSES_DIR} #{classes.join(' ')}"
 
 end
 

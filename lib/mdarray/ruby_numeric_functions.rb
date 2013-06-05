@@ -5,9 +5,117 @@
 
 module NumericFunctions
   include_package "ucar.ma2.MAMath"
-
   extend FunctionCreation
   extend RubyFunctions
+
+  class Add
+    def self.apply(val1, val2)
+      val1 + val2
+    end
+  end
+
+  class Sub
+    def self.apply(val1, val2)
+      val1 - val2
+    end
+  end
+
+  class Mul
+    def self.apply(val1, val2)
+      val1 * val2
+    end
+  end
+
+  class Div
+    def self.apply(val1, val2)
+      val1 / val2
+    end
+  end
+
+  class Power
+    def self.apply(val1, val2)
+      val1 ** val2
+    end
+  end
+
+  class Abs
+    def self.apply(val)
+      val.abs
+    end
+  end
+
+  class Ceil
+    def self.apply(val)
+      val.ceil
+    end
+  end
+
+  class Floor
+    def self.apply(val)
+      val.floor
+    end
+  end
+
+  class Truncate
+    def self.apply(val)
+      val.truncate
+    end
+  end
+
+  class IsZero
+    def self.apply(val)
+      val.zero
+    end
+  end
+
+  class Square
+    def self.apply(val)
+      val * val
+    end
+  end
+
+  class Cube
+    def self.apply(val)
+      val1 * val * val
+    end
+  end
+
+  class Fourth
+    def self.apply(val)
+      val * val * val * val
+    end
+  end
+
+  class Min
+    def self.apply(val1, val2)
+      val1 < val2 ? val1 : val2
+    end
+  end
+
+  class Max
+    def self.apply(val1, val2)
+      val1 > val2 ? val1 : val2
+    end
+  end
+
+  @add = NumericFunctions::Add
+  @sub = NumericFunctions::Sub
+  @mul = NumericFunctions::Mul
+  @div = NumericFunctions::Div
+  @power = NumericFunctions::Power
+  @abs = NumericFunctions::Abs
+  @ceil = NumericFunctions::Ceil
+  @floor = NumericFunctions::Floor
+  @truncate = NumericFunctions::Truncate
+  @is_zero = NumericFunctions::IsZero
+  @square = NumericFunctions::Square
+  @cube = NumericFunctions::Cube
+  @fourth = NumericFunctions::Fourth
+  @min = NumericFunctions::Min
+  @max = NumericFunctions::Max
+
+=begin
+  Using Proc is much more inefficient than using classes as defined above
 
   @add = Proc.new { |val1, val2| val1 + val2 }
   @sub = Proc.new { |val1, val2| val1 - val2 }
@@ -25,7 +133,8 @@ module NumericFunctions
   
   @min = Proc.new { |val1, val2| val1 < val2 ? val1 : val2 }
   @max = Proc.new { |val1, val2| val1 > val2 ? val1 : val2 }
-  
+=end
+
   #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------
@@ -92,18 +201,56 @@ module ComparisonOperators
   extend FunctionCreation
   extend RubyFunctions
 
+  class Ge
+    def self.apply(val1, val2)
+      val1 >= val2 ? true : false
+    end
+  end
+
+  class Gt
+    def self.apply(val1, val2)
+      val1 > val2 ? true : false
+    end
+  end
+
+  class Le
+    def self.apply(val1, val2)
+      val1 <= val2 ? true : false
+    end
+  end
+
+  class Lt
+    def self.apply(val1, val2)
+      val1 < val2 ? true : false
+    end
+  end
+
+  class Eq
+    def self.apply(val1, val2)
+      val1 == val2 ? true : false
+    end
+  end
+
+  @ge = ComparisonOperators::Ge
+  @gt = ComparisonOperators::Gt
+  @le = ComparisonOperators::Le
+  @lt = ComparisonOperators::Lt
+  @eq = ComparisonOperators::Eq
+
+=begin
   @ge = Proc.new { |val1, val2| val1 >= val2 ? true : false}
   @gt = Proc.new { |val1, val2| val1 > val2 ? true : false}
   @le = Proc.new { |val1, val2| val1 <= val2 ? true : false}
   @lt = Proc.new { |val1, val2| val1 < val2 ? true : false}
   @eq = Proc.new { |val1, val2| val1 == val2 ? true : false}
+=end
 
   @binary_methods = [:ge, :gt, :le, :lt, :eq]
 
   @binary_methods.each do |method|
-    make_comparison_op(method.to_s,
-                       ruby_binary_function("#{method.to_s}_ruby", 
-                                            instance_variable_get("@#{method.to_s}")))
+    make_comparison_operator(method.to_s,
+                             ruby_binary_function("#{method.to_s}_ruby", 
+                                                  instance_variable_get("@#{method.to_s}")))
   end
 
   alias :>= :ge
@@ -122,14 +269,58 @@ module BitwiseOperators
   extend FunctionCreation
   extend RubyFunctions
 
+  class BinaryAnd
+    def self.apply(val1, val2)
+      val1 & val2
+    end
+  end
+
+  class BinaryOr
+    def self.apply(val1, val2)
+      val1 | val2
+    end
+  end
+
+  class BinaryXor
+    def self.apply(val1, val2)
+      val1 ^ val2
+    end
+  end
+
+  class BinaryLeftShift
+    def self.apply(val1, val2)
+      val1 << val2
+    end
+  end
+
+  class BinaryRightShift
+    def self.apply(val1, val2)
+      val1 >> val2
+    end
+  end
+
+  class BinaryOnesComplement
+    def self.apply(val)
+      ~val1
+    end
+  end
+
+  @binary_and = BitwiseOperators::BinaryAnd
+  @binary_or = BitwiseOperators::BinaryOr
+  @binary_xor = BitwiseOperators::BinaryXor
+  @binary_left_shift = BitwiseOperators::BinaryLeftShift
+  @binary_right_shift = BitwiseOperators::BinaryRightShift
+  @binary_ones_complement = BitwiseOperators::BinaryOnesComplement
+
+=begin
   @binary_and = Proc.new { |val1, val2| val1 & val2 }
   @binary_or = Proc.new { |val1, val2| val1 | val2 }
   @binary_xor = Proc.new { |val1, val2| val1 ^ val2 }
   @binary_left_shift = Proc.new { |val1, val2| val1 << val2 }
   @binary_right_shift = Proc.new { |val1, val2| val1 >> val2 }
-
   @binary_ones_complement = Proc.new { |val| ~val }
-  
+=end
+
   #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tchar;
+package rb.mdarray.functions.tdouble;
 
 public interface D6 {
     public double apply(int i1, int i2, int i3, int i4, int i5, int i6);

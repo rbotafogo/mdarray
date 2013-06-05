@@ -24,7 +24,7 @@
 #
 ##########################################################################################
 
-class FastBinaryOperator < BinaryOperator
+class LazyBinaryOperator < BinaryOperator
 
   #---------------------------------------------------------------------------------------
   #
@@ -32,39 +32,9 @@ class FastBinaryOperator < BinaryOperator
 
   def get_args(*args)
 
-    parse_args(*args)
-
-    if (@op1.is_a? NumericalMDArray)
-      if (@op2.is_a? Numeric)
-        arg2 = @op2
-      elsif (@op2.is_a? NumericalMDArray)
-        if (!@op1.compatible(@op2))
-          raise "Invalid operation - arrays are incompatible"
-        end
-        arg2 = @op2.nc_array
-      else # Operation with another user defined type
-        false
-        # *TODO: make it more general using coerce if other_val type is not recognized
-        # if (arg is not recognized)
-        #  self_equiv, arg_equiv = arg.coerce(self)
-        #  self_equiv * arg_equiv
-        # end
-      end
-      
-    else  # NonNumericalMDArray
-      if (!@op1.compatible(@op2))
-        raise "Invalid operation - arrays are incompatible"
-      end
-
-      # Will not work if we have subclasses!!!!
-      if (@op1.class != @op2.class)
-        raise "Invalid operation - array are not of compatible types"
-      end
-
-      arg2 = @op2.nc_array
-    end
-
-    yield @op1.nc_array, arg2, @op1.shape, *args
+    @op1 = args.shift
+    @op2 = args.shift
+    @other_args = args
 
   end
 
@@ -76,21 +46,20 @@ class FastBinaryOperator < BinaryOperator
 
   def default(*args)
 
-    calc = nil
-    get_args(*args) do |op1, op2, shape, *other_args|
-      calc = MDArray.build(@type, shape)
-      if (@coerced)
-        helper = @helper::CoerceBinaryOperator
-        helper.send("apply", calc.nc_array, op1, op2, @do_func)
-      elsif (@op1.is_a? NumericalMDArray)
-        helper = @helper::DefaultBinaryOperator
-        helper.send("apply", calc.nc_array, op1, op2, @do_func)
-      else
-        helper = @helper::DefaultBinaryOperator
-        helper.send("apply#{@op1.class}", calc.nc_array, op1, op2, @do_func)
-      end
+    get_args(*args)
+    lazy = @op1
+
+    if (@op1.is_a? LazyMDArray)
+      lazy.push(@op2)
+      lazy.push(self)
+    else
+      lazy = LazyMDArray.new
+      lazy.push(@op1)
+      lazy.push(@op2)
+      lazy.push(self)
     end
-    return calc
+
+    return lazy
 
   end
 
@@ -101,12 +70,7 @@ class FastBinaryOperator < BinaryOperator
   #---------------------------------------------------------------------------------------
 
   def fill(*args)
-
-    get_args(*args) do |op1, op2, shape, *other_args|
-      helper = @helper::FillBinaryOperator
-      helper.send("apply", op1, op2)
-    end
-
+    raise "Cannot fill array lazyly"
   end
 
   #---------------------------------------------------------------------------------------
@@ -114,12 +78,7 @@ class FastBinaryOperator < BinaryOperator
   #---------------------------------------------------------------------------------------
 
   def in_place(*args)
-
-    get_args(*args) do |op1, op2, shape, *other_args|
-      helper = @helper::InplaceBinaryOperator
-      helper.send("apply", op1, op2, @do_func)
-    end
-
+    raise "Cannot operate in_place lazyly"
   end
 
   #---------------------------------------------------------------------------------------
@@ -127,17 +86,7 @@ class FastBinaryOperator < BinaryOperator
   #---------------------------------------------------------------------------------------
 
   def reduce(*args)
-
-    calc = nil
-
-    get_args(*args) do |op1, op2, shape, *other_args|
-      helper = @helper::ReduceBinaryOperator
-      calc = @pre_condition_result
-      calc = helper.send("apply", calc, op1, op2, @do_func)
-    end
-
-    return calc
-
+    raise "Cannot reduce array in lazy operation"
   end
   
   #---------------------------------------------------------------------------------------
@@ -145,26 +94,16 @@ class FastBinaryOperator < BinaryOperator
   #---------------------------------------------------------------------------------------
 
   def complex_reduce(*args)
-
-    calc = nil
-
-    get_args(*args) do |op1, op2, shape, *other_args|
-      helper = @helper::ComplexReduceBinaryOperator
-      calc = @pre_condition_result
-      calc = helper.send("apply", calc, op1, op2, @do_func)
-    end
-
-    return calc
-
+    raise "Cannot reduce array in lazy operation"
   end
 
-end # FastBinaryOperator
+end # LazyBinaryOperator
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class FastUnaryOperator < UnaryOperator
+class LazyUnaryOperator < UnaryOperator
 
   #---------------------------------------------------------------------------------------
   #
@@ -172,39 +111,31 @@ class FastUnaryOperator < UnaryOperator
 
   def get_args(*args)
 
-    parse_args(*args)
-    yield @op.nc_array, @op.shape, *@other_args
+    @op = args.shift
+    @other_args = args
 
   end
 
   #---------------------------------------------------------------------------------------
-  #
-  #---------------------------------------------------------------------------------------
-
-  def set_block(*args)
-
-    get_args(*args) do |op1, shape, *other_args|
-      block = other_args[0]
-      helper = @helper::SetAll
-      func = (shape.size <= 7)? "apply#{shape.size}" : "apply"
-      helper.send(func, op1, &block) if block
-    end
-    
-  end
-
-  #---------------------------------------------------------------------------------------
-  #
+  # A default unary operator takes one arrays and loops through all elements of the array
+  # applying a given method to it.  For instance, operator 'log' in a.log is a default 
+  # unary operator.
   #---------------------------------------------------------------------------------------
 
   def default(*args)
-    
-    calc = nil
-    get_args(*args) do |op1, shape, *other_args|
-      calc = MDArray.build(@type, shape)
-      helper = @helper::DefaultUnaryOperator
-      helper.send("apply", calc.nc_array, op1, @do_func)
+
+    get_args(*args)
+    lazy = @op
+
+    if (@op.is_a? LazyMDArray)
+      lazy.push(self)
+    else
+      lazy = LazyMDArray.new
+      lazy.push(@op)
+      lazy.push(self)
     end
-    return calc
+
+    return lazy
 
   end
 
@@ -213,12 +144,7 @@ class FastUnaryOperator < UnaryOperator
   #---------------------------------------------------------------------------------------
 
   def in_place(*args)
-
-    get_args(*args) do |op1, shape, *other_args|
-      helper = @helper::InplaceUnaryOperator
-      helper.send("apply", op1, @do_func)
-    end
-
+    raise "Cannot operate in_place lazyly"
   end
 
   #---------------------------------------------------------------------------------------
@@ -226,20 +152,15 @@ class FastUnaryOperator < UnaryOperator
   #---------------------------------------------------------------------------------------
 
   def reduce(*args)
-
-    calc = nil
-
-    get_args(*args) do |op1, shape, *other_args|
-      helper = @helper::ReduceUnaryOperator
-      calc = @pre_condition_result
-      calc = helper.send("apply", calc, op1, @do_func)
-    end
-
-    return calc
-
+    raise "Cannot reduce array in lazy operation"
   end
   
-end # UnaryOperator
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
 
-MDArray.binary_operator = FastBinaryOperator
-MDArray.unary_operator = FastUnaryOperator
+  def complex_reduce(*args)
+    raise "Cannot reduce array in lazy operation"
+  end
+
+end # LazyUnaryOperator

@@ -19,9 +19,29 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tdouble;
+package rb.mdarray.access;
 
-public interface DDD {
-    public double apply(double val1, double val2);
+import ucar.ma2.*;
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tbyte.*;
+import rb.mdarray.functions.tchar.*;
+import rb.mdarray.functions.tdouble.*;
+import rb.mdarray.functions.tfloat.*;
+import rb.mdarray.functions.tint.*;
+import rb.mdarray.functions.tlong.*;
+import rb.mdarray.functions.tobject.*;
+import rb.mdarray.functions.tshort.*;
+
+public class IteratorFastNext {
+
+    private IteratorFast iterator;
+
+    public IteratorFastNext(IteratorFast fastIterator) {
+	iterator = fastIterator;
+    }
+	
+    public Object apply () {
+	return iterator.getObjectNext();
+    }
+
 }
-

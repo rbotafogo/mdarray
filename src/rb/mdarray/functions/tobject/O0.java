@@ -19,9 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tdouble;
+package rb.mdarray.functions.tobject;
 
-public interface DDD {
-    public double apply(double val1, double val2);
+public interface O0 {
+    public Object apply();
 }
-

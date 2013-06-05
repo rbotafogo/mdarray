@@ -52,6 +52,14 @@ class Const
   #
   #---------------------------------------------------------------------------------------
 
+  def get(index)
+    @value
+  end
+
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
+
   def get_next
     @value
   end
@@ -73,12 +81,15 @@ end # Const
 class Operator
 
   attr_reader :name
-  attr_reader :type  # resulting type of the operation
-  attr_reader :arity # number of arguments to the operator
+  attr_reader :type            # resulting type of the operation
+  attr_reader :arity           # number of arguments to the operator
   attr_reader :exec_type # type of operator execution, e.g., default, in_place, numeric
-  attr_reader :force_type  # force this type as the result type
-  attr_reader :pre_condition  # proc to be executed before the operator's execution
+  attr_reader :helper          # helper method for this operator
+  attr_reader :fmap            # function map for this operator
+  attr_reader :force_type      # force this type as the result type
+  attr_reader :pre_condition   # proc to be executed before the operator's execution
   attr_reader :post_condition  # proc to be executed after the operator's execution
+  attr_reader :other_args      # list of arguments to the operator other than the operands
 
   #---------------------------------------------------------------------------------------
   #
@@ -90,6 +101,7 @@ class Operator
     @name = name
     @arity = arity
     @exec_type = exec_type
+    @helper = nil
     @force_type = force_type
     @pre_condition = pre_condition  # proc to be executed before the main loop
     @pre_condition_result = nil
@@ -181,12 +193,21 @@ class BinaryOperator < Operator
     requested_type = args.shift
     @type = (@force_type)? @force_type : (requested_type)? requested_type : get_type
     @coerced = @op1.coerced
-    func = MDArray.select_function(@name, MDArray.functions, @type)
+
+    fmap = MDArray.select_function(@name, MDArray.functions, @type, @op1.type, @type)
+    func = fmap.function
+    @helper = fmap.helper
+    @fmap = fmap
+
+    @do_func = func.dup
+=begin
     if (func.is_a? Proc)
       @do_func = func.dup
     else
       @do_func = func
     end
+=end
+
     @other_args = args
 
   end
@@ -257,14 +278,20 @@ class UnaryOperator < Operator
   def parse_args(*args)
 
     @op = args.shift
+
     requested_type = args.shift
     @type = (@force_type)? @force_type : (requested_type)? requested_type : @op.type
-    func = MDArray.select_function(@name, MDArray.functions, @type)
+
+    fmap = MDArray.select_function(@name, MDArray.functions, @type, @op.type, "void")
+    func = fmap.function
+    @helper = fmap.helper
+
     if (func.is_a? Proc)
       @do_func = func.dup
     else
       @do_func = func
     end
+
     @other_args = args
 
   end

@@ -30,9 +30,14 @@ task :push do
   sh "git push origin master"
 end
 
+desc 'Push gem to rubygem'
+task :push_gem do
+  sh "push #{name} -p $http_proxy"
+end
+
 Rake::TestTask.new do |t|
   t.libs << "test"
-  t.test_files = FileList['test/test_complete.rb']
+  t.test_files = FileList['test/complete.rb']
   t.ruby_opts = ["--server", "-Xinvokedynamic.constants=true", "-J-Xmn512m", 
                  "-J-Xms1024m", "-J-Xmx1024m"]
   t.verbose = true

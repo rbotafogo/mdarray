@@ -7,22 +7,30 @@ module GenericFunctions
   extend FunctionCreation
   extend RubyFunctions
 
+  class Null
+    def self.apply
+    end
+  end
+
+  @null = GenericFunctions::Null
+
+=begin
   @null = Proc.new { }
+=end
 
   #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------
 
-  make_unary_op("dim_set", :set_block, 
+  make_unary_operator("dim_set", :set_block, 
                 ["ruby_dim_set", "RubyFunctions", @null, "*", "*", "void"])
 
   #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------
 
-  make_binary_op("fill", :fill, 
-                 ["ruby_fill", "RubyFunctions", @null, "*", "*", "void"])
-
+  make_binary_operator("fill", :fill, 
+                       ["ruby_fill", "RubyFunctions", @null, "*", "*", "*"])
 
 end # GenericFunctions
 

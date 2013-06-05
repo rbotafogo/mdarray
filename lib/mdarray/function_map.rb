@@ -25,30 +25,38 @@
 
 class FunctionMap
 
-  attr_reader :short_name
-  attr_reader :long_name
-  attr_reader :scope
-  attr_reader :function
+  attr_reader :short_name      # short name of the function
+  attr_reader :long_name       # long name of the function
+  attr_reader :package         # package where the function was implemented
+  attr_reader :function        # function to be applied to elmts
   attr_reader :return_type
   attr_reader :input1_type
   attr_reader :input2_type
-
+  attr_reader :arity            # arity of the function: 1 or 2
+  attr_reader :helper           # Helper method to perform the function
+  attr_reader :is_global        # set to true if function applies to all elmts of the
+                                # array.  By default set to false
+  attr_reader :elmtwise         # works elementwise
   attr_accessor :description
 
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
-  def initialize(short_name, long_name, scope, function, return_type, input1_type,
-                 input2_type)
+  def initialize(short_name, long_name, package, function, return_type, input1_type,
+                 input2_type, arity, helper, elmtwise = true, is_global = false)
 
     @short_name = short_name
     @long_name = long_name
-    @scope = scope
+    @package = package
     @function = function
     @return_type = return_type
     @input1_type = input1_type
     @input2_type = input2_type
+    @arity = arity
+    @helper = helper
+    @elmtwise = elmtwise
+    @is_global = is_global
 
   end # initialize
 

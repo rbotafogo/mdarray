@@ -19,9 +19,38 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tdouble;
+package rb.colt.loops.unops;
 
-public interface DDD {
-    public double apply(double val1, double val2);
+import ucar.ma2.*;
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tint.*;
+
+
+public class ReduceUnaryOperator {
+
+    public static int apply(int calc, Array op, IntIntFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
+	while (iteratorOp.hasNext()) {
+	    calc = (func.apply(calc, iteratorOp.getIntNext()));
+	}
+	return calc;
+    }
+
+    public static float apply(float calc, Array op, FloatFloatFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
+	while (iteratorOp.hasNext()) {
+	    calc = (func.apply(calc, iteratorOp.getFloatNext()));
+	}
+	return calc;
+    }
+
+    public static double apply(double calc, Array op, DoubleDoubleFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
+	while (iteratorOp.hasNext()) {
+	    calc = (func.apply(calc, iteratorOp.getDoubleNext()));
+	}
+	return calc;
+    }
+
 }
-

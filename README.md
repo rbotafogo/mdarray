@@ -19,7 +19,7 @@ MDArray and SciRuby
 
 MDArray subscribes fully to the SciRuby Manifesto (http://sciruby.com/).  
 
-“Ruby has for some time had no equivalent to the beautifully constructed NumPy, SciPy, 
+Ruby has for some time had no equivalent to the beautifully constructed NumPy, SciPy, 
 and matplotlib libraries for Python. 
 
 We believe that the time for a Ruby science and visualization package has come. Sometimes 
@@ -34,8 +34,7 @@ Main properties
       same type, indexed by a tuple of positive integers;
   + Easy calculation for large numerical multi dimensional arrays;
   + Basic types are: boolean, byte, short, int, long, float, double, string, structure;
-  + Based on JRuby, which allows importing Java libraries.  Version 0.4.0 only imports
-      Java-NetCDF;
+  + Based on JRuby, which allows importing Java libraries;
   + Operator: +,-,*,/,%,**, >, >=, etc.
   + Functions: abs, ceil, floor, truncate, is_zero, square, cube, fourth;
   + Binary Operators: &, |, ^, ~ (binary_ones_complement), <<, >>;

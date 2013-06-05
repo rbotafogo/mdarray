@@ -20,6 +20,7 @@ EOF
   gem.homepage = 'http://github.com/rbotafogo/mdarray/wiki'
 
   gem.add_dependency('map', [">= 6.3.0"])
+  gem.add_dependency('shoulda')
   gem.add_development_dependency('simplecov', [">= 0.7.1"])
   gem.add_development_dependency('yard', [">= 0.8.5.2"])
   gem.add_development_dependency('kramdown', [">= 1.0.1"])

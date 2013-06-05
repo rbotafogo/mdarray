@@ -25,9 +25,79 @@
 
 module RubyFunctions
 
+  class << self
+    attr_reader :binary_helper
+    attr_reader :unary_helper
+  end
+
+  @binary_helper = Java::RbMdarrayLoopsBinops
+  @unary_helper = Java::RbMdarrayLoopsUnops
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_binary_operators(name, func, default = true, in_place = true)
+
+    if (default)
+      make_binary_op(name, :default, func, RubyFunctions.binary_helper)
+    end
+    if (in_place)
+      make_binary_op(name + "!", :in_place, func, RubyFunctions.binary_helper)
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_binary_operator(name, type, func)
+    make_binary_op(name, type, func, RubyFunctions.binary_helper)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_unary_operators(name, func, default = true, in_place = true)
+
+    if (default)
+      make_unary_op(name, :default, func, RubyFunctions.unary_helper)
+    end
+    if (in_place)
+      make_unary_op(name + "!", :in_place, func, RubyFunctions.unary_helper)
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_unary_operator(name, type, func)
+    make_unary_op(name, type, func, RubyFunctions.unary_helper)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_comparison_operator(name, func)
+    make_binary_op(name, "default", func, RubyFunctions.binary_helper, "boolean")
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
   def ruby_binary_function(long_name, proc)
     [long_name, "RubyFunctions", proc, "*", "*", "*"]
   end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
 
   def ruby_unary_function(long_name, proc)
     [long_name, "RubyFunctions", proc, "*", "*", "*"]
@@ -77,3 +147,5 @@ require_relative 'ruby_numeric_functions'
 require_relative 'ruby_math'
 require_relative 'ruby_boolean_functions'
 require_relative 'ruby_stats'
+
+MDArray.functions = "RubyFunctions"

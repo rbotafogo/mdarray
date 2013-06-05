@@ -356,15 +356,17 @@ class MDArray
   end
   
   #------------------------------------------------------------------------------------
-  #
+  # fmap is an array with the following data: long_name, scope, function, return_type, 
+  # input1_type, input2_type
   #------------------------------------------------------------------------------------
 
-  def self.register_function(name, func)
+  def self.register_function(name, fmap, arity, helper_class)
     
     if ((list = MDArray.function_map[name]) == nil)
       list = (MDArray.function_map[name] = Array.new)
     end
-    list << FunctionMap.new(name, func[0], func[1], func[2], func[3], func[4], func[5])
+    list << FunctionMap.new(name, fmap[0], fmap[1], fmap[2], fmap[3], fmap[4], fmap[5],
+                            arity, helper_class)
 
   end
 

@@ -49,8 +49,99 @@ class Colt
   
 end # Colt
 
+##########################################################################################
+#
+##########################################################################################
+
+module CernFunctions
+
+  class << self
+    attr_reader :binary_helper
+    attr_reader :unary_helper
+  end
+
+  @binary_helper = Java::RbColtLoopsBinops
+  @unary_helper = Java::RbColtLoopsUnops
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_binary_operators(name, func, default = true, in_place = true)
+
+    if (default)
+      make_binary_op(name, :default, func, CernFunctions.binary_helper)
+    end
+    if (in_place)
+      make_binary_op(name + "!", :in_place, func, CernFunctions.binary_helper)
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_binary_operator(name, type, func)
+    make_binary_op(name, type, func, CernFunctions.binary_helper)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_unary_operators(name, func, default = true, in_place = true)
+
+    if (default)
+      make_unary_op(name, :default, func, CernFunctions.unary_helper)
+    end
+    if (in_place)
+      make_unary_op(name + "!", :in_place, func, CernFunctions.unary_helper)
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_unary_operator(name, type, func)
+    make_unary_op(name, type, func, CernFunctions.unary_helper)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def make_comparison_operator(name, func)
+    make_binary_op(name, "default", func, CernFunctions.binary_helper, "boolean")
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def cern_binary_function(short_name, long_name, module_name, type)
+    [long_name, "CernFunctions", module_name.send(short_name), type, type, type]
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def cern_unary_function(short_name, long_name, module_name, type)
+    [long_name, "CernFunctions", module_name.send(short_name), type, type, "void"]
+  end
+
+end # CernFunctions
+
+##########################################################################################
+#
+##########################################################################################
+
 require_relative 'stat_list'
 require_relative 'colt_mdarray'
+require_relative 'cern_double_functions'
 
-# MDArray.functions = "CernFunctions"
+MDArray.functions = "CernFunctions"
 
