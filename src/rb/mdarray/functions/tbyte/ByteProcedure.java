@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tfloat;
+package rb.mdarray.functions.tbyte;
 
-public interface FF {
-    public float apply(float val);
+public interface ByteProcedure {
+    public boolean apply(byte val1);
 }

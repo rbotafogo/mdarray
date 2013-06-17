@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tfloat;
+package rb.mdarray.functions.tshort;
 
-public interface FFF {
-    public float apply(float val1, float val2);
+public interface ShortShortFunction {
+    public short apply(short val1, short val2);
 }

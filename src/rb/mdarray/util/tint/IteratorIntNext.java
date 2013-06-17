@@ -19,22 +19,21 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.loops.binops;
+package rb.mdarray.util.tint;
 
 import ucar.ma2.*;
+import rb.mdarray.functions.tint.*;
 
-import rb.mdarray.functions.tobject.*;
+public class IteratorIntNext implements IntMethod {
 
-public class ComplexReduceBinaryOperator {
+    IndexIterator _iterator;
+    
+    public IteratorIntNext(IndexIterator iterator) {
+	_iterator = iterator;
+    }
 
-    public static Object[] apply(Object[] calc, Array op1, Array op2, OODD func) {
-	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
-	    calc = func.apply(calc, iteratorOp1.getDoubleNext(), 
-			      iteratorOp2.getDoubleNext());
-	}
-	return calc;
+    public int apply() {
+	return _iterator.getIntNext();
     }
 
 }

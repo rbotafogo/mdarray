@@ -60,8 +60,8 @@ module CernFunctions
     attr_reader :unary_helper
   end
 
-  @binary_helper = Java::RbColtLoopsBinops
-  @unary_helper = Java::RbColtLoopsUnops
+  @binary_helper = Java::RbMdarrayLoopsBinops
+  @unary_helper = Java::RbMdarrayLoopsUnops
 
   #------------------------------------------------------------------------------------
   #
@@ -133,6 +133,14 @@ module CernFunctions
     [long_name, "CernFunctions", module_name.send(short_name), type, type, "void"]
   end
 
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def cern_comparison_function(short_name, long_name, module_name, type)
+    [long_name, "CernFunctions", module_name.send(short_name), "boolean", type, type]
+  end
+
 end # CernFunctions
 
 ##########################################################################################
@@ -142,6 +150,9 @@ end # CernFunctions
 require_relative 'stat_list'
 require_relative 'colt_mdarray'
 require_relative 'cern_double_functions'
+require_relative 'cern_float_functions'
+require_relative 'cern_long_functions'
+require_relative 'cern_int_functions'
 
 MDArray.functions = "CernFunctions"
 

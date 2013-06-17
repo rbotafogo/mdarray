@@ -22,112 +22,117 @@
 package rb.mdarray.loops.binops;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
-import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
-import rb.mdarray.functions.tdouble.*;
-import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
-import rb.mdarray.functions.tlong.*;
-import rb.mdarray.functions.tobject.*;
+/* Functions from cern.colt */
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tlong.*;
+import cern.colt.function.tint.*;
+
+/* Functions not defined in cern.colt */
 import rb.mdarray.functions.tshort.*;
+import rb.mdarray.functions.tbyte.*;
+
+/* Non-numeric functions */
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tchar.*;
+import rb.mdarray.functions.tobject.*;
 
 
 public class InplaceBinaryOperator {
 
-    public static void apply(ArrayByte op1, byte op2, BBB func) {
+    public static void apply(ArrayByte op1, byte op2, ByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setByteCurrent(func.apply(iteratorOp1.getByteNext(), op2));
 	}
     }
 
-    public static void apply(ArrayByte op1, Array op2, BBB func) {
+    public static void apply(ArrayByte op1, Array op2, ByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setByteCurrent(func.apply(iteratorOp1.getByteNext(),
-						 iteratorOp2.getByteNext()));
+						  iteratorOp2.getByteNext()));
 	}
     }
 
-    public static void apply(ArrayShort op1, short op2, SSS func) {
+    public static void apply(ArrayShort op1, short op2, ShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setShortCurrent(func.apply(iteratorOp1.getShortNext(), op2));
 	}
     }
 
-    public static void apply(ArrayShort op1, Array op2, SSS func) {
+    public static void apply(ArrayShort op1, Array op2, ShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setShortCurrent(func.apply(iteratorOp1.getShortNext(),
-						  iteratorOp2.getShortNext()));
+						   iteratorOp2.getShortNext()));
 	}
     }
 
-    public static void apply(ArrayInt op1, int op2, III func) {
+    public static void apply(ArrayInt op1, int op2, IntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setIntCurrent(func.apply(iteratorOp1.getIntNext(), op2));
 	}
     }
 
-    public static void apply(ArrayInt op1, Array op2, III func) {
+    public static void apply(ArrayInt op1, Array op2, IntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setIntCurrent(func.apply(iteratorOp1.getIntNext(),
-						iteratorOp2.getIntNext()));
+						 iteratorOp2.getIntNext()));
 	}
     }
 
-    public static void apply(ArrayLong op1, long op2, LLL func) {
+    public static void apply(ArrayLong op1, int op2, LongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setLongCurrent(func.apply(iteratorOp1.getLongNext(), op2));
 	}
     }
 
-    public static void apply(ArrayLong op1, Array op2, LLL func) {
+    public static void apply(ArrayLong op1, Array op2, LongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setLongCurrent(func.apply(iteratorOp1.getLongNext(),
-						 iteratorOp2.getLongNext()));
+						  iteratorOp2.getLongNext()));
 	}
     }
 
-    public static void apply(ArrayFloat op1, float op2, FFF func) {
+    public static void apply(ArrayFloat op1, float op2, FloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setFloatCurrent(func.apply(iteratorOp1.getFloatNext(), op2));
 	}
     }
 
-    public static void apply(ArrayFloat op1, Array op2, FFF func) {
+    public static void apply(ArrayFloat op1, Array op2, FloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setFloatCurrent(func.apply(iteratorOp1.getFloatNext(),
-					       iteratorOp2.getFloatNext()));
+						   iteratorOp2.getFloatNext()));
 	}
     }
 
-    public static void apply(ArrayDouble op1, double op2, DDD func) {
+    public static void apply(ArrayDouble op1, double op2, DoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setDoubleCurrent(func.apply(iteratorOp1.getDoubleNext(), op2));
 	}
     }
-
-    public static void apply(ArrayDouble op1, Array op2, DDD func) {
+    
+    public static void apply(ArrayDouble op1, Array op2, DoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorOp1.setDoubleCurrent(func.apply(iteratorOp1.getDoubleNext(),
-						   iteratorOp2.getDoubleNext()));
+						    iteratorOp2.getDoubleNext()));
 	}
     }
 

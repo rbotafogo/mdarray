@@ -22,15 +22,6 @@
 package rb.mdarray.loops.binops;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
-import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
-import rb.mdarray.functions.tdouble.*;
-import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
-import rb.mdarray.functions.tlong.*;
-import rb.mdarray.functions.tobject.*;
-import rb.mdarray.functions.tshort.*;
 
 public class FillBinaryOperator {
 

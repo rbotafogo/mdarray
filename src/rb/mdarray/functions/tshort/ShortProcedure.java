@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tlong;
+package rb.mdarray.functions.tboolean;
 
-public interface LL {
-    public long apply(long val);
+public interface ShortProcedure {
+    public boolean apply(short val1);
 }

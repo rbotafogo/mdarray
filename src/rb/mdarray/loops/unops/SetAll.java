@@ -22,15 +22,26 @@
 package rb.mdarray.loops.unops;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
+
+/* Functions from cern.colt */
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tlong.*;
+import cern.colt.function.tint.*;
+
+/* Functions not defined in cern.colt */
+import rb.mdarray.functions.tshort.*;
 import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
 import rb.mdarray.functions.tdouble.*;
 import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
 import rb.mdarray.functions.tlong.*;
+import rb.mdarray.functions.tint.*;
+
+/* Non-numeric functions */
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tchar.*;
 import rb.mdarray.functions.tobject.*;
-import rb.mdarray.functions.tshort.*;
+
 
 public class SetAll {
 

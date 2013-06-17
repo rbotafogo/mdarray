@@ -21,6 +21,6 @@
 
 package rb.mdarray.functions.tboolean;
 
-public interface BlBl {
-    public boolean apply(boolean val);
+public interface BooleanBooleanFunction {
+    public boolean apply(boolean val1, boolean val2);
 }

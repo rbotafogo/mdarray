@@ -21,6 +21,6 @@
 
 package rb.mdarray.functions.tbyte;
 
-public interface BBB {
-    public byte apply(byte val1, byte val2);
+public interface ByteFunction {
+    public byte apply(byte val);
 }

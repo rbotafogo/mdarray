@@ -19,8 +19,45 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tboolean;
+package rb.mdarray.util;
 
-public interface BlBlBl {
-    public boolean apply(boolean val1, boolean val2);
+import ucar.ma2.*;
+
+import cern.colt.function.tdouble.*;
+import rb.mdarray.functions.tdouble.*;
+import rb.mdarray.util.tdouble.*;
+
+import cern.colt.function.tint.*;
+import rb.mdarray.functions.tint.*;
+import rb.mdarray.util.tint.*;
+
+
+
+public class Util {
+
+    public static IntMethod getIterator(ArrayInt arr) {
+	return new IteratorIntNext(arr.getIndexIterator());
+    }
+
+    public static IntMethod compose(IntFunction f, IntMethod x) {
+	return new IntIntCompose(f, x);
+    }
+
+    public static IntMethod compose(IntIntFunction f, IntMethod x, IntMethod y) {
+	return new IntIntIntCompose(f, x, y);
+    }
+
+    public static DoubleMethod getIterator(ArrayDouble arr) {
+	return new IteratorDoubleNext(arr.getIndexIterator());
+    }
+
+    public static DoubleMethod compose(DoubleFunction f, DoubleMethod x) {
+	return new DoubleDoubleCompose(f, x);
+    }
+
+    public static DoubleMethod compose(DoubleDoubleFunction f, DoubleMethod x,
+				       DoubleMethod y) {
+	return new DoubleDoubleDoubleCompose(f, x, y);
+    }
+
 }

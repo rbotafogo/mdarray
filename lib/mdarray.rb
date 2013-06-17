@@ -213,7 +213,7 @@ class MDArray
 
       value.each do |func|
 
-        p "scope: #{func.scope}, short name: #{key}, long name: #{func.long_name}, return type: #{func.return_type}, input1 type: #{func.input1_type}, input2 type: #{func.input2_type}"
+        p "package: #{func.package}, short name: #{key}, long name: #{func.long_name}, return type: #{func.return_type}, input1 type: #{func.input1_type}, input2 type: #{func.input2_type}"
 
       end
 
@@ -304,7 +304,7 @@ class MDArray
 
     if (given_type == function_type)
       match
-    elsif (function_type == "*")
+    elsif ((function_type == "*") || (given_type == "*"))
       partial_match
     else
       no_match
@@ -328,6 +328,13 @@ class MDArray
 
   def self.select_function(name, package = nil, return_type = nil, input1_type = nil, 
                            input2_type = nil)
+
+    p "selecting function: #{name}"
+=begin
+    p "return_type: #{return_type}"
+    p "input1_type: #{input1_type}"
+    p "input2_type: #{input2_type}"
+=end
 
     list = MDArray.function_map[name]
     best_value = -1
@@ -355,11 +362,8 @@ class MDArray
     end
 
 #=begin
-    if (name == "add")
-      p "MDArray.select_function"
-      # p "package: #{package}; function package: #{function.package}"
-      p "selected function #{func.function}"
-    end
+    p "MDArray.select_function"
+    p "selected function #{func.function}"
 #=end
 
     if (best_value > 0)
@@ -367,25 +371,6 @@ class MDArray
     else
       raise "No method to process operator: #{name}"
     end
-
-=begin
-    list.each do |function|
-
-      value = 0
-      value += (package == function.package)? 8 : 0
-      value += (return_type == function.return_type)? 4 : 0
-      value += (input1_type == function.input1_type)? 2 : 0
-      value += (input2_type == function.input2_type)? 1 : 0
-      if (value > best_value)
-        # func = function.function
-        func = function
-        best_value = value
-        # p "best value: #{best_value}, func: #{func}"
-      end
-    end
-
-    func
-=end
 
   end
 

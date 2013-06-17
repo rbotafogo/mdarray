@@ -21,6 +21,22 @@
 
 package rb.mdarray.functions.tdouble;
 
-public interface DD {
-    public double apply(double val);
+import cern.colt.function.tdouble.*;
+import rb.mdarray.functions.tdouble.*;
+
+public class DoubleDoubleDoubleCompose implements DoubleMethod {
+
+    DoubleDoubleFunction _f;
+    DoubleMethod _x;
+    DoubleMethod _y;
+
+    public DoubleDoubleDoubleCompose(DoubleDoubleFunction f, DoubleMethod x, DoubleMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public double apply() {
+	return _f.apply(_x.apply(), _y.apply());
+    }
 }

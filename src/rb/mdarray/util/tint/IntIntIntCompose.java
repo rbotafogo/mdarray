@@ -19,42 +19,24 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.colt.loops.binops;
+package rb.mdarray.functions.tint;
 
-import ucar.ma2.*;
-import cern.colt.function.tdouble.*;
-import cern.colt.function.tfloat.*;
 import cern.colt.function.tint.*;
+import rb.mdarray.functions.tint.*;
 
+public class IntIntIntCompose implements IntMethod {
 
-public class CoerceBinaryOperator {
+    IntIntFunction _f;
+    IntMethod _x;
+    IntMethod _y;
 
-    //------------------------------------------------------------------------------------
-    // Coerce binary operator
-    //------------------------------------------------------------------------------------
-
-    public static void apply(Array dest, Array op1, int op2, IntIntFunction func) {
-	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
-	    iteratorDest.setIntNext(func.apply(op2, iteratorOp1.getIntNext()));
-	}
+    public IntIntIntCompose(IntIntFunction f, IntMethod x, IntMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
     }
 
-    public static void apply(Array dest, Array op1, int op2, FloatFloatFunction func) {
-	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
-	    iteratorDest.setFloatNext(func.apply(op2, iteratorOp1.getFloatNext()));
-	}
+    public int apply() {
+	return _f.apply(_x.apply(), _y.apply());
     }
-
-    public static void apply(Array dest, Array op1, double op2, DoubleDoubleFunction func) {
-	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
-	    iteratorDest.setDoubleNext(func.apply(op2, iteratorOp1.getDoubleNext()));
-	}
-    }
-
 }

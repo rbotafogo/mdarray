@@ -22,15 +22,25 @@
 package rb.mdarray.loops.lazy;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
+/* Functions from cern.colt */
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tlong.*;
+import cern.colt.function.tint.*;
+
+/* Functions not defined in cern.colt */
+import rb.mdarray.functions.tshort.*;
 import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
 import rb.mdarray.functions.tdouble.*;
 import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
 import rb.mdarray.functions.tlong.*;
+import rb.mdarray.functions.tint.*;
+
+/* Non-numeric functions */
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tchar.*;
 import rb.mdarray.functions.tobject.*;
-import rb.mdarray.functions.tshort.*;
+
 
 public class DefaultLazyOperator {
     
@@ -80,7 +90,6 @@ public class DefaultLazyOperator {
 	    iteratorDest.setDoubleNext(func.apply());
 	}
     }
-    */
 
     public static void apply(Array dest, O0 func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
@@ -88,4 +97,14 @@ public class DefaultLazyOperator {
 	    iteratorDest.setObjectNext(func.apply());
 	}
     }
+
+    */
+
+    public static void apply(ArrayDouble dest, DoubleMethod func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorDest.hasNext()) {
+	    iteratorDest.setObjectNext(func.apply());
+	}
+    }
+
 }

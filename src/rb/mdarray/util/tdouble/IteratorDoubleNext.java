@@ -19,8 +19,21 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tdouble;
+package rb.mdarray.util.tdouble;
 
-public interface DDDD {
-    public double apply(double val1, double val2, double val3);
+import ucar.ma2.*;
+import rb.mdarray.functions.tdouble.*;
+
+public class IteratorDoubleNext implements DoubleMethod {
+
+    IndexIterator _iterator;
+    
+    public IteratorDoubleNext(IndexIterator iterator) {
+	_iterator = iterator;
+    }
+
+    public double apply() {
+	return _iterator.getDoubleNext();
+    }
+
 }

@@ -19,22 +19,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.loops.binops;
+package rb.mdarray.util.tdouble;
 
-import ucar.ma2.*;
+import cern.colt.function.tdouble.*;
+import rb.mdarray.functions.tdouble.*;
 
-import rb.mdarray.functions.tobject.*;
+public class DoubleDoubleCompose implements DoubleMethod {
+    
+    DoubleFunction _f;
+    DoubleMethod _x;
 
-public class ComplexReduceBinaryOperator {
-
-    public static Object[] apply(Object[] calc, Array op1, Array op2, OODD func) {
-	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
-	    calc = func.apply(calc, iteratorOp1.getDoubleNext(), 
-			      iteratorOp2.getDoubleNext());
-	}
-	return calc;
+    public DoubleDoubleCompose(DoubleFunction f, DoubleMethod x) {
+	_f = f;
+	_x = x;
     }
 
+    public double apply() {
+	return _f.apply(_x.apply());
+    }
 }

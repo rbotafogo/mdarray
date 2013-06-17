@@ -22,20 +22,29 @@
 package rb.mdarray.loops.binops;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
-import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
-import rb.mdarray.functions.tdouble.*;
-import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
-import rb.mdarray.functions.tlong.*;
-import rb.mdarray.functions.tobject.*;
+/* Functions from cern.colt */
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tlong.*;
+import cern.colt.function.tint.*;
+
+/* Functions not defined in cern.colt */
 import rb.mdarray.functions.tshort.*;
+import rb.mdarray.functions.tbyte.*;
+
+/* Non-numeric functions */
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tchar.*;
+import rb.mdarray.functions.tobject.*;
+
 
 public class DefaultBinaryOperator {
-    
-    
-    public static void apply(ArrayByte dest, Array op1, byte op2, BBB func) {
+
+    //------------------------------------------------------------------------------------
+    // Default binary for numeric operators
+    //------------------------------------------------------------------------------------
+
+    public static void apply(ArrayByte dest, Array op1, byte op2, ByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -43,7 +52,7 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayByte dest, Array op1, Array op2, BBB func) {
+    public static void apply(ArrayByte dest, Array op1, Array op2, ByteByteFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -53,7 +62,8 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayShort dest, Array op1, short op2, SSS func) {
+    public static void apply(ArrayShort dest, Array op1, short op2, 
+			     ShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -61,17 +71,18 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayShort dest, Array op1, Array op2, SSS func) {
+    public static void apply(ArrayShort dest, Array op1, Array op2, 
+			     ShortShortFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorDest.setShortNext(func.apply(iteratorOp1.getShortNext(),
-						iteratorOp2.getShortNext()));
+						 iteratorOp2.getShortNext()));
 	}
     }
 
-    public static void apply(ArrayInt dest, Array op1, int op2, III func) {
+    public static void apply(ArrayInt dest, Array op1, int op2, IntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -79,17 +90,17 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayInt dest, Array op1, Array op2, III func) {
+    public static void apply(ArrayInt dest, Array op1, Array op2, IntIntFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorDest.setIntNext(func.apply(iteratorOp1.getIntNext(),
-					      iteratorOp2.getIntNext()));
+						  iteratorOp2.getIntNext()));
 	}
     }
 
-    public static void apply(ArrayLong dest, Array op1, long op2, LLL func) {
+    public static void apply(ArrayLong dest, Array op1, long op2, LongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -97,17 +108,17 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayLong dest, Array op1, Array op2, LLL func) {
+    public static void apply(ArrayLong dest, Array op1, Array op2, LongLongFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorDest.setLongNext(func.apply(iteratorOp1.getLongNext(),
-					       iteratorOp2.getLongNext()));
+						iteratorOp2.getLongNext()));
 	}
     }
 
-    public static void apply(ArrayFloat dest, Array op1, float op2, FFF func) {
+    public static void apply(ArrayFloat dest, Array op1, float op2, FloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -115,17 +126,18 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayFloat dest, Array op1, Array op2, FFF func) {
+    public static void apply(ArrayFloat dest, Array op1, Array op2, FloatFloatFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorDest.setFloatNext(func.apply(iteratorOp1.getFloatNext(),
-						iteratorOp2.getFloatNext()));
+						 iteratorOp2.getFloatNext()));
 	}
     }
 
-    public static void apply(ArrayDouble dest, Array op1, double op2, DDD func) {
+    public static void apply(ArrayDouble dest, Array op1, double op2, 
+			     DoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -133,13 +145,14 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayDouble dest, Array op1, Array op2, DDD func) {
+    public static void apply(ArrayDouble dest, Array op1, Array op2, 
+			     DoubleDoubleFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
 	    iteratorDest.setDoubleNext(func.apply(iteratorOp1.getDoubleNext(),
-						 iteratorOp2.getDoubleNext()));
+						  iteratorOp2.getDoubleNext()));
 	}
     }
 
@@ -147,7 +160,108 @@ public class DefaultBinaryOperator {
     // Default binary for comparison operators
     //------------------------------------------------------------------------------------
 
-    public static void apply(ArrayBoolean dest, Array op1, double op2, BlDD func) {
+    public static void apply(ArrayBoolean dest, Array op1, byte op2, 
+			     ByteByteProcedure func) {
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getByteNext(), op2));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, Array op2, 
+			     ByteByteProcedure func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorOp2 = op2.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getByteNext(),
+						   iteratorOp2.getByteNext()));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, short op2, 
+			     ShortShortProcedure func) {
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getShortNext(), op2));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, Array op2, 
+			     ShortShortProcedure func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorOp2 = op2.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getShortNext(),
+						   iteratorOp2.getShortNext()));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, int op2, 
+			     IntIntProcedure func) {
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getIntNext(), op2));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, Array op2, 
+			     IntIntProcedure func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorOp2 = op2.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getIntNext(),
+						   iteratorOp2.getIntNext()));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, long op2, 
+			     LongLongProcedure func) {
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getLongNext(), op2));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, Array op2, 
+			     LongLongProcedure func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorOp2 = op2.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getLongNext(),
+						   iteratorOp2.getLongNext()));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, float op2, 
+			     FloatFloatProcedure func) {
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getFloatNext(), op2));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, Array op2, 
+			     FloatFloatProcedure func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	IndexIterator iteratorOp2 = op2.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getFloatNext(),
+						   iteratorOp2.getFloatNext()));
+	}
+    }
+
+    public static void apply(ArrayBoolean dest, Array op1, double op2, 
+			     DoubleDoubleProcedure func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -155,7 +269,8 @@ public class DefaultBinaryOperator {
 	}
     }
 
-    public static void apply(ArrayBoolean dest, Array op1, Array op2, BlDD func) {
+    public static void apply(ArrayBoolean dest, Array op1, Array op2, 
+			     DoubleDoubleProcedure func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -170,7 +285,17 @@ public class DefaultBinaryOperator {
     //------------------------------------------------------------------------------------
 
     public static void applyBooleanMDArray(ArrayBoolean dest, ArrayBoolean op1, 
-					   ArrayBoolean op2, BlBlBl func) {
+					   boolean op2, BooleanBooleanFunction func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getBooleanNext(),
+						   op2));
+	}
+    }
+
+    public static void applyBooleanMDArray(ArrayBoolean dest, ArrayBoolean op1, 
+					   ArrayBoolean op2, BooleanBooleanFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();

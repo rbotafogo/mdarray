@@ -22,19 +22,41 @@
 package rb.mdarray.loops.unops;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
-import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
-import rb.mdarray.functions.tdouble.*;
-import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
-import rb.mdarray.functions.tlong.*;
-import rb.mdarray.functions.tobject.*;
+/* Functions from cern.colt */
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tlong.*;
+import cern.colt.function.tint.*;
+
+/* Functions not defined in cern.colt */
 import rb.mdarray.functions.tshort.*;
+import rb.mdarray.functions.tbyte.*;
+
+/* Non-numeric functions */
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tchar.*;
+import rb.mdarray.functions.tobject.*;
+
 
 public class ReduceUnaryOperator {
-    
-    public static double apply(double calc, Array op, DDD func) {
+
+    public static int apply(int calc, Array op, IntIntFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
+	while (iteratorOp.hasNext()) {
+	    calc = (func.apply(calc, iteratorOp.getIntNext()));
+	}
+	return calc;
+    }
+
+    public static float apply(float calc, Array op, FloatFloatFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
+	while (iteratorOp.hasNext()) {
+	    calc = (func.apply(calc, iteratorOp.getFloatNext()));
+	}
+	return calc;
+    }
+
+    public static double apply(double calc, Array op, DoubleDoubleFunction func) {
 	IndexIterator iteratorOp = op.getIndexIterator();
 	while (iteratorOp.hasNext()) {
 	    calc = (func.apply(calc, iteratorOp.getDoubleNext()));

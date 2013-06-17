@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tdouble;
 
-public interface SSS {
-    public short apply(short val1, short val2);
+public interface DoubleMethod {
+    public double apply();
 }

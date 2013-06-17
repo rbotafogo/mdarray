@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tint;
+package rb.mdarray.functions.tbyte;
 
-public interface III {
-    public int apply(int val1, int val2);
+public interface ByteByteByteFunction {
+    public byte apply(byte val1, byte val2, byte val3);
 }

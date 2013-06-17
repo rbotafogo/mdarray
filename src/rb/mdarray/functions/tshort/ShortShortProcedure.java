@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tint;
+package rb.mdarray.functions.tboolean;
 
-public interface II {
-    public int apply(int val);
+public interface ShortShortProcedure {
+    public boolean apply(short val1, short val2);
 }

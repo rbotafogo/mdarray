@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tbyte;
+package rb.mdarray.functions.tboolean;
 
-public interface BB {
-    public byte apply(byte val);
+public interface ShortFunction {
+    public short apply(short val1);
 }

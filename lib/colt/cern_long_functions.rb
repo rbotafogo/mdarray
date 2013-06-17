@@ -25,8 +25,8 @@ require 'java'
 #
 ##########################################################################################
 
-class Java::CernJetMathTint::IntFunctions
-  include_package "cern.jet.math.tint"
+class Java::CernJetMathTlong::LongFunctions
+  include_package "cern.jet.math.tlong"
 
   cern_methods = [:abs, :compare, :div, :divNeg, :equals, :isEqual, :isGreater, :isLess,
                   :max, :min, :minus, :mod, :mult, :multNeg, :multSquare, :neg, :plus, 
@@ -35,27 +35,27 @@ class Java::CernJetMathTint::IntFunctions
                   :shiftRightSigned, :shiftRightUnsigned, :xor]
 
   # methods that also exist for types double and float
-  java_alias :unary_compare, :compare, [Java::int]
-  java_alias :unary_div, :div, [Java::int]
-  java_alias :unary_equals, :equals, [Java::int]
-  java_alias :unary_isEqual, :isEqual, [Java::int]
-  java_alias :unary_isGreater, :isGreater, [Java::int]
-  java_alias :unary_isLess, :isLess, [Java::int]
-  java_alias :unary_max, :max, [Java::int]
-  java_alias :unary_min, :min, [Java::int]
-  java_alias :unary_minus, :minus, [Java::int]
-  java_alias :unary_mod, :mod, [Java::int]
-  java_alias :unary_mult, :mult, [Java::int]
-  java_alias :unary_plus, :plus, [Java::int]
-  java_alias :unary_pow, :pow, [Java::int]
+  java_alias :unary_compare, :compare, [Java::long]
+  java_alias :unary_div, :div, [Java::long]
+  java_alias :unary_equals, :equals, [Java::long]
+  java_alias :unary_isEqual, :isEqual, [Java::long]
+  java_alias :unary_isGreater, :isGreater, [Java::long]
+  java_alias :unary_isLess, :isLess, [Java::long]
+  java_alias :unary_max, :max, [Java::long]
+  java_alias :unary_min, :min, [Java::long]
+  java_alias :unary_minus, :minus, [Java::long]
+  java_alias :unary_mod, :mod, [Java::long]
+  java_alias :unary_mult, :mult, [Java::long]
+  java_alias :unary_plus, :plus, [Java::long]
+  java_alias :unary_pow, :pow, [Java::long]
 
   # methods that only exist for types long and int
-  java_alias :unary_and, :and, [Java::int]
-  java_alias :unary_or, :or, [Java::int]
-  java_alias :unary_shiftLeft, :shiftLeft, [Java::int]
-  java_alias :unary_shiftRightSigned, :shiftRightSigned, [Java::int]
-  java_alias :unary_shiftRightUnsigned, :shiftRightUnsigned, [Java::int]
-  java_alias :unary_xor, :xor, [Java::int]
+  java_alias :unary_and, :and, [Java::long]
+  java_alias :unary_or, :or, [Java::long]
+  java_alias :unary_shiftLeft, :shiftLeft, [Java::long]
+  java_alias :unary_shiftRightSigned, :shiftRightSigned, [Java::long]
+  java_alias :unary_shiftRightUnsigned, :shiftRightUnsigned, [Java::long]
+  java_alias :unary_xor, :xor, [Java::long]
 
   
   cern_methods.each do |method|
@@ -69,11 +69,11 @@ end
 #
 ##########################################################################################
 
-module CernIntFunctions
-  include_package "cern.jet.math.tint"
+module CernLongFunctions
+  include_package "cern.jet.math.tlong"
   extend FunctionCreation
   extend CernFunctions
-  
+    
   binary_methods = [:compare, :div, :divNeg, :equals, :minus, :mod, :mult, :multNeg, 
                     :multSquare, :plus, :plusAbs, :pow, 
                     :and, :or, :shiftLeft, :shiftRightSigned, :shiftRightUnsigned, :xor]
@@ -86,34 +86,34 @@ module CernIntFunctions
 
   binary_methods.each do |method|
     make_binary_operators(method.to_s,
-                          cern_binary_function(method.to_s, "#{method}_int", 
-                                               Java::CernJetMathTint.IntFunctions,
-                                               "int"))
+                          cern_binary_function(method.to_s, "#{method}_long", 
+                                               Java::CernJetMathTlong.LongFunctions,
+                                               "long"))
   end
 
   unary_methods.each do |method|
     make_unary_operators(method.to_s, 
-                         cern_unary_function(method.to_s, "#{method}_int", 
-                                             Java::CernJetMathTint.IntFunctions,
-                                             "int"))
+                         cern_unary_function(method.to_s, "#{method}_long", 
+                                             Java::CernJetMathTlong.LongFunctions,
+                                             "long"))
   end
 
   comparison_methods.each do |method|
     make_comparison_operator(method.to_s, 
                              cern_comparison_function(method.to_s, "#{method}_double", 
-                                                      Java::CernJetMathTint.IntFunctions,
-                                                      "int"))
+                                                      Java::CernJetMathTlong.LongFunctions,
+                                                      "long"))
   end
   
   binary_conflict_methods.each do |method|
     make_binary_operators("cern_#{method}",
                           cern_binary_function(method.to_s, "cern_#{method}_double", 
-                                               Java::CernJetMathTint.IntFunctions,
-                                               "int"))
+                                               Java::CernJetMathTlong.LongFunctions,
+                                               "long"))
   end
   
-  def self.register(als, name, int_name, type)
-    map = cern_binary_function(name, int_name, Java::CernJetMathTint.IntFunctions,
+  def self.register(als, name, long_name, type)
+    map = cern_binary_function(name, long_name, Java::CernJetMathTlong.LongFunctions,
                                type)
     MDArray.register_function(als, map, 2, CernFunctions.binary_helper)
   end
@@ -129,15 +129,15 @@ module CernIntFunctions
   alias :shift_right_signed :shiftRightSigned
   alias :shift_right_unsigned :shiftRightUnsigned
 
-  register(:add, :plus, :plus_int, "int")
-  register(:sub, :minus, :minus_int, "int")
-  register(:mul, :mult, :mult_int, "int")
-  register(:power, :pow, :pow_int, "int")
-  register(:eq, :equals, :equals_int, "int")
-  register(:gt, :isGreater, :is_greater_int, "int")
-  register(:lt, :isLess, :is_less_int, "int")
-  register(:binary_left_shift, :shiftLeft, :shift_left_int, "int")
-  register(:binary_right_shift, :shiftRightSigned, :shift_right_int, "int")
+  register(:add, :plus, :plus_long, "long")
+  register(:sub, :minus, :minus_long, "long")
+  register(:mul, :mult, :mult_long, "long")
+  register(:power, :pow, :pow_long, "long")
+  register(:eq, :equals, :equals_long, "long")
+  register(:gt, :isGreater, :is_greater_long, "long")
+  register(:lt, :isLess, :is_less_long, "long")
+  register(:binary_left_shift, :shiftLeft, :shift_left_long, "long")
+  register(:binary_right_shift, :shiftRightSigned, :shift_right_long, "long")
 
 end
 
@@ -145,8 +145,8 @@ end
 #
 ##########################################################################################
 
-class IntMDArray
+class LongMDArray
 
-  include CernIntFunctions
+  include CernLongFunctions
       
-end # IntMDArray
+end # LongMDArray

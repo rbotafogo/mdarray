@@ -194,20 +194,22 @@ class BinaryOperator < Operator
     @type = (@force_type)? @force_type : (requested_type)? requested_type : get_type
     @coerced = @op1.coerced
 
-    fmap = MDArray.select_function(@name, MDArray.functions, @type, @op1.type, @type)
-    func = fmap.function
+    # select_function could use information about the input1 and input2 arguments
+    # but if the operation is cast to the higher type @type and we don't have yet
+    # functions that have different types of arguments for operators, then just
+    # use the higher type.  This is different for comparison operators in which the
+    # return type is boolean and the input types are numeric.
+    if (MDArray.numerical.include?(@type))
+      fmap = MDArray.select_function(@name, MDArray.functions, @type, @type, @type)
+    else
+      fmap = MDArray.select_function(@name, MDArray.functions, @type, @op1.type, @op1.type)
+    end
+
+    # func = fmap.function
     @helper = fmap.helper
     @fmap = fmap
-
-    @do_func = func.dup
-=begin
-    if (func.is_a? Proc)
-      @do_func = func.dup
-    else
-      @do_func = func
-    end
-=end
-
+    # @do_func = func.dup
+    @do_func = (fmap.function).dup
     @other_args = args
 
   end
@@ -282,7 +284,7 @@ class UnaryOperator < Operator
     requested_type = args.shift
     @type = (@force_type)? @force_type : (requested_type)? requested_type : @op.type
 
-    fmap = MDArray.select_function(@name, MDArray.functions, @type, @op.type, "void")
+    fmap = MDArray.select_function(@name, MDArray.functions, @type, @type, "void")
     func = fmap.function
     @helper = fmap.helper
 

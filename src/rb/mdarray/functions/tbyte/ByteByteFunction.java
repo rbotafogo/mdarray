@@ -19,35 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.colt.loops.unops;
+package rb.mdarray.functions.tbyte;
 
-import ucar.ma2.*;
-import cern.colt.function.tdouble.*;
-import cern.colt.function.tfloat.*;
-import cern.colt.function.tint.*;
-
-
-public class InplaceUnaryOperator {
-    
-    public static void apply(Array op, IntFunction func) {
-	IndexIterator iteratorOp = op.getIndexIterator();
-	while (iteratorOp.hasNext()) {
-	    iteratorOp.setIntCurrent(func.apply(iteratorOp.getIntNext()));
-	}
-    }
-
-    public static void apply(Array op, FloatFunction func) {
-	IndexIterator iteratorOp = op.getIndexIterator();
-	while (iteratorOp.hasNext()) {
-	    iteratorOp.setFloatCurrent(func.apply(iteratorOp.getFloatNext()));
-	}
-    }
-
-    public static void apply(Array op, DoubleFunction func) {
-	IndexIterator iteratorOp = op.getIndexIterator();
-	while (iteratorOp.hasNext()) {
-	    iteratorOp.setDoubleCurrent(func.apply(iteratorOp.getDoubleNext()));
-	}
-    }
-
+public interface ByteByteFunction {
+    public byte apply(byte val1, byte val2);
 }

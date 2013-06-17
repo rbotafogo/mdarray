@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tboolean;
 
-public interface SS {
-    public short apply(short val);
+public interface BooleanFunction {
+    public boolean apply(boolean val);
 }

@@ -26,8 +26,8 @@
 #
 ##########################################################################################
 
-class Java::CernJetMathTdouble::DoubleFunctions
-  include_package "cern.jet.math.tdouble"
+class Java::CernJetMathTfloat::FloatFunctions
+  include_package "cern.jet.math.tfloat"
 
   cern_methods = [:abs, :acos, :asin, :atan, :atan2, :ceil, :compare, :cos, 
                   :div, :divNeg, :equals, :exp, :floor, :greater, :identity,
@@ -36,29 +36,29 @@ class Java::CernJetMathTdouble::DoubleFunctions
                   :multSquare, :neg, :plus, :plusAbs, :pow, :rint, :sign, :sin, 
                   :sqrt, :square, :tan]
 
-  # java_alias :unary_atan2, :atan2, [Java::double]
-  java_alias :unary_compare, :compare, [Java::double]
-  java_alias :unary_div, :div, [Java::double]
-  # java_alias :unary_div_neg, :divNeg, [Java::double]
-  java_alias :unary_equals, :equals, [Java::double]
-  java_alias :unary_greater, :greater, [Java::double]
-  java_alias :unary_ieee_remainder, :IEEEremainder, [Java::double]
-  java_alias :unary_is_equal, :isEqual, [Java::double]
-  java_alias :unary_is_greater, :isGreater, [Java::double]
-  java_alias :unary_is_less, :isLess, [Java::double]
-  java_alias :unary_less, :less, [Java::double]
-  java_alias :unary_lg, :lg, [Java::double]
-  # java_alias :unary_log2, :log2, [Java::double]
-  java_alias :unary_mod, :mod, [Java::double]
-  java_alias :unary_max, :max, [Java::double]
-  java_alias :unary_min, :min, [Java::double]
-  java_alias :unary_minus, :minus, [Java::double]
-  java_alias :unary_mult, :mult, [Java::double]
-  # java_alias :unary_mult_neg, :multNeg, [Java::double]
-  # java_alias :unary_mult_square, :multSquare, [Java::double]
-  java_alias :unary_plus, :plus, [Java::double]
-  # java_alias :unary_plus_abs, :plusAbs, [Java::double]
-  java_alias :unary_pow, :pow, [Java::double]
+  # java_alias :unary_atan2, :atan2, [Java::float]
+  java_alias :unary_compare, :compare, [Java::float]
+  java_alias :unary_div, :div, [Java::float]
+  # java_alias :unary_div_neg, :divNeg, [Java::float]
+  java_alias :unary_equals, :equals, [Java::float]
+  java_alias :unary_greater, :greater, [Java::float]
+  java_alias :unary_ieee_remainder, :IEEEremainder, [Java::float]
+  java_alias :unary_is_equal, :isEqual, [Java::float]
+  java_alias :unary_is_greater, :isGreater, [Java::float]
+  java_alias :unary_is_less, :isLess, [Java::float]
+  java_alias :unary_less, :less, [Java::float]
+  java_alias :unary_lg, :lg, [Java::float]
+  # java_alias :unary_log2, :log2, [Java::float]
+  java_alias :unary_mod, :mod, [Java::float]
+  java_alias :unary_max, :max, [Java::float]
+  java_alias :unary_min, :min, [Java::float]
+  java_alias :unary_minus, :minus, [Java::float]
+  java_alias :unary_mult, :mult, [Java::float]
+  # java_alias :unary_mult_neg, :multNeg, [Java::float]
+  # java_alias :unary_mult_square, :multSquare, [Java::float]
+  java_alias :unary_plus, :plus, [Java::float]
+  # java_alias :unary_plus_abs, :plusAbs, [Java::float]
+  java_alias :unary_pow, :pow, [Java::float]
   
   cern_methods.each do |method|
     field_reader(method)
@@ -71,8 +71,8 @@ end
 #
 ##########################################################################################
 
-module CernDoubleFunctions
-  include_package "cern.jet.math.tdouble"
+module CernFloatFunctions
+  include_package "cern.jet.math.tfloat"
   extend FunctionCreation
   extend CernFunctions
 
@@ -88,44 +88,44 @@ module CernDoubleFunctions
   binary_conflict_methods = [:max, :min]
 
   unary_conflict_methods = [:log2]
-    
+
   binary_methods.each do |method|
     make_binary_operators(method.to_s,
-                          cern_binary_function(method.to_s, "#{method}_double", 
-                                               Java::CernJetMathTdouble.DoubleFunctions,
-                                               "double"))
+                          cern_binary_function(method.to_s, "#{method}_float", 
+                                               Java::CernJetMathTfloat.FloatFunctions,
+                                               "float"))
   end
   
   unary_methods.each do |method|
     make_unary_operators(method.to_s, 
-                         cern_unary_function(method.to_s, "#{method}_double", 
-                                             Java::CernJetMathTdouble.DoubleFunctions,
-                                             "double"))
+                         cern_unary_function(method.to_s, "#{method}_float", 
+                                             Java::CernJetMathTfloat.FloatFunctions,
+                                             "float"))
   end
   
   comparison_methods.each do |method|
     make_comparison_operator(method.to_s, 
-                             cern_comparison_function(method.to_s, "#{method}_double", 
-                                                      Java::CernJetMathTdouble.DoubleFunctions,
-                                                      "double"))
+                             cern_comparison_function(method.to_s, "#{method}_float", 
+                                                      Java::CernJetMathTfloat.FloatFunctions,
+                                                      "float"))
   end
   
   binary_conflict_methods.each do |method|
     make_binary_operators("cern_#{method}",
-                          cern_binary_function(method.to_s, "cern_#{method}_double", 
-                                               Java::CernJetMathTdouble.DoubleFunctions,
-                                               "double"))
+                          cern_binary_function(method.to_s, "cern_#{method}_float", 
+                                               Java::CernJetMathTfloat.FloatFunctions,
+                                               "float"))
   end
 
   unary_conflict_methods.each do |method|
     make_unary_operators("cern_#{method}",
-                         cern_unary_function(method.to_s, "cern_#{method}_double", 
-                                             Java::CernJetMathTdouble.DoubleFunctions,
-                                             "double"))
+                         cern_unary_function(method.to_s, "cern_#{method}_float", 
+                                             Java::CernJetMathTfloat.FloatFunctions,
+                                             "float"))
   end
 
   def self.register(als, name, long_name, type)
-    map = cern_binary_function(name, long_name, Java::CernJetMathTdouble.DoubleFunctions,
+    map = cern_binary_function(name, long_name, Java::CernJetMathTfloat.FloatFunctions,
                                type)
     MDArray.register_function(als, map, 2, CernFunctions.binary_helper)
   end
@@ -139,22 +139,22 @@ module CernDoubleFunctions
   alias :ieee_remainder :IEEEremainder
   alias :plus_abs :plusAbs
 
-  register(:add, :plus, :plus_double, "double")
-  register(:sub, :minus, :minus_double, "double")
-  register(:mul, :mult, :mult_double, "double")
-  register(:power, :pow, :pow_double, "double")
-  register(:eq, :equals, :equals_double, "double")
-  register(:gt, :isGreater, :is_greater_double, "double")
-  register(:lt, :isLess, :is_less_double, "double")
-  register(:div_neg, :divNeg, :div_neg_double, "double")
-  register(:ieee_remainder, :IEEEremainder, :ieee_remainder_double, "double")
-  register(:mult_neg, :multNeg, :mult_neg_double, "double")
-  register(:mult_square, :multSquare, :mult_square_double, "double")
-  register(:plus_abs, :plusAbs, :plus_abs_double, "double")
+  register(:add, :plus, :plus_float, "float")
+  register(:sub, :minus, :minus_float, "float")
+  register(:mul, :mult, :mult_float, "float")
+  register(:power, :pow, :pow_float, "float")
+  register(:eq, :equals, :equals_float, "float")
+  register(:gt, :isGreater, :is_greater_float, "float")
+  register(:lt, :isLess, :is_less_float, "float")
+  register(:div_neg, :divNeg, :div_neg_float, "float")
+  register(:ieee_remainder, :IEEEremainder, :ieee_remainder_float, "float")
+  register(:mult_neg, :multNeg, :mult_neg_float, "float")
+  register(:mult_square, :multSquare, :mult_square_float, "float")
+  register(:plus_abs, :plusAbs, :plus_abs_float, "float")
 
-  register(:is_equal, :isEqual, :is_equal_double, "double")
-  register(:is_greater, :isGreater, :is_greater_double, "double")
-  register(:is_less, :isLess, :is_less_double, "double")
+  register(:is_equal, :isEqual, :is_equal_float, "float")
+  register(:is_greater, :isGreater, :is_greater_float, "float")
+  register(:is_less, :isLess, :is_less_float, "float")
 
   # methods bellow are defined as ruby methods and are slower than the above methods. 
   # there are no similar methods defined in Colt/Parallel Colt.  If performance is
@@ -186,8 +186,8 @@ end
 #
 ##########################################################################################
 
-class DoubleMDArray
+class FloatMDArray
 
-  include CernDoubleFunctions
+  include CernFloatFunctions
       
-end # DoubleMDArray
+end # FloatMDArray

@@ -37,7 +37,7 @@ class LazyMDArray < ByteMDArray
 
   class BinaryComp
 
-    def initialize(x, y, f, *args)
+    def initialize(f, x, y, *args)
       @x = x
       @y = y
       @f = f
@@ -57,7 +57,7 @@ class LazyMDArray < ByteMDArray
 
   class UnaryComp
 
-    def initialize(x, f, *args)
+    def initialize(f, x, *args)
       @x = x
       @f = f
       @other_args = args
@@ -109,13 +109,11 @@ class LazyMDArray < ByteMDArray
 
   def apply(*args)
 
-    type, shape, function = validate(args)
+    type, shape, function = validate_fast(args)
 
     result = MDArray.build(type, shape)
-
     helper = Java::RbMdarrayLoopsLazy::DefaultLazyOperator
     helper.send("apply", result.nc_array, function)
-
     result
 
   end
@@ -160,29 +158,24 @@ class LazyMDArray < ByteMDArray
   end
 
   #---------------------------------------------------------------------------------------
-  #
-  #---------------------------------------------------------------------------------------
-
-  protected
-
-  #---------------------------------------------------------------------------------------
   # Validates the expression checking if it can be performed: all dimensions need to be
   # compatible
   #---------------------------------------------------------------------------------------
 
-  def validate(*args)
+  protected
+
+  def validate_fast(*args)
 
     helper_stack = Array.new
 
     @stack.each do |elmt|
 
       if (elmt.is_a? LazyMDArray)
-        helper_stack << elmt.validate(*args)
+        helper_stack << elmt.validate_fast(*args)
       elsif (elmt.is_a? MDArray)
         # helper_stack << [elmt.type, elmt.shape, index_func(elmt)]
         # iterator = elmt.nc_array.getIndexIterator
-        java_proc = 
-          Java::RbMdarrayAccess::IteratorFastNext.new(elmt.nc_array.getIndexIterator)
+        java_proc = Java::RbMdarrayUtil::Util.getIterator(elmt.nc_array)
         helper_stack << [elmt.type, elmt.shape, java_proc]
       elsif (elmt.is_a? Numeric)
         # const_func is inefficient... fix!!!
@@ -191,7 +184,8 @@ class LazyMDArray < ByteMDArray
         case elmt.arity
         when 1
           top = helper_stack.pop
-          fmap = MDArray.select_function(elmt.name, MDArray.functions, top[0])
+          fmap = MDArray.select_function(elmt.name, MDArray.functions, top[0],
+                                         top[0], "void")
           helper_stack << 
             [top[0], top[1], UnaryComp.new(top[2], fmap.function, elmt.other_args)]
         when 2
@@ -200,11 +194,11 @@ class LazyMDArray < ByteMDArray
             raise "Expression involves incopatible arrays. #{top1[1]} != #{top2[1]}"
           end
           type = MDArray.upcast(top1[0], top2[0])
-          fmap = MDArray.select_function(elmt.name, MDArray.functions, type)
+          fmap = MDArray.select_function(elmt.name, MDArray.functions, type, type, type)
           helper_stack << 
             [type, top1[1], 
              # binary_function_next(top1[2], top2[2], fmap.function, elmt.other_args)]
-             BinaryComp.new(top1[2], top2[2], fmap.function)]
+             Java::RbMdarrayUtil::Util.compose(fmap.function, top1[2], top2[2])]
         end
       else
         raise "Expression is invalid: element #{elmt} is not valid in this position."
@@ -295,7 +289,6 @@ class MDArray
 
 end
 
-
 require_relative 'lazy_operators'
 
 
@@ -339,3 +332,56 @@ require_relative 'lazy_operators'
   end
 =end
 
+=begin
+  #---------------------------------------------------------------------------------------
+  # Validates the expression checking if it can be performed: all dimensions need to be
+  # compatible
+  #---------------------------------------------------------------------------------------
+
+  def validate(*args)
+
+    helper_stack = Array.new
+
+    @stack.each do |elmt|
+
+      if (elmt.is_a? LazyMDArray)
+        helper_stack << elmt.validate(*args)
+      elsif (elmt.is_a? MDArray)
+        # helper_stack << [elmt.type, elmt.shape, index_func(elmt)]
+        # iterator = elmt.nc_array.getIndexIterator
+        java_proc = 
+          Java::RbMdarrayAccess::IteratorFastNext.new(elmt.nc_array.getIndexIterator)
+        helper_stack << [elmt.type, elmt.shape, java_proc]
+      elsif (elmt.is_a? Numeric)
+        # const_func is inefficient... fix!!!
+        helper_stack << ["numeric", 1, const_func(elmt)]
+      elsif (elmt.is_a? Operator)
+        case elmt.arity
+        when 1
+          top = helper_stack.pop
+          fmap = MDArray.select_function(elmt.name, MDArray.functions, top[0],
+                                         top[0], "void")
+          helper_stack << 
+            [top[0], top[1], UnaryComp.new(fmap.function, top[2], elmt.other_args)]
+        when 2
+          top1, top2 = helper_stack.pop(2)
+          if (top1[1] != top2[1] && top1[0] != "numeric" && top2[0] != "numeric")
+            raise "Expression involves incopatible arrays. #{top1[1]} != #{top2[1]}"
+          end
+          type = MDArray.upcast(top1[0], top2[0])
+          fmap = MDArray.select_function(elmt.name, MDArray.functions, type, type, type)
+          helper_stack << 
+            [type, top1[1], 
+             # binary_function_next(top1[2], top2[2], fmap.function, elmt.other_args)]
+             BinaryComp.new(fmap.function, top1[2], top2[2])]
+        end
+      else
+        raise "Expression is invalid: element #{elmt} is not valid in this position."
+      end
+      
+    end
+    
+    helper_stack[0]
+
+  end
+=end

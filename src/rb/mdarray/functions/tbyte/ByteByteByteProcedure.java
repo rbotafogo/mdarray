@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tboolean;
+package rb.mdarray.functions.tbyte;
 
-public interface BlDD {
-    public boolean apply(double val1, double val2);
+public interface ByteByteByteProcedure {
+    public boolean apply(byte val1, byte val2, byte val3);
 }

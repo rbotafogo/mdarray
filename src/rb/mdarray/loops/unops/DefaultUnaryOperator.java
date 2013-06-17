@@ -22,87 +22,82 @@
 package rb.mdarray.loops.unops;
 
 import ucar.ma2.*;
-import rb.mdarray.functions.tboolean.*;
-import rb.mdarray.functions.tbyte.*;
-import rb.mdarray.functions.tchar.*;
-import rb.mdarray.functions.tdouble.*;
-import rb.mdarray.functions.tfloat.*;
-import rb.mdarray.functions.tint.*;
-import rb.mdarray.functions.tlong.*;
-import rb.mdarray.functions.tobject.*;
+/* Functions from cern.colt */
+import cern.colt.function.tdouble.*;
+import cern.colt.function.tfloat.*;
+import cern.colt.function.tlong.*;
+import cern.colt.function.tint.*;
+
+/* Functions not defined in cern.colt */
 import rb.mdarray.functions.tshort.*;
+import rb.mdarray.functions.tbyte.*;
+
+/* Non-numeric functions */
+import rb.mdarray.functions.tboolean.*;
+import rb.mdarray.functions.tchar.*;
+import rb.mdarray.functions.tobject.*;
+
 
 public class DefaultUnaryOperator {
-    
-    public static void apply(ArrayBoolean dest, Array orig, BlBl func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+
+    public static void apply(ArrayByte dest, Array op, ByteFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setBooleanNext(func.apply(iteratorOrig.getBooleanNext()));
+	while (iteratorOp.hasNext()) {
+	    iteratorDest.setByteNext(func.apply(iteratorOp.getByteNext()));
 	}
     }
 
-    public static void apply(ArrayChar dest, Array orig, CC func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+    public static void apply(ArrayShort dest, Array op, ShortFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setCharNext(func.apply(iteratorOrig.getCharNext()));
+	while (iteratorOp.hasNext()) {
+	    iteratorDest.setShortNext(func.apply(iteratorOp.getShortNext()));
 	}
     }
 
-    public static void apply(ArrayByte dest, Array orig, BB func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+    public static void apply(ArrayInt dest, Array op, IntFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setByteNext(func.apply(iteratorOrig.getByteNext()));
+	while (iteratorOp.hasNext()) {
+	    iteratorDest.setIntNext(func.apply(iteratorOp.getIntNext()));
 	}
     }
 
-    public static void apply(ArrayShort dest, Array orig, SS func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+    public static void apply(ArrayLong dest, Array op, LongFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setShortNext(func.apply(iteratorOrig.getShortNext()));
+	while (iteratorOp.hasNext()) {
+	    iteratorDest.setLongNext(func.apply(iteratorOp.getLongNext()));
 	}
     }
 
-    public static void apply(ArrayInt dest, Array orig, II func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+    public static void apply(ArrayFloat dest, Array op, FloatFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setIntNext(func.apply(iteratorOrig.getIntNext()));
+	while (iteratorOp.hasNext()) {
+	    iteratorDest.setFloatNext(func.apply(iteratorOp.getFloatNext()));
 	}
     }
 
-    public static void apply(ArrayLong dest, Array orig, LL func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+    public static void apply(ArrayDouble dest, Array op, DoubleFunction func) {
+	IndexIterator iteratorOp = op.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setLongNext(func.apply(iteratorOrig.getLongNext()));
+	while (iteratorOp.hasNext()) {
+	    iteratorDest.setDoubleNext(func.apply(iteratorOp.getDoubleNext()));
 	}
     }
 
-    public static void apply(ArrayFloat dest, Array orig, FF func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setFloatNext(func.apply(iteratorOrig.getFloatNext()));
-	}
-    }
+    //------------------------------------------------------------------------------------
+    // Default unary for boolean operators
+    //------------------------------------------------------------------------------------
 
-    public static void apply(ArrayDouble dest, Array orig, DD func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
+    public static void apply(ArrayBoolean dest, ArrayBoolean op1, 
+					   BooleanFunction func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setDoubleNext(func.apply(iteratorOrig.getDoubleNext()));
-	}
-    }
-
-    public static void apply(ArrayObject dest, Array orig, OO func) {
-	IndexIterator iteratorOrig = orig.getIndexIterator();
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOrig.hasNext()) {
-	    iteratorDest.setObjectNext(func.apply(iteratorOrig.getObjectNext()));
+	IndexIterator iteratorOp1 = op1.getIndexIterator();
+	while (iteratorOp1.hasNext()) {
+	    iteratorDest.setBooleanNext(func.apply(iteratorOp1.getBooleanNext()));
 	}
     }
 
