@@ -63,13 +63,6 @@ public class DefaultLazyOperator {
 	}
     }
 
-    public static void apply(ArrayInt dest, I func) {
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
-	    iteratorDest.setIntNext(func.apply());
-	}
-    }
-
     public static void apply(ArrayLong dest, L func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorDest.hasNext()) {
@@ -100,10 +93,17 @@ public class DefaultLazyOperator {
 
     */
 
+    public static void apply(ArrayInt dest, IntMethod func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	while (iteratorDest.hasNext()) {
+	    iteratorDest.setIntNext(func.apply());
+	}
+    }
+
     public static void apply(ArrayDouble dest, DoubleMethod func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
 	while (iteratorDest.hasNext()) {
-	    iteratorDest.setObjectNext(func.apply());
+	    iteratorDest.setDoubleNext(func.apply());
 	}
     }
 

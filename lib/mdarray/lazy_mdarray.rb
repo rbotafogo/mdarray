@@ -187,7 +187,9 @@ class LazyMDArray < ByteMDArray
           fmap = MDArray.select_function(elmt.name, MDArray.functions, top[0],
                                          top[0], "void")
           helper_stack << 
-            [top[0], top[1], UnaryComp.new(top[2], fmap.function, elmt.other_args)]
+            [top[0], top[1], 
+             # UnaryComp.new(top[2], fmap.function, elmt.other_args)]
+             Java::RbMdarrayUtil::Util.compose(fmap.function, top[2])]
         when 2
           top1, top2 = helper_stack.pop(2)
           if (top1[1] != top2[1] && top1[0] != "numeric" && top2[0] != "numeric")
@@ -197,7 +199,6 @@ class LazyMDArray < ByteMDArray
           fmap = MDArray.select_function(elmt.name, MDArray.functions, type, type, type)
           helper_stack << 
             [type, top1[1], 
-             # binary_function_next(top1[2], top2[2], fmap.function, elmt.other_args)]
              Java::RbMdarrayUtil::Util.compose(fmap.function, top1[2], top2[2])]
         end
       else

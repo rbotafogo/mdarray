@@ -19,8 +19,25 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tfloat;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tfloat.*;
+import rb.mdarray.functions.tfloat.*;
+import rb.mdarray.functions.tbyte.*;
+
+public class FloatByteFloatCompose implements FloatMethod {
+
+    FloatFloatFunction _f;
+    ByteMethod _x;
+    FloatMethod _y;
+
+    public FloatByteFloatCompose(FloatFloatFunction f, ByteMethod x, FloatMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public float apply() {
+	return _f.apply((float) _x.apply(), _y.apply());
+    }
 }

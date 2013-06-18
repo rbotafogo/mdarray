@@ -19,8 +19,24 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tbyte;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tbyte.*;
+import rb.mdarray.functions.tbyte.*;
+
+public class ByteByteByteCompose implements ByteMethod {
+
+    ByteByteFunction _f;
+    ByteMethod _x;
+    ByteMethod _y;
+
+    public ByteByteByteCompose(ByteByteFunction f, ByteMethod x, ByteMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public byte apply() {
+	return _f.apply(_x.apply(), _y.apply());
+    }
 }

@@ -19,8 +19,21 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.util.tfloat;
 
-public interface ShortFunction {
-    public short apply(short val);
+import ucar.ma2.*;
+import rb.mdarray.functions.tfloat.*;
+
+public class IteratorFloatNext implements FloatMethod {
+
+    IndexIterator _iterator;
+    
+    public IteratorFloatNext(IndexIterator iterator) {
+	_iterator = iterator;
+    }
+
+    public float apply() {
+	return _iterator.getFloatNext();
+    }
+
 }

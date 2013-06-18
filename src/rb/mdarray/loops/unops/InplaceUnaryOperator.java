@@ -27,6 +27,8 @@ import cern.colt.function.tdouble.*;
 import cern.colt.function.tfloat.*;
 import cern.colt.function.tlong.*;
 import cern.colt.function.tint.*;
+import cern.colt.function.tshort.*;
+import cern.colt.function.tbyte.*;
 
 /* Functions not defined in cern.colt */
 import rb.mdarray.functions.tshort.*;

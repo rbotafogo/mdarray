@@ -254,16 +254,20 @@ class MDArray
   # @param post_condition Proc to be executed after the operator's execution
   #------------------------------------------------------------------------------------
 
-  def self.make_binary_op(name, exec_type, func, force_type = nil, pre_condition = nil,
-                          post_condition = nil)
+  def self.make_binary_op(name, exec_type, func, helper_class, force_type = nil, 
+                          pre_condition = nil, post_condition = nil)
 
     define_method(name) do |op2, requested_type = nil, *args|
-      binary_op = get_binary_op
+      if (@type == "lazy" || ((op2.is_a? MDArray) && op2.type == "lazy"))
+        binary_op = LazyBinaryOperator
+      else
+        binary_op = get_binary_op
+      end
       op = binary_op.new(name, exec_type, force_type, pre_condition, post_condition)
       op.exec(self, op2, requested_type, *args)
     end
 
-    MDArray.register_function(name, func, exec_type)
+    MDArray.register_function(name, func, 2, helper_class)
 
   end
 
@@ -283,8 +287,8 @@ class MDArray
   # @param post_condition Proc to be executed after the operator's execution
   #------------------------------------------------------------------------------------
 
-  def self.make_unary_op(name, exec_type, func, force_type = nil, pre_condition = nil,
-                         post_condition = nil)
+  def self.make_unary_op(name, exec_type, func, helper_class, force_type = nil, 
+                         pre_condition = nil, post_condition = nil)
     
     define_method(name) do |requested_type = nil, *args|
       unary_op = get_unary_op
@@ -292,7 +296,7 @@ class MDArray
       op.exec(self, requested_type, *args)
     end
 
-    MDArray.register_function(name, func, exec_type)
+    MDArray.register_function(name, func, 1, helper_class)
 
   end
 
@@ -329,8 +333,9 @@ class MDArray
   def self.select_function(name, package = nil, return_type = nil, input1_type = nil, 
                            input2_type = nil)
 
-    p "selecting function: #{name}"
+
 =begin
+    p "selecting function: #{name}"
     p "return_type: #{return_type}"
     p "input1_type: #{input1_type}"
     p "input2_type: #{input2_type}"
@@ -361,10 +366,10 @@ class MDArray
       end
     end
 
-#=begin
+=begin
     p "MDArray.select_function"
     p "selected function #{func.function}"
-#=end
+=end
 
     if (best_value > 0)
       func

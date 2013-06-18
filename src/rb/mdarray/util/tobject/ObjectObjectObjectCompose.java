@@ -19,8 +19,23 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tobject;
 
-public interface ShortFunction {
-    public short apply(short val);
+import rb.mdarray.functions.tobject.*;
+
+public class ObjectObjectObjectCompose implements ObjectMethod {
+
+    ObjectObjectFunction _f;
+    ObjectMethod _x;
+    ObjectMethod _y;
+
+    public ObjectObjectObjectCompose(ObjectObjectFunction f, ObjectMethod x, ObjectMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public Object apply() {
+	return _f.apply(_x.apply(), _y.apply());
+    }
 }

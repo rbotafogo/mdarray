@@ -19,8 +19,21 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.util.tobject;
 
-public interface ShortFunction {
-    public short apply(short val);
+import ucar.ma2.*;
+import rb.mdarray.functions.tobject.*;
+
+public class IteratorObjectNext implements ObjectMethod {
+
+    IndexIterator _iterator;
+    
+    public IteratorObjectNext(IndexIterator iterator) {
+	_iterator = iterator;
+    }
+
+    public Object apply() {
+	return _iterator.getObjectNext();
+    }
+
 }

@@ -19,8 +19,25 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tdouble;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tdouble.*;
+import rb.mdarray.functions.tdouble.*;
+import rb.mdarray.functions.tshort.*;
+
+public class DoubleShortDoubleCompose implements DoubleMethod {
+
+    DoubleDoubleFunction _f;
+    ShortMethod _x;
+    DoubleMethod _y;
+
+    public DoubleShortDoubleCompose(DoubleDoubleFunction f, ShortMethod x, DoubleMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public double apply() {
+	return _f.apply((double) _x.apply(), _y.apply());
+    }
 }

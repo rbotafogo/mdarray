@@ -21,6 +21,6 @@
 
 package rb.mdarray.functions.tshort;
 
-public interface ShortFunction {
-    public short apply(short val);
+public interface ShortMethod {
+    public short apply();
 }

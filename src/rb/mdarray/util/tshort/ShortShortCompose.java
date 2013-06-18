@@ -19,8 +19,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.util.tshort;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tshort.*;
+import rb.mdarray.functions.tshort.*;
+
+public class ShortShortCompose implements ShortMethod {
+    
+    ShortFunction _f;
+    ShortMethod _x;
+
+    public ShortShortCompose(ShortFunction f, ShortMethod x) {
+	_f = f;
+	_x = x;
+    }
+
+    public short apply() {
+	return _f.apply(_x.apply());
+    }
 }

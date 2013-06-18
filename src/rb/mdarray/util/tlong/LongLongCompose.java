@@ -19,8 +19,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.util.tlong;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tlong.*;
+import rb.mdarray.functions.tlong.*;
+
+public class LongLongCompose implements LongMethod {
+    
+    LongFunction _f;
+    LongMethod _x;
+
+    public LongLongCompose(LongFunction f, LongMethod x) {
+	_f = f;
+	_x = x;
+    }
+
+    public long apply() {
+	return _f.apply(_x.apply());
+    }
 }

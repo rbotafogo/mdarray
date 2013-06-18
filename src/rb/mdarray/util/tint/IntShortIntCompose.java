@@ -19,8 +19,25 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tint;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tint.*;
+import rb.mdarray.functions.tint.*;
+import rb.mdarray.functions.tshort.*;
+
+public class IntShortIntCompose implements IntMethod {
+
+    IntIntFunction _f;
+    ShortMethod _x;
+    IntMethod _y;
+
+    public IntShortIntCompose(IntIntFunction f, ShortMethod x, IntMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public int apply() {
+	return _f.apply((int) _x.apply(), _y.apply());
+    }
 }

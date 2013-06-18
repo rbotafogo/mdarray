@@ -19,8 +19,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.functions.tobject;
 
-public interface ShortFunction {
-    public short apply(short val);
+public interface ObjectObjectFunction {
+    public Object apply(Object obj1, Object obj2);
 }

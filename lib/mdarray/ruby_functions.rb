@@ -122,7 +122,8 @@ module UserFunction
 
     function = ruby_binary_function("#{name}_user", func)
     klass = Object.const_get("#{where.capitalize}MDArray")
-    klass.make_binary_op(name, exec_type, function, force_type, pre_condition, post_condition)
+    klass.make_binary_op(name, exec_type, function, RubyFunctions.binary_helper, 
+                         force_type, pre_condition, post_condition)
 
   end
 
@@ -136,7 +137,8 @@ module UserFunction
 
     function = ruby_unary_function("#{name}_user", func)
     klass = Object.const_get("#{where.capitalize}MDArray")
-    klass.make_unary_op(name, exec_type, function, force_type, pre_condition, post_condition)
+    klass.make_unary_op(name, exec_type, function, RubyFunctions.unary_helper, force_type, 
+                        pre_condition, post_condition)
 
   end
 

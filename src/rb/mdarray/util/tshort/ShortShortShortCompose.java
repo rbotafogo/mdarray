@@ -21,6 +21,22 @@
 
 package rb.mdarray.functions.tshort;
 
-public interface ShortFunction {
-    public short apply(short val);
+import cern.colt.function.tshort.*;
+import rb.mdarray.functions.tshort.*;
+
+public class ShortShortShortCompose implements ShortMethod {
+
+    ShortShortFunction _f;
+    ShortMethod _x;
+    ShortMethod _y;
+
+    public ShortShortShortCompose(ShortShortFunction f, ShortMethod x, ShortMethod y) {
+	_f = f;
+	_x = x;
+	_y = y;
+    }
+
+    public short apply() {
+	return _f.apply(_x.apply(), _y.apply());
+    }
 }

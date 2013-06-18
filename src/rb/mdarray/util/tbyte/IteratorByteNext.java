@@ -19,8 +19,21 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *****************************************************************************************/
 
-package rb.mdarray.functions.tshort;
+package rb.mdarray.util.tbyte;
 
-public interface ShortFunction {
-    public short apply(short val);
+import ucar.ma2.*;
+import rb.mdarray.functions.tbyte.*;
+
+public class IteratorByteNext implements ByteMethod {
+
+    IndexIterator _iterator;
+    
+    public IteratorByteNext(IndexIterator iterator) {
+	_iterator = iterator;
+    }
+
+    public byte apply() {
+	return _iterator.getByteNext();
+    }
+
 }

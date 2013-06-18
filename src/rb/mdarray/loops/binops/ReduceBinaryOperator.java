@@ -29,6 +29,10 @@ import cern.colt.function.tlong.*;
 import cern.colt.function.tint.*;
 
 /* Functions not defined in cern.colt */
+import rb.mdarray.functions.tdouble.*;
+import rb.mdarray.functions.tfloat.*;
+import rb.mdarray.functions.tlong.*;
+import rb.mdarray.functions.tint.*;
 import rb.mdarray.functions.tshort.*;
 import rb.mdarray.functions.tbyte.*;
 
@@ -39,7 +43,6 @@ import rb.mdarray.functions.tobject.*;
 
 public class ReduceBinaryOperator {
 
-    /*
     public static byte apply(byte calc, Array op1, byte op2, 
 			     ByteByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
@@ -49,8 +52,8 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static byte apply(double calc, Array op1, Array op2, 
-			       ByteByteByteFunction func) {
+    public static byte apply(byte calc, Array op1, Array op2, 
+			     ByteByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -140,7 +143,6 @@ public class ReduceBinaryOperator {
 	return calc;
     }    
 
-
     public static double apply(double calc, Array op1, double op2, 
 			       DoubleDoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
@@ -159,6 +161,6 @@ public class ReduceBinaryOperator {
 			      iteratorOp2.getDoubleNext()));
 	}
 	return calc;
-    }    
-    */
+    }
+
 }
