@@ -43,7 +43,11 @@ import rb.mdarray.functions.tobject.*;
 
 public class ReduceBinaryOperator {
 
-    public static byte apply(byte calc, Array op1, byte op2, 
+
+    /*
+    // Reduce binary operators should all be done with double method.
+     
+    public static byte apply(byte calc, ArrayByte op1, byte op2, 
 			     ByteByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -52,7 +56,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static byte apply(byte calc, Array op1, Array op2, 
+    public static byte apply(byte calc, ArrayByte op1, Array op2, 
 			     ByteByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -63,7 +67,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }    
 
-    public static short apply(short calc, Array op1, short op2, 
+    public static short apply(short calc, ArrayShort op1, short op2, 
 			       ShortShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -72,7 +76,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static short apply(short calc, Array op1, Array op2, 
+    public static short apply(short calc, ArrayShort op1, Array op2, 
 			      ShortShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -83,7 +87,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }    
 
-    public static int apply(int calc, Array op1, int op2, 
+    public static int apply(int calc, ArrayInt op1, int op2, 
 			    IntIntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -92,7 +96,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static int apply(int calc, Array op1, Array op2, 
+    public static int apply(int calc, ArrayInt op1, Array op2, 
 			    IntIntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -103,7 +107,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }    
 
-    public static long apply(long calc, Array op1, long op2, 
+    public static long apply(long calc, ArrayLong op1, long op2, 
 			     LongLongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -112,7 +116,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static long apply(long calc, Array op1, Array op2, 
+    public static long apply(long calc, ArrayLong op1, Array op2, 
 			     LongLongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -123,7 +127,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static float apply(float calc, Array op1, float op2, 
+    public static float apply(float calc, ArrayFloat op1, float op2, 
 			      FloatFloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	while (iteratorOp1.hasNext()) {
@@ -132,7 +136,7 @@ public class ReduceBinaryOperator {
 	return calc;
     }
 
-    public static float apply(float calc, Array op1, Array op2, 
+    public static float apply(float calc, ArrayFloat op1, Array op2, 
 			      FloatFloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
@@ -142,11 +146,12 @@ public class ReduceBinaryOperator {
 	}
 	return calc;
     }    
+    */
 
     public static double apply(double calc, Array op1, double op2, 
 			       DoubleDoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    calc = (func.apply(calc, iteratorOp1.getDoubleNext(), op2));
 	}
 	return calc;
@@ -156,7 +161,7 @@ public class ReduceBinaryOperator {
 			       DoubleDoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    calc = (func.apply(calc, iteratorOp1.getDoubleNext(),
 			      iteratorOp2.getDoubleNext()));
 	}

@@ -27,7 +27,7 @@ public class FillBinaryOperator {
 
     public static void apply(ArrayByte array, byte val) {
 	IndexIterator iterator = array.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setByteNext(val);
 	}
     }
@@ -35,7 +35,7 @@ public class FillBinaryOperator {
     public static void apply(ArrayByte array, Array op2) {
 	IndexIterator iterator = array.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setByteNext(iteratorOp2.getByteNext());
 	}
     }
@@ -43,7 +43,7 @@ public class FillBinaryOperator {
 
     public static void apply(ArrayShort array, short val) {
 	IndexIterator iterator = array.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setShortNext(val);
 	}
     }
@@ -51,14 +51,14 @@ public class FillBinaryOperator {
     public static void apply(ArrayShort array, Array op2) {
 	IndexIterator iterator = array.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setShortNext(iteratorOp2.getShortNext());
 	}
     }
 
     public static void apply(ArrayInt array, int val) {
 	IndexIterator iterator = array.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setIntNext(val);
 	}
     }
@@ -66,14 +66,14 @@ public class FillBinaryOperator {
     public static void apply(ArrayInt array, Array op2) {
 	IndexIterator iterator = array.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setIntNext(iteratorOp2.getIntNext());
 	}
     }
 
     public static void apply(ArrayLong array,  long val) {
 	IndexIterator iterator = array.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setLongNext(val);
 	}
     }
@@ -81,7 +81,7 @@ public class FillBinaryOperator {
     public static void apply(ArrayLong array, Array op2) {
 	IndexIterator iterator = array.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setLongNext(iteratorOp2.getLongNext());
 	}
     }
@@ -89,7 +89,7 @@ public class FillBinaryOperator {
 
     public static void apply(ArrayFloat array, float val) {
 	IndexIterator iterator = array.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setFloatNext(val);
 	}
     }
@@ -97,14 +97,14 @@ public class FillBinaryOperator {
     public static void apply(ArrayFloat array, Array op2) {
 	IndexIterator iterator = array.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setFloatNext(iteratorOp2.getFloatNext());
 	}
     }
 
     public static void apply(ArrayDouble array, double val) {
 	IndexIterator iterator = array.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setDoubleNext(val);
 	}
     }
@@ -112,7 +112,7 @@ public class FillBinaryOperator {
     public static void apply(ArrayDouble array, Array op2) {
 	IndexIterator iterator = array.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iterator.hasNext()) {
+	for (long i = array.getSize(); --i >= 0; ) {
 	    iterator.setDoubleNext(iteratorOp2.getDoubleNext());
 	}
     }

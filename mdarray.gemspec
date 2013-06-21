@@ -11,8 +11,19 @@ Gem::Specification.new do |gem|
 
   gem.summary     = "Multi dimensional array similar to narray and numpy."
   gem.description = <<-EOF 
-"Multi dimensional array similar to Masahiro Tanaka's Narray and NumPy.  
-It is specifically targeted to JRuby as it uses Java-NetCDF library as base Array."
+"MDArray is a multi dimensional array implemented for JRuby inspired by NumPy (www.numpy.org) and 
+Masahiro Tanaka´s Narray (narray.rubyforge.org).  MDArray stands on the shoulders of Java-NetCDF 
+and Parallel Colt.  At this point MDArray has libraries for mathematical, trigonometric and 
+descriptive statistics methods.
+
+NetCDF-Java Library is a Java interface to NetCDF files, as well as to many other types of 
+scientific data formats.  It is developed and distributed by Unidata (http://www.unidata.ucar.edu). 
+
+Parallel Colt (http://grepcode.com/snapshot/repo1.maven.org/maven2/net.sourceforge.parallelcolt/
+parallelcolt/0.10.0/) is a multithreaded version of Colt (http://acs.lbl.gov/software/colt/).  
+Colt provides a set of Open Source Libraries for High Performance Scientific and Technical 
+Computing in Java. Scientific and technical computing is characterized by demanding problem 
+sizes and a need for high performance at reasonably small memory footprint."
 EOF
 
   gem.authors  = ['Rodrigo Botafogo']

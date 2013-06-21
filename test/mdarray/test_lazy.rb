@@ -23,9 +23,6 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-$INSTALL_DIR = "/home/zxb3/Desenv/MDArray"
-require '../env.rb'
-
 require 'mdarray'
 
 
@@ -46,6 +43,10 @@ class MDArrayTest < Test::Unit::TestCase
       @h = MDArray.init_with("int", [3, 3], 7)
       @i = MDArray.init_with("int", [3, 3], 7)
 
+      @float = MDArray.init_with("float", [2, 3], 10.5)
+      @long = MDArray.init_with("long", [2, 3], 10)
+      @byte = MDArray.init_with("byte", [2, 3], 10)
+
       MDArray.lazy = true
 
     end
@@ -57,12 +58,21 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "execute lazy operations" do
 
+      p "2 a"
+      a_2 = (@a + @a)[]
+      a_2.print
+
       lazy_c = @a + @b
       # calculate the value of the lazy array with []
       c = lazy_c[]
       c.print
 
+      c = (@c + @a)[]
+      c = (@a + @c)[]
 
+      c = (@c + @byte)[]
+      c = (@byte + @c)[]
+     
       lazy_c = (@a * @d - @e) - (@b + @c)
       lazy_c[].print
 
@@ -75,6 +85,7 @@ class MDArrayTest < Test::Unit::TestCase
       # result is lazy
       d = ((@a * @d - @e)[] - (@b + @c))
       d.print
+
 
     end
 
@@ -218,6 +229,8 @@ class MDArrayTest < Test::Unit::TestCase
 
       ((@a * @d - @e).sin - (@b + @c))[].print
 
+      sinh = (arr.sinh)[]
+      
     end
 
     #-------------------------------------------------------------------------------------

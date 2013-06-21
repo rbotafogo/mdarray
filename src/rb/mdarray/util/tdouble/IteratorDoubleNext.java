@@ -24,15 +24,15 @@ package rb.mdarray.util.tdouble;
 import ucar.ma2.*;
 import rb.mdarray.functions.tdouble.*;
 
-public class IteratorDoubleNext implements DoubleMethod {
-
+public final class IteratorDoubleNext implements DoubleMethod {
+    
     IndexIterator _iterator;
     
     public IteratorDoubleNext(IndexIterator iterator) {
 	_iterator = iterator;
     }
 
-    public double apply() {
+    public final double apply() {
 	return _iterator.getDoubleNext();
     }
 

@@ -1,2 +1,2 @@
 $gem_name = "mdarray"
-$version="0.5.0"
+$version="0.5.3"

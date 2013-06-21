@@ -30,7 +30,7 @@ public class ComplexReduceBinaryOperator {
     public static Object[] apply(Object[] calc, Array op1, Array op2, OODD func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    calc = func.apply(calc, iteratorOp1.getDoubleNext(), 
 			      iteratorOp2.getDoubleNext());
 	}

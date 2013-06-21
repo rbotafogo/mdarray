@@ -315,7 +315,7 @@ class MDArrayTest < Test::Unit::TestCase
       # Possible to create a new binary operator and force the final type of the resulting
       # MDArray.  Bellow, whenever addd is used the resulting array will be of type double
       func = MDArray.select_function("add")
-      UserFunction.binary_operator("addd", "default", func, "double", "double")
+      UserFunction.binary_operator("addd", "default", func.function, "double", "double")
       
       # @a and @b are int arrays, so result should be int, but since addd is used, resulting
       # array will be double

@@ -31,11 +31,12 @@ class MDArrayTest < Test::Unit::TestCase
 
     setup do
 
-      # create a byte array filled with 0's
       @a = MDArray.typed_arange("double", 90)
 
       # create double array
       @b = MDArray.double([2, 3, 4])
+
+      @c = MDArray.linspace("double", 0, 1, 100)
 
     end
 
@@ -45,7 +46,10 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "execute trigonometric functions" do
 
+
       sin = @a.sin
+      sin.print
+
       cos = @a.cos
 
       id = sin**2 + cos**2

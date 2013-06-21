@@ -4,14 +4,12 @@ require 'shoulda'
 require 'jruby/profiler'
 
 require 'benchmark'
-
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase
 
   context "Speed Tests" do
 
-#=begin
     setup do
       
       p "starting performance testing"
@@ -21,6 +19,61 @@ class MDArrayTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
+
+    should "be faster lazy than eager" do
+
+      @a = MDArray.typed_arange("double", 10_000_000)
+      @b = MDArray.typed_arange("double", 10_000_000)
+      # @c = MDArray.arange(100_000_000)
+      # @d = MDArray.arange(100_000_000)
+
+#=end
+
+      MDArray.lazy = true
+      puts "Benchmarking: 4 element expression lazyly"
+
+      profile_data = JRuby::Profiler.profile do
+        puts Benchmark.measure {
+          c = (@a + @b + @a + @b * @b * @b * @b * @b * @b * @b)[]
+          # c = (@a + @b * @c - @d)[]
+          # c = (@a + @b)[]
+          # c = (@a * @a + @b * @b + @a * @b)[]
+        }
+      end
+
+      profile_printer = JRuby::Profiler::FlatProfilePrinter.new(profile_data)
+      profile_printer.printProfile(STDOUT)
+
+      MDArray.lazy = false
+
+#=begin
+      puts "========================="
+      puts "Benchmarking: 4 element expression eagerly"
+
+      profile_data = JRuby::Profiler.profile do
+        puts Benchmark.measure {
+          # c = (@a * @a + @b * @b + @a * @b)
+          #c = @a + @b + @c + @d
+          c = @a + @b + @a + @b * @b * @b * @b * @b * @b * @b
+        }
+      end
+
+      profile_printer = JRuby::Profiler::FlatProfilePrinter.new(profile_data)
+      profile_printer.printProfile(STDOUT)
+
+=begin
+      profile_data = JRuby::Profiler.profile do
+        c = (@a + @b * @c - @d)
+        c[]
+      end
+=end
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
 =begin
     should "test basic operations" do
 
@@ -123,7 +176,7 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
  
-#=begin
+=begin
    should "execute fromfunction" do
 
       # creates an array from a function (actually a block).  The name fromfunction
@@ -142,7 +195,7 @@ class MDArrayTest < Test::Unit::TestCase
       }
 
     end
-#=end
+=end
 
 =begin
       @a = MDArray.double([7, 500, 20, 320])

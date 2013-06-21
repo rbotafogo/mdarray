@@ -174,12 +174,15 @@ class MDArrayTest < Test::Unit::TestCase
       # adding an int to a double, should cast to double
       res = @a + @c
       assert_equal("21.87 35.34 47.18 58.84 ", res.to_string)
+
       # adding an int array to a (ruby) float/double number, should cast to double
       res = @a + 10.55
       assert_equal("30.55 40.55 50.55 60.55 ", res.to_string)
+
       # adding two ints
       res = @a + @b
       assert_equal(res.to_string, "20 31 42 53 ")
+
       # unary operation on arrays
       res = @c.floor
       assert_equal(res.to_string, "1.0 5.0 7.0 8.0 ")

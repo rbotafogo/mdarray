@@ -45,7 +45,7 @@ class MDArrayTest < Test::Unit::TestCase
       result = @bool2.and(@bool1)
       assert_equal("false false true false ", result.to_string)
 
-      # Cannot overload and, so using & as an alias to and
+      # Cannot overload 'and', so using '&' as an alias to 'and'
       result = @bool1 & @bool2
       assert_equal("false false true false ", result.to_string)
 

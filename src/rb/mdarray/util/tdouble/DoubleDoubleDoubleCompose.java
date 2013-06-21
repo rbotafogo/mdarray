@@ -24,7 +24,7 @@ package rb.mdarray.functions.tdouble;
 import cern.colt.function.tdouble.*;
 import rb.mdarray.functions.tdouble.*;
 
-public class DoubleDoubleDoubleCompose implements DoubleMethod {
+public final class DoubleDoubleDoubleCompose implements DoubleMethod {
 
     DoubleDoubleFunction _f;
     DoubleMethod _x;
@@ -36,7 +36,7 @@ public class DoubleDoubleDoubleCompose implements DoubleMethod {
 	_y = y;
     }
 
-    public double apply() {
+    public final double apply() {
 	return _f.apply(_x.apply(), _y.apply());
     }
 }

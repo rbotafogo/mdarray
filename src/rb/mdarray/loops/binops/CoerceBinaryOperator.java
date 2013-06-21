@@ -53,7 +53,7 @@ public class CoerceBinaryOperator {
     public static void apply(ArrayByte dest, Array op1, byte op2, ByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setByteNext(func.apply(op2, iteratorOp1.getByteNext()));
 	}
     }
@@ -61,7 +61,7 @@ public class CoerceBinaryOperator {
     public static void apply(ArrayShort dest, Array op1, short op2, ShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setShortNext(func.apply(op2, iteratorOp1.getShortNext()));
 	}
     }
@@ -69,7 +69,7 @@ public class CoerceBinaryOperator {
     public static void apply(ArrayInt dest, Array op1, int op2, IntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setIntNext(func.apply(op2, iteratorOp1.getIntNext()));
 	}
     }
@@ -77,7 +77,7 @@ public class CoerceBinaryOperator {
     public static void apply(ArrayLong dest, Array op1, long op2, LongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setLongNext(func.apply(op2, iteratorOp1.getLongNext()));
 	}
     }
@@ -86,7 +86,7 @@ public class CoerceBinaryOperator {
 			     FloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setFloatNext(func.apply(op2, iteratorOp1.getFloatNext()));
 	}
     }
@@ -95,7 +95,7 @@ public class CoerceBinaryOperator {
 			     DoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setDoubleNext(func.apply(op2, iteratorOp1.getDoubleNext()));
 	}
     }
@@ -108,7 +108,7 @@ public class CoerceBinaryOperator {
 			     DoubleDoubleProcedure func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setBooleanNext(func.apply(op2, iteratorOp1.getDoubleNext()));
 	}
     }

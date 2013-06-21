@@ -2,7 +2,6 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-require 'env'
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase
@@ -27,27 +26,28 @@ class MDArrayTest < Test::Unit::TestCase
       @f = MDArray.fromfunction("double", [4, 5, 6]) do |x, y, z|
         9.57 * x + y + z
       end
-      @bool = MDArray.boolean([4], [true, true, false, false])
+      @g = MDArray.byte([1], [60])
+      @h = MDArray.byte([1], [13])
+      @i = MDArray.double([4], [2.0, 6.0, 5.0, 9.0])
 
-      @trig = MDArray.typed_arange("double", 90)
-      @long = MDArray.typed_arange("long", 5)
-            
+      @bool1 = MDArray.boolean([4], [true, false, true, false])
+      @bool2 = MDArray.boolean([4], [false, false, true, true])
+      
     end # setup
 
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-
+    
     should "correct error!" do
 
-      arr = MDArray.double("VALE3_short.csv", true)
-      arr.print
+      # define inner_product for the whole hierarchy as it defines it for double
+      UserFunction.binary_operator("inner_product", "reduce", 
+                                   Proc.new { |sum, val1, val2| sum + (val1 * val2) }, 
+                                   "double", nil, Proc.new { 0 })
 
-      arr = MDArray.float("VALE3_short.csv", true)
-      arr.print
-
-      arr = MDArray.int("VALE3_short.csv", true)
-      arr.print
+      c = @a.inner_product(@c)
+      assert_equal(926.8, c)
 
     end
     

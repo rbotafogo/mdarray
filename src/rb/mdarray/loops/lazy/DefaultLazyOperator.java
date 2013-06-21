@@ -48,61 +48,44 @@ public class DefaultLazyOperator {
     // Default binary for lazy operators
     //------------------------------------------------------------------------------------
 
-    /*    
-    public static void apply(ArrayByte dest, B func) {
+    public static void apply(ArrayByte dest, ByteMethod func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setByteNext(func.apply());
 	}
     }
 
-    public static void apply(ArrayShort dest, S func) {
+    public static void apply(ArrayShort dest, ShortMethod func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setShortNext(func.apply());
 	}
     }
 
-    public static void apply(ArrayLong dest, L func) {
+    public static void apply(ArrayInt dest, IntMethod func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
+	    iteratorDest.setIntNext(func.apply());
+	}
+    }
+
+    public static void apply(ArrayLong dest, LongMethod func) {
+	IndexIterator iteratorDest = dest.getIndexIterator();
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setLongNext(func.apply());
 	}
     }
 
-    public static void apply(ArrayFloat dest, F func) {
+    public static void apply(ArrayFloat dest, FloatMethod func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setFloatNext(func.apply());
-	}
-    }
-
-    public static void apply(ArrayDouble dest, D func) {
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
-	    iteratorDest.setDoubleNext(func.apply());
-	}
-    }
-
-    public static void apply(Array dest, O0 func) {
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
-	    iteratorDest.setObjectNext(func.apply());
-	}
-    }
-
-    */
-
-    public static void apply(ArrayInt dest, IntMethod func) {
-	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
-	    iteratorDest.setIntNext(func.apply());
 	}
     }
 
     public static void apply(ArrayDouble dest, DoubleMethod func) {
 	IndexIterator iteratorDest = dest.getIndexIterator();
-	while (iteratorDest.hasNext()) {
+	for (long i = dest.getSize(); --i >= 0; ) {
 	    iteratorDest.setDoubleNext(func.apply());
 	}
     }

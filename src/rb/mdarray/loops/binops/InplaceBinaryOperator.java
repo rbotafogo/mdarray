@@ -42,7 +42,7 @@ public class InplaceBinaryOperator {
 
     public static void apply(ArrayByte op1, byte op2, ByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setByteCurrent(func.apply(iteratorOp1.getByteNext(), op2));
 	}
     }
@@ -50,7 +50,7 @@ public class InplaceBinaryOperator {
     public static void apply(ArrayByte op1, Array op2, ByteByteFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setByteCurrent(func.apply(iteratorOp1.getByteNext(),
 						  iteratorOp2.getByteNext()));
 	}
@@ -58,7 +58,7 @@ public class InplaceBinaryOperator {
 
     public static void apply(ArrayShort op1, short op2, ShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setShortCurrent(func.apply(iteratorOp1.getShortNext(), op2));
 	}
     }
@@ -66,7 +66,7 @@ public class InplaceBinaryOperator {
     public static void apply(ArrayShort op1, Array op2, ShortShortFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setShortCurrent(func.apply(iteratorOp1.getShortNext(),
 						   iteratorOp2.getShortNext()));
 	}
@@ -74,7 +74,7 @@ public class InplaceBinaryOperator {
 
     public static void apply(ArrayInt op1, int op2, IntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setIntCurrent(func.apply(iteratorOp1.getIntNext(), op2));
 	}
     }
@@ -82,7 +82,7 @@ public class InplaceBinaryOperator {
     public static void apply(ArrayInt op1, Array op2, IntIntFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setIntCurrent(func.apply(iteratorOp1.getIntNext(),
 						 iteratorOp2.getIntNext()));
 	}
@@ -90,7 +90,7 @@ public class InplaceBinaryOperator {
 
     public static void apply(ArrayLong op1, int op2, LongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setLongCurrent(func.apply(iteratorOp1.getLongNext(), op2));
 	}
     }
@@ -98,7 +98,7 @@ public class InplaceBinaryOperator {
     public static void apply(ArrayLong op1, Array op2, LongLongFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setLongCurrent(func.apply(iteratorOp1.getLongNext(),
 						  iteratorOp2.getLongNext()));
 	}
@@ -106,7 +106,7 @@ public class InplaceBinaryOperator {
 
     public static void apply(ArrayFloat op1, float op2, FloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setFloatCurrent(func.apply(iteratorOp1.getFloatNext(), op2));
 	}
     }
@@ -114,7 +114,7 @@ public class InplaceBinaryOperator {
     public static void apply(ArrayFloat op1, Array op2, FloatFloatFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setFloatCurrent(func.apply(iteratorOp1.getFloatNext(),
 						   iteratorOp2.getFloatNext()));
 	}
@@ -122,7 +122,7 @@ public class InplaceBinaryOperator {
 
     public static void apply(ArrayDouble op1, double op2, DoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setDoubleCurrent(func.apply(iteratorOp1.getDoubleNext(), op2));
 	}
     }
@@ -130,7 +130,7 @@ public class InplaceBinaryOperator {
     public static void apply(ArrayDouble op1, Array op2, DoubleDoubleFunction func) {
 	IndexIterator iteratorOp1 = op1.getIndexIterator();
 	IndexIterator iteratorOp2 = op2.getIndexIterator();
-	while (iteratorOp1.hasNext()) {
+	for (long i = op1.getSize(); --i >= 0; ) {
 	    iteratorOp1.setDoubleCurrent(func.apply(iteratorOp1.getDoubleNext(),
 						    iteratorOp2.getDoubleNext()));
 	}
