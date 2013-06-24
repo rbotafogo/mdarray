@@ -27,6 +27,7 @@
 
 class LazyMDArray < ByteMDArray
   include_package "ucar.ma2"
+  include_package "org.codehaus.janino"
 
   attr_reader :stack
 
@@ -107,6 +108,22 @@ class LazyMDArray < ByteMDArray
   #
   #---------------------------------------------------------------------------------------
 
+  def test_janino_function
+    $exp = ExpressionEvaluator.new
+    $exp.setExpressionType(Java::CernColtFunctionTdouble::DoubleFunction.java_class)
+    class_type = Java::JavaLang::Class.forName("java.lang.Class")
+    array = Java::JavaLangReflect::Array.newInstance(class_type, 2)
+    array[0] = Java::double.java_class
+    array[1] = Java::double.java_class
+    $exp.setParameters(["a", "b"].to_java(:string), 
+                       array)
+    $exp.cook("a + b")
+  end
+
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
+
   def apply(*args)
 
     type, shape, function = validate_fast(args)
@@ -165,6 +182,10 @@ class LazyMDArray < ByteMDArray
   protected
 
   def validate_fast(*args)
+
+    # test_janino_function
+    # p "validade_fast compile janino expression:"
+    # $exp.apply(100, 100)
 
     helper_stack = Array.new
 
@@ -257,9 +278,6 @@ end # LazyMDArray
 
 class MDArray
 
-  attr_reader :previous_binary_operator
-  attr_reader :previous_unary_operator
-
   #---------------------------------------------------------------------------------------
   # 
   #---------------------------------------------------------------------------------------
@@ -267,15 +285,15 @@ class MDArray
   def self.set_lazy(flag = true)
 
     if (flag)
-      if (@previous_binary_operator == nil)
-        @previous_binary_operator = MDArray.binary_operator
-        @previous_unary_operator = MDArray.unary_operator
+      if (MDArray.binary_operator != LazyBinaryOperator)
+        MDArray.previous_binary_operator = MDArray.binary_operator
+        MDArray.previous_unary_operator = MDArray.unary_operator
       end
       MDArray.binary_operator = LazyBinaryOperator
       MDArray.unary_operator = LazyUnaryOperator
     else
-      MDArray.binary_operator = @previous_binary_operator
-      MDArray.unary_operator = @previous_unary_operator
+      MDArray.binary_operator = MDArray.previous_binary_operator if MDArray.previous_binary_operator != nil
+      MDArray.unary_operator = MDArray.previous_unary_operator if MDArray.previous_unary_operator != nil
     end
 
   end
@@ -291,98 +309,3 @@ class MDArray
 end
 
 require_relative 'lazy_operators'
-
-
-=begin
-  #---------------------------------------------------------------------------------------
-  #
-  #---------------------------------------------------------------------------------------
-  
-  def binary_function(proc1, proc2, f, *args)
-    Proc.new { |index| f.call(proc1.call(index), proc2.call(index), *args) }
-  end
-
-  #---------------------------------------------------------------------------------------
-  #
-  #---------------------------------------------------------------------------------------
-
-  def unary_function(proc, f, *args)
-    Proc.new { |index| f.call(proc.call(index), *args) }
-  end
-=end
-
-=begin
-  #---------------------------------------------------------------------------------------
-  # Should be deleted... only for testing purposes
-  #---------------------------------------------------------------------------------------
-
-  def apply_pure(*args)
-
-    type, shape, function = validate(args)
-
-    result = MDArray.build(type, shape)
-
-    res_iterator = result.get_iterator_fast
-    while (res_iterator.has_next?)
-      res_iterator.next
-      res_iterator.set_current(function.call(res_iterator.jget_current_counter))
-    end
-
-    result
-
-  end
-=end
-
-=begin
-  #---------------------------------------------------------------------------------------
-  # Validates the expression checking if it can be performed: all dimensions need to be
-  # compatible
-  #---------------------------------------------------------------------------------------
-
-  def validate(*args)
-
-    helper_stack = Array.new
-
-    @stack.each do |elmt|
-
-      if (elmt.is_a? LazyMDArray)
-        helper_stack << elmt.validate(*args)
-      elsif (elmt.is_a? MDArray)
-        # helper_stack << [elmt.type, elmt.shape, index_func(elmt)]
-        # iterator = elmt.nc_array.getIndexIterator
-        java_proc = 
-          Java::RbMdarrayAccess::IteratorFastNext.new(elmt.nc_array.getIndexIterator)
-        helper_stack << [elmt.type, elmt.shape, java_proc]
-      elsif (elmt.is_a? Numeric)
-        # const_func is inefficient... fix!!!
-        helper_stack << ["numeric", 1, const_func(elmt)]
-      elsif (elmt.is_a? Operator)
-        case elmt.arity
-        when 1
-          top = helper_stack.pop
-          fmap = MDArray.select_function(elmt.name, MDArray.functions, top[0],
-                                         top[0], "void")
-          helper_stack << 
-            [top[0], top[1], UnaryComp.new(fmap.function, top[2], elmt.other_args)]
-        when 2
-          top1, top2 = helper_stack.pop(2)
-          if (top1[1] != top2[1] && top1[0] != "numeric" && top2[0] != "numeric")
-            raise "Expression involves incopatible arrays. #{top1[1]} != #{top2[1]}"
-          end
-          type = MDArray.upcast(top1[0], top2[0])
-          fmap = MDArray.select_function(elmt.name, MDArray.functions, type, type, type)
-          helper_stack << 
-            [type, top1[1], 
-             # binary_function_next(top1[2], top2[2], fmap.function, elmt.other_args)]
-             BinaryComp.new(fmap.function, top1[2], top2[2])]
-        end
-      else
-        raise "Expression is invalid: element #{elmt} is not valid in this position."
-      end
-      
-    end
-    
-    helper_stack[0]
-
-  end
-=end

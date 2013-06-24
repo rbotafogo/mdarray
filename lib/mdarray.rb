@@ -86,9 +86,13 @@ class MDArray
     attr_accessor :function_map
     attr_reader :numerical
     attr_reader :non_numerical
-
+    attr_accessor :binary_operator
+    attr_accessor :unary_operator
+    attr_accessor :previous_binary_operator
+    attr_accessor :previous_unary_operator
+        
   end
-
+  
   MDArray.function_map = Map.new
 
   #------------------------------------------------------------------------------------

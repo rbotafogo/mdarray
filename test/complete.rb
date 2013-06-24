@@ -23,3 +23,4 @@ require 'env.rb'
 
 require 'mdarray/test_complete'
 require 'colt/test_complete'
+# require 'mdarray/test_lazy'

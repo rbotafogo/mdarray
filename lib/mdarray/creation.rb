@@ -25,13 +25,6 @@
 
 class MDArray
 
-  class << self
-    
-    attr_accessor :binary_operator
-    attr_accessor :unary_operator
-
-  end
-
   #------------------------------------------------------------------------------------
   # Given two types returns the upcasted one
   #------------------------------------------------------------------------------------

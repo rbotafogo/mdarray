@@ -62,6 +62,8 @@ class MDArrayTest < Test::Unit::TestCase
       a_2 = (@a + @a)[]
       a_2.print
 
+      c = 2 * @a
+
       lazy_c = @a + @b
       # calculate the value of the lazy array with []
       c = lazy_c[]
@@ -86,6 +88,7 @@ class MDArrayTest < Test::Unit::TestCase
       d = ((@a * @d - @e)[] - (@b + @c))
       d.print
 
+      MDArray.lazy = false
 
     end
 
@@ -111,6 +114,8 @@ class MDArrayTest < Test::Unit::TestCase
       # request the calculation and print
       l_f[].print
 
+      MDArray.lazy = false
+
     end
 
     #-------------------------------------------------------------------------------------
@@ -126,6 +131,8 @@ class MDArrayTest < Test::Unit::TestCase
 
       c = (@a * @d - @e) - (@b + @c)
       c.print
+
+      MDArray.lazy = false
 
     end
 
@@ -194,6 +201,8 @@ class MDArrayTest < Test::Unit::TestCase
       p3 = (@b + @c)
       (p1 - p3)[].print
 
+      MDArray.lazy = false
+
     end
 
     #-------------------------------------------------------------------------------------
@@ -210,6 +219,8 @@ class MDArrayTest < Test::Unit::TestCase
 
       l_c = 2 - @a
       l_c[].print
+
+      MDArray.lazy = false
 
     end
 
@@ -231,6 +242,8 @@ class MDArrayTest < Test::Unit::TestCase
 
       sinh = (arr.sinh)[]
       
+      MDArray.lazy = false
+
     end
 
     #-------------------------------------------------------------------------------------
