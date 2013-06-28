@@ -26,6 +26,8 @@
 
 class LazyBinaryOperator < BinaryOperator
 
+  attr_reader :exp      # expression in string format
+
   #---------------------------------------------------------------------------------------
   #
   #---------------------------------------------------------------------------------------
@@ -35,6 +37,7 @@ class LazyBinaryOperator < BinaryOperator
     @op1 = args.shift
     @op2 = args.shift
     @other_args = args
+    @exp = ""
 
   end
 
@@ -52,11 +55,16 @@ class LazyBinaryOperator < BinaryOperator
     if (@op1.is_a? LazyMDArray)
       lazy.push(@op2)
       lazy.push(self)
+      # @exp << "(" << @op1.exp << name << @op2.id << ")"
     else
       lazy = LazyMDArray.new
       lazy.push(@op1)
       lazy.push(@op2)
       lazy.push(self)
+      # p @op1.id
+      # p @op2.id
+      # p @name
+      # @exp << "(" << @op1.id << name << @op2.id << ")"
     end
 
     return lazy

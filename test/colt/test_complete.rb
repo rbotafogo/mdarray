@@ -19,8 +19,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-#=begin
 require_relative 'test_statistics'
 require_relative 'test_stat_list'
 require_relative 'test_math'
-#=end
+require_relative 'test_matrix'

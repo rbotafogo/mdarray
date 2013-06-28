@@ -66,7 +66,8 @@ require_relative 'env'
 class MDArray
   include_package "ucar.ma2"
   include Enumerable
-  
+
+  attr_reader :id                        # an array identifier
   attr_reader :type
   attr_reader :nc_array
   attr_reader :local_index               # internal helper index for this array
@@ -79,6 +80,13 @@ class MDArray
   
   @numerical = ["numeric", "byte", "short", "int", "long", "float", "double"]
   @non_numerical = ["boolean", "char", "string", "sequence"]
+  @characters = ('a'..'z').to_a + ('A'..'Z').to_a
+
+=begin
+  @characters = ('a'..'z').to_a + ('A'..'Z').to_a + (0..9).to_a
+  @characters = ('A'..'F').to_a + (0..9).to_a
+  @characters = (32..126).to_a.pack('U*').chars.to_a
+=end
 
   class << self
     
@@ -90,7 +98,8 @@ class MDArray
     attr_accessor :unary_operator
     attr_accessor :previous_binary_operator
     attr_accessor :previous_unary_operator
-        
+    attr_reader :characters
+
   end
   
   MDArray.function_map = Map.new
@@ -104,7 +113,8 @@ class MDArray
   #------------------------------------------------------------------------------------
 
   def initialize(type, storage, section = false)
-
+    
+    @id = (0..8).map{MDArray.characters.sample}.join
     @type = type
     @nc_array = storage
     @local_index = Counter.new(self)

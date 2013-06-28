@@ -20,7 +20,7 @@ $MDARRAY_TEST_DIR = "./mdarray"
 $COLT_TEST_DIR = "./colt"
 
 # Need to change this variable before publication
-# $MDARRAY_ENV = 'cygwin'
+$MDARRAY_ENV = 'cygwin'
 
 ##########################################################################################
 # If we need to test for coverage

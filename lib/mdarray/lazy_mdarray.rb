@@ -175,11 +175,15 @@ class LazyMDArray < ByteMDArray
   end
 
   #---------------------------------------------------------------------------------------
-  # Validates the expression checking if it can be performed: all dimensions need to be
-  # compatible
+  #
   #---------------------------------------------------------------------------------------
 
   protected
+
+  #---------------------------------------------------------------------------------------
+  # Validates the expression checking if it can be performed: all dimensions need to be
+  # compatible
+  #---------------------------------------------------------------------------------------
 
   def validate_fast(*args)
 

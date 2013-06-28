@@ -154,5 +154,7 @@ require_relative 'cern_float_functions'
 require_relative 'cern_long_functions'
 require_relative 'cern_int_functions'
 
+require_relative 'matrix/colt_matrix'
+
 MDArray.functions = "CernFunctions"
 
