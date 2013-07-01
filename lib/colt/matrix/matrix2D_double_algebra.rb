@@ -28,7 +28,7 @@ require 'java'
 #
 ##########################################################################################
 
-module MatrixDoubleAlgebra
+module Matrix2DDoubleAlgebra
   include_package "cern.colt.matrix.tdouble.algo"
 
   #------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ module MatrixDoubleAlgebra
   #------------------------------------------------------------------------------------
 
   def chol
-    @da.chol(@colt_matrix)
+    @algebra.chol(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ module MatrixDoubleAlgebra
   #------------------------------------------------------------------------------------
 
   def cond
-    @da.cond(@colt_matrix)
+    @algebra.cond(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ module MatrixDoubleAlgebra
   #------------------------------------------------------------------------------------
 
   def det
-    @da.det(@colt_matrix)
+    @algebra.det(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -61,9 +61,41 @@ module MatrixDoubleAlgebra
   #------------------------------------------------------------------------------------
 
   def inverse
-    result = @da.inverse(@colt_matrix)
+    result = @algebra.inverse(@colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def kron(matrix)
+
+    if (matrix.rank != 2)
+      raise "Rank should be 2"
+    end
+    result = @algebra.kron(@colt_matrix, matrix.colt_matrix)
+    MDMatrix.from_colt_matrix(result)
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # Multiplies this matrix by another matrix
+  #------------------------------------------------------------------------------------
+
+  def mult(matrix)
+
+    if (matrix.rank > 2)
+      raise "Rank should be 1 or 2"
+    end
+
+    result = @colt_matrix.like
+    @colt_matrix.zMult(matrix.colt_matrix, result)
+    MDMatrix.from_colt_matrix(result)
+
+  end
+
+  alias :* :mult
 
 end # 
 
@@ -71,8 +103,8 @@ end #
 #
 ##########################################################################################
 
-class DoubleMDMatrix
+class DoubleMDMatrix2D
 
-  include MatrixDoubleAlgebra
+  include Matrix2DDoubleAlgebra
 
 end # MDMatrix

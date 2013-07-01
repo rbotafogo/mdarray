@@ -36,34 +36,100 @@ class MDArrayTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-=begin
-    should "create matrices" do
 
-      d1 = MDArray.double([5, 3, 6])
+    should "create 1D matrices" do
+
+      d1 = MDArray.double([5, 3, 6, 7])
+      assert_raise (RuntimeError) { matrix = MDMatrix.from_mdarray(d1) }
+
+      d2 = MDArray.typed_arange("double", 0, 15)
+      double_matrix = MDMatrix.from_mdarray(d2)
+      double_matrix.print
+      printf("\n\n")
+
+      f1 = MDArray.typed_arange("float", 0, 15)
+      float_matrix = MDMatrix.from_mdarray(f1)
+      float_matrix.print
+      printf("\n\n")
+
+      l1 = MDArray.typed_arange("long", 0, 15)
+      long_matrix = MDMatrix.from_mdarray(l1)
+      long_matrix.print
+      printf("\n\n")
+
+      i1 = MDArray.typed_arange("int", 0, 15)
+      int_matrix = MDMatrix.from_mdarray(i1)
+      int_matrix.print
+      printf("\n\n")
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "create 3D matrices" do
+
+      d1 = MDArray.double([5, 3, 6, 7])
+      assert_raise (RuntimeError) { matrix = MDMatrix.from_mdarray(d1) }
+
+      d2 = MDArray.typed_arange("double", 0, 60)
+      d2.reshape!([5, 3, 4])
+      double_matrix = MDMatrix.from_mdarray(d2)
+      double_matrix.print
+      printf("\n\n")
+
+      f1 = MDArray.typed_arange("float", 0, 60)
+      f1.reshape!([5, 3, 4])
+      float_matrix = MDMatrix.from_mdarray(f1)
+      float_matrix.print
+      printf("\n\n")
+
+      l1 = MDArray.typed_arange("long", 0, 60)
+      l1.reshape!([5, 3, 4])
+      long_matrix = MDMatrix.from_mdarray(l1)
+      long_matrix.print
+      printf("\n\n")
+
+      i1 = MDArray.typed_arange("int", 0, 60)
+      i1.reshape!([5, 3, 4])
+      int_matrix = MDMatrix.from_mdarray(i1)
+      int_matrix.print
+      printf("\n\n")
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+#=begin
+    should "create 2D matrices" do
+
+      d1 = MDArray.double([5, 3, 6, 7])
       assert_raise (RuntimeError) { matrix = MDMatrix.from_mdarray(d1) }
 
       d2 = MDArray.typed_arange("double", 0, 15)
       d2.reshape!([5, 3])
       double_matrix = MDMatrix.from_mdarray(d2)
-      double_matrix.formatter
+      double_matrix.print
       printf("\n\n")
 
       f1 = MDArray.typed_arange("float", 0, 15)
       f1.reshape!([5, 3])
       float_matrix = MDMatrix.from_mdarray(f1)
-      float_matrix.formatter
+      float_matrix.print
       printf("\n\n")
 
       l1 = MDArray.typed_arange("long", 0, 15)
       l1.reshape!([5, 3])
       long_matrix = MDMatrix.from_mdarray(l1)
-      long_matrix.formatter
+      long_matrix.print
       printf("\n\n")
 
       i1 = MDArray.typed_arange("int", 0, 15)
       i1.reshape!([5, 3])
       int_matrix = MDMatrix.from_mdarray(i1)
-      int_matrix.formatter
+      int_matrix.print
       printf("\n\n")
 
     end
@@ -76,30 +142,28 @@ class MDArrayTest < Test::Unit::TestCase
 
       d1 = MDArray.typed_arange("double", 0, 90)
       d1.reshape!([5, 3, 6])
-      assert_raise (RuntimeError) { matrix = MDMatrix.from_mdarray(d1) }
 
       d1.print
       d2 = d1.slice(0, 0)
       d2.print
       matrix = MDMatrix.from_mdarray(d2)
-      matrix.formatter
+      matrix.print
       p " "
 
       d2 = d1.slice(0, 1)
       d2.print
       matrix = MDMatrix.from_mdarray(d2)
-      matrix.formatter
+      matrix.print
       p " "
 
       d2 = d1.slice(1, 1)
       d2.print
       matrix = MDMatrix.from_mdarray(d2)
-      matrix.formatter
+      matrix.print
       p " "
 
     end
 
-=end
 
     #-------------------------------------------------------------------------------------
     #
@@ -111,24 +175,30 @@ class MDArrayTest < Test::Unit::TestCase
       m.reshape!([4, 4])
       matrix1 = MDMatrix.from_mdarray(m)
       # mat2 = matrix.chol
-      matrix1.formatter
+      matrix1.print
       printf("\n\n")
 
       m = MDArray.typed_arange("double", 16, 32)
       m.reshape!([4, 4])
       matrix2 = MDMatrix.from_mdarray(m)
-      matrix2.formatter
+      matrix2.print
       printf("\n\n")
       
-      result = matrix1.mult(matrix2)
-      result.formatter
+      result = matrix1 * matrix2
+      p "matrix multiplication"
+      result.print 
+      printf("\n\n")
+
+      result = matrix1.kron(matrix2)
+      p "Kronecker multiplication"
+      result.print
       printf("\n\n")
 
       print "determinant is: #{result.det}"
       printf("\n\n")
 
       result.normalize!
-      result.formatter
+      result.print
       printf("\n\n")
 
       p "summing all values of result: #{result.sum}"
@@ -136,6 +206,7 @@ class MDArrayTest < Test::Unit::TestCase
       result.mdarray.print
 
     end
+#=end
 
   end
 

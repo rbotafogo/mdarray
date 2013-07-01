@@ -38,6 +38,7 @@ class MDMatrix
 
   attr_reader :colt_matrix
   attr_reader :mdarray
+  attr_reader :rank
 
   #------------------------------------------------------------------------------------
   # 
@@ -46,6 +47,8 @@ class MDMatrix
   def initialize(mdarray, colt_matrix)
     @mdarray = mdarray
     @colt_matrix = colt_matrix
+    @rank = @mdarray.rank
+    @algebra = nil
   end
 
   #------------------------------------------------------------------------------------
@@ -56,9 +59,167 @@ class MDMatrix
 
   def self.from_mdarray(mdarray)
 
-    if (mdarray.rank > 2)
-      raise "Cannot create matrix from array of rank greater than 2"
+    case mdarray.rank
+
+    when 1
+      dense1D(mdarray)
+    when 2
+      dense2D(mdarray)
+    when 3
+      dense3D(mdarray)
+    else
+      raise "Cannot create MDMatrix of rank greater than 3"
     end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # Creates a new MDMatrix from a given colt_matrix
+  #------------------------------------------------------------------------------------
+
+  def self.from_colt_matrix(colt_matrix)
+
+    if (colt_matrix.is_a? DenseDoubleMatrix3D)
+      mdarray = MDArray.from_jstorage("double", 
+                                      [colt_matrix.slices, colt_matrix.rows, 
+                                       colt_matrix.columns], colt_matrix.elements)
+      return DoubleMDMatrix3D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseFloatMatrix3D)
+      mdarray = MDArray.from_jstorage("float", 
+                                      [colt_matrix.slices, colt_matrix.rows, 
+                                       colt_matrix.columns], colt_matrix.elements)
+      return FloatMDMatrix3D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseLongMatrix3D)
+      mdarray = MDArray.from_jstorage("long", 
+                                      [colt_matrix.slices, colt_matrix.rows, 
+                                       colt_matrix.columns], colt_matrix.elements)
+      return LongMDMatrix3D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseIntMatrix3D)
+      mdarray = MDArray.from_jstorage("int", 
+                                      [colt_matrix.slices, colt_matrix.rows, 
+                                       colt_matrix.columns], colt_matrix.elements)
+      return IntMDMatrix3D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseDoubleMatrix2D)
+      mdarray = MDArray.from_jstorage("double", [colt_matrix.rows, colt_matrix.columns], 
+                                      colt_matrix.elements)
+      return DoubleMDMatrix2D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseFloatMatrix2D)
+      mdarray = MDArray.from_jstorage("float", [colt_matrix.rows, colt_matrix.columns], 
+                                      colt_matrix.elements)
+      return FloatMDMatrix2D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseLongMatrix2D)
+      mdarray = MDArray.from_jstorage("long", [colt_matrix.rows, colt_matrix.columns], 
+                                      colt_matrix.elements)
+      return LongMDMatrix2D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseIntMatrix2D)
+      mdarray = MDArray.from_jstorage("int", [colt_matrix.rows, colt_matrix.columns], 
+                                      colt_matrix.elements)
+      return IntMDMatrix2D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseDoubleMatrix1D)
+      mdarray = MDArray.from_jstorage("double", [colt_matrix.size], colt_matrix.elements)
+      return DoubleMDMatrix1D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseFloatMatrix1D)
+      mdarray = MDArray.from_jstorage("float", [colt_matrix.size], colt_matrix.elements)
+      return FloatMDMatrix1D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseLongMatrix1D)
+      mdarray = MDArray.from_jstorage("long", [colt_matrix.size], colt_matrix.elements)
+      return LongMDMatrix1D.from_mdarray(mdarray)
+    elsif (colt_matrix.is_a? DenseIntMatrix1D)
+      mdarray = MDArray.from_jstorage("int", [colt_matrix.size], colt_matrix.elements)
+      return IntMDMatrix1D.from_mdarray(mdarray)
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def normalize!
+    @colt_matrix.normalize
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+  
+  def sum
+    @colt_matrix.zSum
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def print
+
+    case mdarray.type
+
+    when "double"
+      formatter = DoubleFormatter.new
+    when "float"
+      formatter = FloatFormatter.new
+    when "long"
+      formatter = LongFormatter.new
+    when "int"
+      formatter = IntFormatter.new
+
+    end
+
+    printf(formatter.toString(@colt_matrix))
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  private
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def self.dense1D(mdarray)
+
+    storage = mdarray.nc_array.getStorage()
+    index = mdarray.nc_array.getIndex()
+    size = index.size
+
+    klass = index.getClass
+    field = klass.getDeclaredField("stride0")
+    field.setAccessible true
+    stride0 = field.get(index)
+    # p stride0
+
+    klass = klass.getSuperclass()
+    field = klass.getDeclaredField("offset")
+    field.setAccessible true
+    offset = field.get(index)
+    # p offset
+
+    case mdarray.type
+    when "double"
+      colt_matrix = DenseDoubleMatrix1D.new(size, storage, offset, stride0, false)
+      DoubleMDMatrix1D.new(mdarray, colt_matrix)
+    when "float"
+      colt_matrix = DenseFloatMatrix1D.new(size, storage, offset, stride0, false)
+      FloatMDMatrix1D.new(mdarray, colt_matrix)
+    when "long"
+      colt_matrix = DenseLongMatrix1D.new(size, storage, offset, stride0, false)
+      LongMDMatrix1D.new(mdarray, colt_matrix)
+    when "int"
+      colt_matrix = DenseIntMatrix1D.new(size, storage, offset, stride0, false)
+      IntMDMatrix1D.new(mdarray, colt_matrix)
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def self.dense2D(mdarray)
 
     storage = mdarray.nc_array.getStorage()
     index = mdarray.nc_array.getIndex()
@@ -85,128 +246,73 @@ class MDMatrix
     when "double"
       colt_matrix = DenseDoubleMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
                                             stride0, stride1, false)
-      DoubleMDMatrix.new(mdarray, colt_matrix)
+      DoubleMDMatrix2D.new(mdarray, colt_matrix)
     when "float"
       colt_matrix = DenseFloatMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
                                            stride0, stride1, false)
-      FloatMDMatrix.new(mdarray, colt_matrix)
+      FloatMDMatrix2D.new(mdarray, colt_matrix)
     when "long"
       colt_matrix = DenseLongMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
                                           stride0, stride1, false)
-      LongMDMatrix.new(mdarray, colt_matrix)
+      LongMDMatrix2D.new(mdarray, colt_matrix)
     when "int"
       colt_matrix = DenseIntMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
                                          stride0, stride1, false)
-      IntMDMatrix.new(mdarray, colt_matrix)
-    end
-
-
-  end
-
-  #------------------------------------------------------------------------------------
-  # Creates a new MDMatrix from a given colt_matrix
-  #------------------------------------------------------------------------------------
-
-  def self.from_colt_matrix(colt_matrix)
-
-    if (colt_matrix.is_a? DenseDoubleMatrix3D)
-      mdarray = MDArray.from_jstorage("double", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return DoubleMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseFloatMatrix3D)
-      mdarray = MDArray.from_jstorage("float", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return FloatMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseLongMatrix3D)
-      mdarray = MDArray.from_jstorage("long", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return LongMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseIntMatrix3D)
-      mdarray = MDArray.from_jstorage("int", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return IntMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseDoubleMatrix2D)
-      mdarray = MDArray.from_jstorage("double", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return DoubleMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseFloatMatrix2D)
-      mdarray = MDArray.from_jstorage("float", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return FloatMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseLongMatrix2D)
-      mdarray = MDArray.from_jstorage("long", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return LongMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseIntMatrix2D)
-      mdarray = MDArray.from_jstorage("int", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return IntMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseDoubleMatrix1D)
-      mdarray = MDArray.from_jstorage("double", [colt_matrix.size], colt_matrix.elements)
-      return DoubleMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseFloatMatrix1D)
-      mdarray = MDArray.from_jstorage("float", [colt_matrix.size], colt_matrix.elements)
-      return FloatMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseLongMatrix1D)
-      mdarray = MDArray.from_jstorage("long", [colt_matrix.size], colt_matrix.elements)
-      return LongMDMatrix.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseIntMatrix1D)
-      mdarray = MDArray.from_jstorage("int", [colt_matrix.size], colt_matrix.elements)
-      return IntMDMatrix.from_mdarray(mdarray)
+      IntMDMatrix2D.new(mdarray, colt_matrix)
     end
 
   end
 
   #------------------------------------------------------------------------------------
-  # Multiplies this matrix by another matrix
-  #------------------------------------------------------------------------------------
-
-  def mult(mdmatrix)
-    result = @colt_matrix.like
-    @colt_matrix.zMult(mdmatrix.colt_matrix, result)
-    MDMatrix.from_colt_matrix(result)
-  end
-
-  #------------------------------------------------------------------------------------
   # 
   #------------------------------------------------------------------------------------
 
-  def normalize!
-    @colt_matrix.normalize
-  end
+  def self.dense3D(mdarray)
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-  
-  def sum
-    @colt_matrix.zSum
-  end
+    storage = mdarray.nc_array.getStorage()
+    index = mdarray.nc_array.getIndex()
+    shape = index.getShape()
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
+    klass = index.getClass
+    field = klass.getDeclaredField("stride0")
+    field.setAccessible true
+    stride0 = field.get(index)
+    # p stride0
 
-  def formatter
+    field = klass.getDeclaredField("stride1")
+    field.setAccessible true
+    stride1 = field.get(index)
+    # p stride1
+
+    field = klass.getDeclaredField("stride2")
+    field.setAccessible true
+    stride2 = field.get(index)
+    # p stride2
+
+    klass = klass.getSuperclass()
+    field = klass.getDeclaredField("offset")
+    field.setAccessible true
+    offset = field.get(index)
+    # p offset
 
     case mdarray.type
-
     when "double"
-      formatter = DoubleFormatter.new
+      colt_matrix = DenseDoubleMatrix3D.new(shape[0], shape[1], shape[2], storage, 
+                                            offset, 0, 0, stride0, stride1, stride2, false)
+      DoubleMDMatrix3D.new(mdarray, colt_matrix)
     when "float"
-      formatter = FloatFormatter.new
+      colt_matrix = DenseFloatMatrix3D.new(shape[0], shape[1], shape[2], storage, 
+                                           offset, 0, 0, stride0, stride1, stride2, false)
+      FloatMDMatrix3D.new(mdarray, colt_matrix)
     when "long"
-      formatter = LongFormatter.new
+      colt_matrix = DenseLongMatrix3D.new(shape[0], shape[1], shape[2], storage, 
+                                          offset, 0, 0, stride0, stride1, stride2, false)
+      LongMDMatrix3D.new(mdarray, colt_matrix)
     when "int"
-      formatter = IntFormatter.new
-
+      colt_matrix = DenseIntMatrix3D.new(shape[0], shape[1], shape[2], storage, 
+                                         offset, 0, 0, stride0, stride1, stride2, false)
+      IntMDMatrix3D.new(mdarray, colt_matrix)
     end
-
-    printf(formatter.toString(@colt_matrix))
 
   end
 
@@ -216,7 +322,7 @@ end # MDMatrix
 #
 ##########################################################################################
 
-class DoubleMDMatrix < MDMatrix
+class DoubleMDMatrix1D < MDMatrix
   include_package "cern.colt.matrix.tdouble.algo"
 
   #------------------------------------------------------------------------------------
@@ -225,7 +331,7 @@ class DoubleMDMatrix < MDMatrix
 
   def initialize(mdarray, colt_matrix)
     super(mdarray, colt_matrix)
-    @da = DenseDoubleAlgebra.new
+    @algebra = DenseDoubleAlgebra.new
   end
 
 end # DoubleMDMatrix
@@ -234,7 +340,53 @@ end # DoubleMDMatrix
 #
 ##########################################################################################
 
-class FloatMDMatrix < MDMatrix
+class DoubleMDMatrix2D < MDMatrix
+  include_package "cern.colt.matrix.tdouble.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+    @algebra = DenseDoubleAlgebra.new
+  end
+
+end # DoubleMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class DoubleMDMatrix3D < MDMatrix
+  include_package "cern.colt.matrix.tdouble.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+    @algebra = DenseDoubleAlgebra.new
+  end
+
+end # DoubleMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class FloatMDMatrix1D < MDMatrix
+  include_package "cern.colt.matrix.tfloat.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+    @algebra = DenseFloatAlgebra.new
+  end
 
 end # FloatMDMatrix
 
@@ -242,7 +394,52 @@ end # FloatMDMatrix
 #
 ##########################################################################################
 
-class LongMDMatrix < MDMatrix
+class FloatMDMatrix2D < MDMatrix
+  include_package "cern.colt.matrix.tfloat.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+    @algebra = DenseFloatAlgebra.new
+  end
+
+end # FloatMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class FloatMDMatrix3D < MDMatrix
+  include_package "cern.colt.matrix.tfloat.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+    @algebra = DenseFloatAlgebra.new
+  end
+
+end # FloatMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class LongMDMatrix1D < MDMatrix
+  include_package "cern.colt.matrix.tlong.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+  end
 
 end # LongMDMatrix
 
@@ -250,9 +447,86 @@ end # LongMDMatrix
 #
 ##########################################################################################
 
-class IntMDMatrix < MDMatrix
+class LongMDMatrix2D < MDMatrix
+  include_package "cern.colt.matrix.tlong.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+  end
+
+end # LongMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class LongMDMatrix3D < MDMatrix
+  include_package "cern.colt.matrix.tlong.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+  end
+
+end # LongMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class IntMDMatrix1D < MDMatrix
+  include_package "cern.colt.matrix.tint.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+  end
+
+end # IntMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class IntMDMatrix2D < MDMatrix
+  include_package "cern.colt.matrix.tint.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+  end
+
+end # IntMDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class IntMDMatrix3D < MDMatrix
+  include_package "cern.colt.matrix.tint.algo"
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix)
+    super(mdarray, colt_matrix)
+  end
 
 end # IntMDMatrix
 
 
-require_relative 'matrix_double_algebra'
+require_relative 'matrix2D_double_algebra'
