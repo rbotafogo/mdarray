@@ -171,6 +171,40 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "test matrix functions" do
 
+      pos = MDArray.double([3, 3], [2, -1, 0, -1, 2, -1, 0, -1, 2])
+      matrix = MDMatrix.from_mdarray(pos)
+      result = matrix.chol
+      p "Cholesky decomposition"
+      result.print
+      printf("\n\n")
+
+      eig = matrix.eig
+      p "eigen decomposition"
+      p "eigenvalue matrix"
+      eig[0].print
+      printf("\n\n")
+      p "imaginary parts of the eigenvalues"
+      eig[1].print
+      printf("\n\n")
+      p "real parts of the eigenvalues"
+      eig[2].print
+      printf("\n\n")
+      p "eigenvector matrix"
+      eig[3].print
+      printf("\n\n")
+
+      lu = matrix.lu
+      p "lu decomposition"
+      p "is non singular: #{lu[0]}"
+      p "determinant: #{lu[1]}"
+      p "pivot vector: #{lu[2]}"
+      p "lower triangular matrix"
+      lu[3].print
+      printf("\n\n")
+      p "upper triangular matrix"
+      lu[4].print
+      printf("\n\n")
+
       m = MDArray.typed_arange("double", 0, 16)
       m.reshape!([4, 4])
       matrix1 = MDMatrix.from_mdarray(m)
@@ -196,6 +230,22 @@ class MDArrayTest < Test::Unit::TestCase
 
       print "determinant is: #{result.det}"
       printf("\n\n")
+
+      p result.norm1
+
+      p result.norm2
+
+      power3 = result ** 3
+      power3.print 
+      printf("\n\n")
+
+      p result.trace
+
+      trap_lower = result.trapezoidal_lower
+      trap_lower.print
+      printf("\n\n")
+
+      p result.vector_norm2
 
       result.normalize!
       result.print
