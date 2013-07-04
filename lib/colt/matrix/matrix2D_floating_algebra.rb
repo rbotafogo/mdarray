@@ -28,15 +28,16 @@ require 'java'
 #
 ##########################################################################################
 
-module Matrix2DDoubleAlgebra
+module Matrix2DFloatingAlgebra
   include_package "cern.colt.matrix.tdouble.algo"
+  include_package "cern.colt.matrix.tfloat.algo"
 
   #------------------------------------------------------------------------------------
   # Solves the upper triangular system U*x=b;
   #------------------------------------------------------------------------------------
 
   def backward_solve(matrix1D)
-    result = @algebra.backwardSolve(matrix1D.colt_matrix)
+    result = @algebra.backwardSolve(@colt_matrix, matrix1D.colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -86,7 +87,7 @@ module Matrix2DDoubleAlgebra
   #------------------------------------------------------------------------------------
 
   def forward_solve(matrix1D)
-    result = @algebra.forwardSolve(matrix1D.colt_matrix)
+    result = @algebra.forwardSolve(@colt_matrix, matrix1D.colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -214,6 +215,19 @@ module Matrix2DDoubleAlgebra
   end
 
   #------------------------------------------------------------------------------------
+  # Constructs and returns the SingularValue-decomposition of the given matrix.
+  #------------------------------------------------------------------------------------
+
+  def svd
+    result = @algebra.svd(@colt_matrix)
+    [result.getInfo().val, result.cond(), result.norm2(), result.rank(), 
+     result.getSingularValues().to_a(),
+     MDMatrix.from_colt_matrix(result.getS()),
+     MDMatrix.from_colt_matrix(result.getU()),
+     MDMatrix.from_colt_matrix(result.getV())]
+  end
+
+  #------------------------------------------------------------------------------------
   # Returns the sum of the diagonal elements of matrix A; Sum(A[i,i]).
   #------------------------------------------------------------------------------------
 
@@ -244,8 +258,68 @@ end #
 #
 ##########################################################################################
 
+module Matrix2DDoubleAlgebra
+  include_package "cern.colt.matrix.tdouble.algo"
+
+  #------------------------------------------------------------------------------------
+  # Constructs and returns the QR-decomposition of the given matrix.
+  #------------------------------------------------------------------------------------
+
+  def qr(economy_size = true)
+    result = @algebra.qr(@colt_matrix)
+    [result.hasFullRank(), MDMatrix.from_colt_matrix(result.getQ(economy_size)),
+     MDMatrix.from_colt_matrix(result.getR(economy_size))]
+  end
+  
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+module Matrix2DFloatAlgebra
+  include_package "cern.colt.matrix.tfloat.algo"
+
+  #------------------------------------------------------------------------------------
+  # Constructs and returns the QR-decomposition of the given matrix.
+  #------------------------------------------------------------------------------------
+
+  def qr
+    result = @algebra.qr(@colt_matrix)
+    [result.hasFullRank(), 
+     MDMatrix.from_colt_matrix(result.getH()),
+     MDMatrix.from_colt_matrix(result.getQ()),
+     MDMatrix.from_colt_matrix(result.getR())]
+  end
+  
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+class FloatingMDMatrix2D
+
+  include Matrix2DFloatingAlgebra
+
+end # MDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
 class DoubleMDMatrix2D
 
   include Matrix2DDoubleAlgebra
 
-end # MDMatrix
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+class FloatMDMatrix2D
+
+  include Matrix2DFloatAlgebra
+
+end
