@@ -35,7 +35,7 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
-
+=begin
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
@@ -47,13 +47,17 @@ class MDArrayTest < Test::Unit::TestCase
       file = NetCDF.redefine(cygpath(@directory), "nc_output", self) do
         
         @d1 = find_dimension("dim1")
-        p @d1.name
+        @d1.length = 8
+        @d1.name = "new_dimension1"
+
+        
 
       end
 
       file.write_cdl
 
     end
+=end
 
     #-------------------------------------------------------------------------------------
     #
@@ -66,15 +70,31 @@ class MDArrayTest < Test::Unit::TestCase
       # ouside scope, that is, "here", we pass self as the third argument to define.
       # When self is passed as argument, @outside_scope is available inside the block.
 
-      file = NetCDF.define(cygpath(@directory), "nc_output", self) do
+      writer = NetCDF.define(cygpath(@directory), "nc_output", "netcdf3", self) do
+
+        # can add global attributes by adding a single valued attribute or an array of 
+        # attributes.  When adding an array of attributes all elements of the array must
+        # be of the same type, i.e, fixnum, floats or strings. Attributes with long numbers
+        # are not allowed. This seems to be a restriction of Java-NetCDF.
+        global_att :fixnums, "Version", [1, 2, 3, 4]
+        global_att :strings, "Strings", ["abc", "efg"]
+        global_att :floats, "Floats", [1.34, 2.45]
+
+        global_att :fixnum, "Fixnum", 3
+        @outside_scope.assert_equal(3, @fixnum.numeric_value)
+
+        global_att :string, "String", "this is a string"
+        global_att :float, "Float", 3.45
 
         global_att :desc, "Description", "This is a test file created by MDArray"
         @outside_scope.assert_equal("String", @desc.data_type)
         @outside_scope.assert_equal("Description", @desc.name)
-        @outside_scope.assert_equal("This is a test file created by MDArray", @desc.string_value)
+        @outside_scope.assert_equal("This is a test file created by MDArray", 
+                                    @desc.string_value)
         @outside_scope.assert_equal(true, @desc.string?)
         @outside_scope.assert_equal(false, @desc.unsigned?)
 
+=begin
         dimension :dim1, "dim1", 5
         @outside_scope.assert_equal(5, @dim1.length)
         @outside_scope.assert_equal("dim1", @dim1.name)
@@ -106,13 +126,12 @@ class MDArrayTest < Test::Unit::TestCase
 
         large_file = true
         p get_file_type_description
-
+=end
       end
 
-      file.write_cdl
 
     end
 
   end
-
+  
 end

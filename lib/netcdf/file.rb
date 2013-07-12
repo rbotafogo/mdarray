@@ -33,6 +33,7 @@ class NetCDF
 
     attr_reader :home_dir
     attr_reader :file_name
+    attr_reader :version
     attr_reader :netcdf_file
     attr_reader :outsid_scope
 
@@ -40,26 +41,19 @@ class NetCDF
     # Creates a netCDF file for storing processed information
     #------------------------------------------------------------------------------------
     
-    def initialize(home_dir, name, outside_scope = nil)
+    def initialize(home_dir, name, version, outside_scope = nil)
       @home_dir = home_dir
       @file_name = "#{home_dir}/#{name}.nc"
+      @version = version
       @outside_scope = outside_scope
-    end
-
-    #------------------------------------------------------------------------------------
-    # Find all dimensions in the file
-    #------------------------------------------------------------------------------------
-
-    def get_dimensions
-      @netcdf_file.getDimensions()
     end
 
     #------------------------------------------------------------------------------------
     # Finds a dimension by full name
     #------------------------------------------------------------------------------------
     
-    def find_dimension(dim_name)
-      NetCDF::Dimension.new(@netcdf_file.findDimension(dim_name))
+    def find_dimension(name)
+      NetCDF::Dimension.new(@netcdf_file.findDimension(name))
     end
 
     #------------------------------------------------------------------------------------
@@ -76,23 +70,35 @@ class NetCDF
     # Finds a variable by name
     #------------------------------------------------------------------------------------
 
-    def find_variable(var_name)
+    def find_variable(name)
+      NetCDF::Variable.new(@netcdf_file.findVariable(name))
+    end
 
-      var = @netcdf_file.findVariable(var_name)
-      use_as = var.findAttribute("use_as")
+    #------------------------------------------------------------------------------------
+    # Find an attribute, with the specified (escaped full) name.
+    #------------------------------------------------------------------------------------
 
-      if (use_as)
-        usage = use_as.getStringValue()
-      end
-      
-      case usage
-      when "string"
-        StringVariable.new(var)
-      when "time"
-        TimeVariable.new(var)
+    def find_attribute(name)
+      NetCDF::Attribute.new(@netcdf_file.findAttribute(name))
+    end
+
+    #------------------------------------------------------------------------------------
+    # Find an global attribute, with the specified (full) name.
+    #------------------------------------------------------------------------------------
+
+    def find_global_attribute(name, ignore_case = false)
+      if (ignore_case)
+        NetCDF::Attribute.new(@netcdf_file.findGlobalAttributeIgnoreCase(name))
       else
-        Variable.new(@netcdf_file.findVariable(var_name))
+        NetCDF::Attribute.new(@netcdf_file.findGlobalAttribute(name))
       end
+    end
+
+    #------------------------------------------------------------------------------------
+    # closes the file
+    #------------------------------------------------------------------------------------
+
+    def open
 
     end
 
@@ -115,6 +121,80 @@ class NetCDF
     end
 
     #------------------------------------------------------------------------------------
+    # Find all dimensions in the file
+    #------------------------------------------------------------------------------------
+
+    def detail_info
+      @netcdf_file.getDetailInfo()
+    end
+
+    #------------------------------------------------------------------------------------
+    # Get a human-readable description for this file type.
+    #------------------------------------------------------------------------------------
+
+    def file_type_description
+      @netcdf_file.getFileTypeDescription()
+    end
+
+    #------------------------------------------------------------------------------------
+    # Get the file type id for the underlying data source.
+    #------------------------------------------------------------------------------------
+
+    def file_type_id
+      @netcdf_file.getFileTypeId()
+    end
+
+    #------------------------------------------------------------------------------------
+    # Get the globally unique dataset identifier, if it exists.
+    #------------------------------------------------------------------------------------
+
+    def id
+      @netcdf_file.getId()
+    end
+
+    #------------------------------------------------------------------------------------
+    # 
+    #------------------------------------------------------------------------------------
+
+    def last_modified
+      @netcdf_file.getLastModified() 
+    end
+
+    #------------------------------------------------------------------------------------
+    # Get the NetcdfFile location.
+    #------------------------------------------------------------------------------------
+
+    def location
+      @netcdf_file.getLocation() 
+    end
+
+    #------------------------------------------------------------------------------------
+    # Get the human-readable title, if it exists.
+    #------------------------------------------------------------------------------------
+
+    def title
+      @netcdf_file.getTitle() 
+    end
+
+    #------------------------------------------------------------------------------------
+    # Get the human-readable title, if it exists.
+    #------------------------------------------------------------------------------------
+
+    def unlimited_dimension?
+      @netcdf_file.hasUnlimitedDimension() 
+    end
+
+
+
+    #------------------------------------------------------------------------------------
+    # Find all dimensions in the file
+    #------------------------------------------------------------------------------------
+
+    def get_dimensions
+      @netcdf_file.getDimensions()
+    end
+
+    #------------------------------------------------------------------------------------
     # Get the file type id for the underlying data source.
     #------------------------------------------------------------------------------------
     
@@ -126,4 +206,4 @@ class NetCDF
 
 end # NetCDF
 
-require_relative 'file_writeable'
+require_relative 'file_writer'

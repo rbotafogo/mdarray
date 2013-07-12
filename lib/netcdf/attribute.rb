@@ -19,8 +19,24 @@ class NetCDF
     #
     #------------------------------------------------------------------------------------
 
-    def initialize(netcdf_attribute)
-      @netcdf_attribute = netcdf_attribute
+    def initialize(name, val)
+
+      value = val
+      if (val.is_a? Fixnum)
+        value = val.to_java(:int)
+      elsif (val.is_a? Array)
+        value = Array.new
+        val.each do |elmt|
+          if (elmt.is_a? Fixnum)
+            value << elmt.to_java(:int)
+          else
+            value << elmt
+          end
+        end
+      end
+      att = Java::UcarNc2::Attribute.new(name, value)
+      @netcdf_attribute = att
+
     end
 
     #------------------------------------------------------------------------------------
@@ -35,6 +51,14 @@ class NetCDF
     #
     #------------------------------------------------------------------------------------
 
+    def length
+      @netcdf_attribute.getLength()
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
     def name
       @netcdf_attribute.getName()
     end
@@ -43,8 +67,8 @@ class NetCDF
     #
     #------------------------------------------------------------------------------------
 
-    def numeric_value
-      @netcdf_attribute.getNumericValue()
+    def numeric_value(index = 0)
+      @netcdf_attribute.getNumericValue(index)
     end
 
     #------------------------------------------------------------------------------------

@@ -26,36 +26,22 @@
 
 class NetCDF
   include_package "ucar.nc2"
+  include_package "ucar.ma2"
 
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
-  def self.define(home_dir, file_name, outside_scope = nil, &block)
-
-    writeable = NetCDF::FileWriteable.new(home_dir, file_name, outside_scope)
-    writeable.open(true)
-    writeable.instance_eval(&block)
-    writeable.create
-    writeable.close
-    writeable
-
+  def self.define(home_dir, file_name, version, outside_scope = nil, &block)
+    _define(home_dir, file_name, true, version, outside_scope, &block)
   end
 
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
-  def self.redefine(home_dir, file_name, outside_scope = nil, &block)
-
-    writeable = NetCDF::FileWriteable.new(home_dir, file_name, outside_scope)
-    writeable.open(false)
-    writeable.redefine = true
-    writeable.instance_eval(&block)
-    writeable.create
-    writeable.close
-    writeable
-
+  def self.redefine(home_dir, file_name, version, outside_scope = nil, &block)
+    _define(home_dir, file_name, false, version, outside_scope, &block)
   end
 
   #------------------------------------------------------------------------------------
@@ -70,8 +56,11 @@ class NetCDF
   #
   #------------------------------------------------------------------------------------
   
-  def self.get_data_type(type)
-    
+  def self.get_dtype(type)
+
+    DataType.valueOf(type.upcase)
+
+=begin
     case type
       
     when "boolean", :boolean then DataType.valueOf("BOOLEAN")
@@ -88,13 +77,46 @@ class NetCDF
     when "structure", :structure then DataType.valueOf("STRUCTURE")
       
     end
-    
+=end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+  
+  def self.writer_version(name)
+    NetcdfFileWriter::Version.valueOf(name)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  private
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def self._define(home_dir, file_name, new_file, file_version, outside_scope = nil, 
+                   &block)
+
+    writeable = NetCDF::FileWriter.new(home_dir, file_name, file_version, 
+                                       outside_scope)
+    writeable.open_write(new_file)
+    writeable.redefine = true if !new_file
+    writeable.instance_eval(&block)
+    writeable.create
+    writeable.close
+    writeable
+
   end
 
 end # NetCDF
 
+require_relative 'group'
 require_relative 'dimension'
 require_relative 'variable'
 require_relative 'attribute'
 require_relative 'file'
-# require_relative 'group'

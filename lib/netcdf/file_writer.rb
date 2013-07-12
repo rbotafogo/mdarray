@@ -21,10 +21,30 @@
 
 class NetCDF
 
-  class FileWriteable < File
+  class FileWriter
     include_package "ucar.ma2"
     include_package "ucar.nc2"
     include_package "ucar.nc2.time"
+    
+    attr_reader :home_dir
+    attr_reader :file_name
+    attr_reader :version
+    attr_reader :netcdf_file
+    attr_reader :outsid_scope
+
+    #------------------------------------------------------------------------------------
+    # Creates a netCDF file for storing processed information
+    #------------------------------------------------------------------------------------
+    
+    def initialize(home_dir, name, file_version, outside_scope = nil)
+
+      version = NetCDF.writer_version(file_version)
+      @home_dir = home_dir
+      @file_name = "#{home_dir}/#{name}.nc"
+      @version = version
+      @outside_scope = outside_scope
+
+    end
     
     #------------------------------------------------------------------------------------
     # Opens a netCDF file.
@@ -35,14 +55,15 @@ class NetCDF
     # in it.
     #------------------------------------------------------------------------------------
     
-    def open(new_file, fill = false)
+    def open_write(new_file)
 
       begin
         if (new_file)
-          @netcdf_file = NetcdfFileWriteable.createNew(@file_name, fill)
+          @netcdf_file = NetcdfFileWriter.createNew(@version, @file_name)
         else
-          @netcdf_file = NetcdfFileWriteable.openExisting(@file_name, fill)
+          @netcdf_file = NetcdfFileWriter.openExisting(@version, @file_name)
         end
+        @root_group = @netcdf_file.addGroup(nil, "root")
       rescue java.io.IOException => ioe
         $stderr.print "Cannot open file: #{@file_name}"
         $stderr.print ioe
@@ -70,11 +91,12 @@ class NetCDF
 
       dim = nil
       if (size == 0)
-        dim = @netcdf_file.addDimension("#{name}", size, true, true, false)
+        dim = @netcdf_file.addDimension(@root_group, "#{name}", size, true, true, false)
       elsif (is_variable_length)
-        dim = @netcdf_file.addDimension("#{name}", size, false, false, is_variable_length)
+        dim = @netcdf_file.addDimension(@root_group, "#{name}", size, false, false, 
+                                        is_variable_length)
       else
-        dim = @netcdf_file.addDimension("#{name}", size)
+        dim = @netcdf_file.addDimension(@root_group, "#{name}", size)
       end
 
       NetCDF::Dimension.new(dim)
@@ -108,10 +130,12 @@ class NetCDF
 
       case type
       when "string"
-        NetCDF::Variable.new(@netcdf_file.addStringVariable(var_name, dim_list, max_strlen))
+        NetCDF::Variable.new(@netcdf_file.addStringVariable(@root_group, 
+                                                            var_name, dim_list, 
+                                                            max_strlen))
         
       else
-        NetCDF::Variable.new(@netcdf_file.addVariable(var_name, 
+        NetCDF::Variable.new(@netcdf_file.addVariable(@root_group, var_name, 
                                                       DataType.valueOf(type.upcase), 
                                                       dim_list))
       end
@@ -132,19 +156,10 @@ class NetCDF
     # working according to jruby documentation (as far as I understand it)
     #------------------------------------------------------------------------------------
     
-    def add_global_att(attribute_name, value, type = :int)
-
-      if (value.is_a? Array)
-        raise "Array attribute not implemented yet"
-      elsif (value.is_a? String)
-        NetCDF::Attribute.new(@netcdf_file.addGlobalAttribute(attribute_name, value))
-      elsif (value.is_a? Numeric)
-        NetCDF::Attribute.new(@netcdf_file.addGlobalAttribute(attribute_name, 
-                                                              (value.to_java type)))
-      else
-        raise "Cannot add attribute of type: #{value}"
-      end
-      
+    def add_global_att(name, value, type = :int)
+      @netcdf_file.addGroupAttribute(@root_group, 
+                                     NetCDF::Attribute.new(name, value).netcdf_attribute)
+        
     end
 
     #------------------------------------------------------------------------------------
@@ -198,6 +213,14 @@ class NetCDF
         $stderr.print ioe
       end
 
+    end
+
+    #------------------------------------------------------------------------------------
+    # closes the file
+    #------------------------------------------------------------------------------------
+    
+    def close
+      @netcdf_file.close
     end
 
     #------------------------------------------------------------------------------------
