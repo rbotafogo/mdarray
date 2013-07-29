@@ -21,29 +21,30 @@
 
 class NetCDF
 
-  class FileWriter
+  class FileWriter < FileParent
     include_package "ucar.ma2"
     include_package "ucar.nc2"
-    include_package "ucar.nc2.time"
     
-    attr_reader :home_dir
-    attr_reader :file_name
     attr_reader :version
-    attr_reader :netcdf_file
-    attr_reader :outsid_scope
-
-    #------------------------------------------------------------------------------------
-    # Creates a netCDF file for storing processed information
-    #------------------------------------------------------------------------------------
+    # Opens the same file just for reading.  I don't know it this will work properly.
+    # Needed as the API for FileWriter lacks some interesting features.  Or maybe not!
+    # I don't know... I might just be confused!
+    attr_reader :reader
     
-    def initialize(home_dir, name, file_version, outside_scope = nil)
+    #------------------------------------------------------------------------------------
+    # Writer for a new NetCDF file
+    #------------------------------------------------------------------------------------
 
-      version = NetCDF.writer_version(file_version)
-      @home_dir = home_dir
-      @file_name = "#{home_dir}/#{name}.nc"
-      @version = version
-      @outside_scope = outside_scope
+    def self.new_file(home_dir, name, version, outside_scope = nil)
+      FileWriter.new(home_dir, name, version, outside_scope)
+    end
 
+    #------------------------------------------------------------------------------------
+    # Writer for an existing NetCDF file
+    #------------------------------------------------------------------------------------
+
+    def self.existing_file(home_dir, name, outside_scope = nil)
+      FileWriter.new(home_dir, name, nil, outside_scope)
     end
     
     #------------------------------------------------------------------------------------
@@ -55,15 +56,15 @@ class NetCDF
     # in it.
     #------------------------------------------------------------------------------------
     
-    def open_write(new_file)
+    def open
 
       begin
-        if (new_file)
-          @netcdf_file = NetcdfFileWriter.createNew(@version, @file_name)
+        if (@version)
+          @netcdf_elmt = NetcdfFileWriter.createNew(@version, @file_name)
+          add_root_group
         else
-          @netcdf_file = NetcdfFileWriter.openExisting(@version, @file_name)
+          @netcdf_elmt = NetcdfFileWriter.openExisting(@file_name)
         end
-        @root_group = @netcdf_file.addGroup(nil, "root")
       rescue java.io.IOException => ioe
         $stderr.print "Cannot open file: #{@file_name}"
         $stderr.print ioe
@@ -72,34 +73,93 @@ class NetCDF
     end
     
     #------------------------------------------------------------------------------------
+    # Adds a new group to the file.
+    #------------------------------------------------------------------------------------
+
+    def add_group(parent, name)
+      NetCDF::GroupWriter.new(@netcdf_elmt.addGroup(parent, name))
+    end
+
+    #------------------------------------------------------------------------------------
+    # Adds the root group to the file.
+    #------------------------------------------------------------------------------------
+
+    def add_root_group
+      @root_group = add_group(nil, "root")
+    end
+
+    #------------------------------------------------------------------------------------
+    # Adds a group attribute
+    #------------------------------------------------------------------------------------
+
+    def add_group_att(group, attribute)
+      group.add_attribute(attribute)
+      attribute
+    end
+
+    #------------------------------------------------------------------------------------
+    # Adds a global attribute
+    #------------------------------------------------------------------------------------
+    
+    def add_global_att(name, value, type = :int)
+      attribute = NetCDF::AttributeWriter.build(name, value)
+      add_group_att(@root_group, attribute)
+    end
+
+    #------------------------------------------------------------------------------------
+    # Adds new global attribute.  A global attribute is a attribute added to the root
+    # group.  In NetCDF 3 there is only the root group.
+    #------------------------------------------------------------------------------------
+
+    def global_att(symbol, name, value, type = :int)
+      instance_variable_set("@#{symbol}", add_global_att(name, value, type))
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def find_global_attribute(name, ignore_case = false)
+
+      if (ignore_case)
+        att = @root_group.netcdf_elmt.findAttributeIgnoreCase(name)
+      else
+        att = @root_group.netcdf_elmt.findAttribute(name)
+      end
+
+      if (att != nil)
+        return NetCDF::AttributeWriter.new(att)
+      end
+
+      nil
+
+    end
+
+    #------------------------------------------------------------------------------------
     # Add a Dimension to the file. Must be in define mode.
     # <tt>dimName</tt> name of dimension (string)
     # <tt>length</tt> size of dimension (int).  If size == 0, dimension is unlimited
-    # <tt> isShared<tt> if dimension is shared (boolean)
-    # <tt> isVariableLength</tt> if dimension is variable length (boolean)
-    # <tt> Returns </tt> the created dimension
+    # <tt> is_shared<tt> if dimension is shared (boolean)
+    # if size == -1, then this is a variable_length dimension
+    # if size == 0, this is an unlimited dimension
     # NetCDF3 only supports shared dimensions.
     #------------------------------------------------------------------------------------
     
-    def add_dimension(name, size, *args)
+    def add_dimension(name, size, is_shared = true)
 
-      opts = Map.options(args)
+      is_unlimited = false
       is_variable_length = false
+      dim = nil
+
       if (size == -1)
         is_variable_length = true
+      elsif (size == 0)
+        is_unlimited = true
       end
 
-      dim = nil
-      if (size == 0)
-        dim = @netcdf_file.addDimension(@root_group, "#{name}", size, true, true, false)
-      elsif (is_variable_length)
-        dim = @netcdf_file.addDimension(@root_group, "#{name}", size, false, false, 
-                                        is_variable_length)
-      else
-        dim = @netcdf_file.addDimension(@root_group, "#{name}", size)
-      end
-
-      NetCDF::Dimension.new(dim)
+      NetCDF::DimensionWriter
+        .new(@netcdf_elmt.addDimension(@root_group.netcdf_elmt, "#{name}", size, 
+                                      is_shared, is_unlimited, is_variable_length))
 
     end
 
@@ -107,8 +167,16 @@ class NetCDF
     # Adds a new dimension.
     #------------------------------------------------------------------------------------
 
-    def dimension(symbol, name, size, *args)
-      instance_variable_set("@#{symbol}", add_dimension(name, size, *args))
+    def dimension(symbol, name, size, is_shared = true)
+      instance_variable_set("@#{symbol}", add_dimension(name, size, is_shared))
+    end
+
+    #------------------------------------------------------------------------------------
+    # Finds a dimension by full name
+    #------------------------------------------------------------------------------------
+    
+    def find_dimension(name)
+      NetCDF::DimensionWriter.new(@reader.findDimension(name))
     end
 
     #------------------------------------------------------------------------------------
@@ -124,20 +192,19 @@ class NetCDF
       dim_list = java.util.ArrayList.new
       if (dims.is_a? Array)
         dims.each do |dim|
-          dim_list.add(instance_variable_get("@#{dim}").netcdf_dimension)
+          dim_list.add(instance_variable_get("@#{dim}").netcdf_elmt)
         end
       end
-
+      
       case type
       when "string"
-        NetCDF::Variable.new(@netcdf_file.addStringVariable(@root_group, 
-                                                            var_name, dim_list, 
-                                                            max_strlen))
-        
+        NetCDF::VariableWriter.new(@netcdf_elmt
+                                     .addStringVariable(@root_group.netcdf_elmt, var_name, 
+                                                        dim_list, max_strlen))
       else
-        NetCDF::Variable.new(@netcdf_file.addVariable(@root_group, var_name, 
-                                                      DataType.valueOf(type.upcase), 
-                                                      dim_list))
+        NetCDF::VariableWriter.new(@netcdf_elmt
+                                     .addVariable(@root_group.netcdf_elmt, var_name, 
+                                                  DataType.valueOf(type.upcase), dim_list))
       end
       
     end
@@ -146,56 +213,27 @@ class NetCDF
     # Adds new variable
     #------------------------------------------------------------------------------------
 
-    def variable(symbol, name, size, *args)
-      instance_variable_set("@#{symbol}", add_variable(name, size, *args))
-    end
-
-    #------------------------------------------------------------------------------------
-    # Adds a global attribute to the file.
-    # * TODO: Storing Array attributes is not working. Creating a Java array is not 
-    # working according to jruby documentation (as far as I understand it)
-    #------------------------------------------------------------------------------------
-    
-    def add_global_att(name, value, type = :int)
-      @netcdf_file.addGroupAttribute(@root_group, 
-                                     NetCDF::Attribute.new(name, value).netcdf_attribute)
-        
-    end
-
-    #------------------------------------------------------------------------------------
-    # Adds new global attribute
-    #------------------------------------------------------------------------------------
-
-    def global_att(symbol, name, value, type = :int)
-      instance_variable_set("@#{symbol}", add_global_att(name, value, type))
+    def variable(symbol, name, type, dims, *args)
+      instance_variable_set("@#{symbol}", add_variable(name, type, dims, *args))
     end
 
     #------------------------------------------------------------------------------------
     # Adds a variable attribute
     #------------------------------------------------------------------------------------
     
-    def add_variable_att(var_name, att_name, value, type = :int)
-
-      if (value.is_a? Array)
-        raise "Array attribute not implemented yet"
-      elsif (value.is_a? String)
-        NetCDF::Attribute.new(@netcdf_file.addVariableAttribute(var_name, att_name, value))
-      elsif (value.is_a? Numeric)
-        NetCDF::Attribute.new(@netcdf_file.addVariableAttribute(var_name, att_name, 
-                                                                (value.to_java type)))
-      else
-        raise "Cannot add attribute of type: #{value}"
-      end
-      
+    def add_variable_att(variable, name, value)
+      attribute = NetCDF::AttributeWriter.build(name, value)
+      @netcdf_elmt.addVariableAttribute(variable.netcdf_elmt, attribute.netcdf_elmt)
+      attribute
     end
-
+    
     #------------------------------------------------------------------------------------
     # Adds new variable attribute
     #------------------------------------------------------------------------------------
 
-    def variable_att(symbol, var_name, att_name, value, type = :int)
-      instance_variable_set("@#{symbol}", add_variable_att(var_name, att_name, value, 
-                                                           type))
+    def variable_att(symbol, variable, att_name, value)
+      instance_variable_set("@#{symbol}", 
+                            add_variable_att(variable, att_name, value))
     end
 
     #------------------------------------------------------------------------------------
@@ -205,22 +243,22 @@ class NetCDF
     #------------------------------------------------------------------------------------
     
     def create
-
+      
       begin
-        @netcdf_file.create
+        @netcdf_elmt.create
       rescue java.io.IOException => ioe
         $stderr.print "Error accessing file: #{@file_name}"
         $stderr.print ioe
       end
-
+      
     end
-
+    
     #------------------------------------------------------------------------------------
     # closes the file
     #------------------------------------------------------------------------------------
     
     def close
-      @netcdf_file.close
+      @netcdf_elmt.close
     end
 
     #------------------------------------------------------------------------------------
@@ -228,7 +266,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def large_file=(bool)
-      @netcdf_file.setLargeFile(bool)
+      @netcdf_elmt.setLargeFile(bool)
     end
 
     #------------------------------------------------------------------------------------
@@ -236,7 +274,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def flush
-      @netcdf_file.flush
+      @netcdf_elmt.flush
     end
 
     #------------------------------------------------------------------------------------
@@ -244,7 +282,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def define_mode?
-      @netcdf_file.isDefineMode()
+      @netcdf_elmt.isDefineMode()
     end
 
     #------------------------------------------------------------------------------------
@@ -253,7 +291,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def fill=(bool)
-      @netcdf_file.setFill(bool)
+      @netcdf_elmt.setFill(bool)
     end
         
     #------------------------------------------------------------------------------------
@@ -261,7 +299,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def get_file_type_description
-      @netcdf_file.getFileTypeDescription()
+      @netcdf_elmt.getFileTypeDescription()
     end
 
 
@@ -274,7 +312,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def delete_global_att(attribute_name)
-      @netcdf_file.deleteGlobalAttribute(attribute_name)
+      @netcdf_elmt.deleteGlobalAttribute(attribute_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -282,7 +320,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def rename_global_att(old_name, new_name)
-      @netcdf_file.renameGlobalAttribute(old_name, new_name)
+      @netcdf_elmt.renameGlobalAttribute(old_name, new_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -290,7 +328,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def rename_dimension(old_name, new_name)
-      @netcdf_file.renameDimension(old_name, new_name)
+      @netcdf_elmt.renameDimension(old_name, new_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -323,7 +361,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def rename_variable(old_name, new_name)
-      @netcdf_file.renameVariable(old_name, new_name)
+      @netcdf_elmt.renameVariable(old_name, new_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -331,7 +369,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def delete_variable_att(var_name, att_name)
-      @netcdf_file.deleteGlobalAttribute(var_name, att_name)
+      @netcdf_elmt.deleteGlobalAttribute(var_name, att_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -339,7 +377,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def rename_variable_att(var_name, att_name, new_name)
-      @netcdf_file.renameVariableAttribute(var_name, att_name, new_name)
+      @netcdf_elmt.renameVariableAttribute(var_name, att_name, new_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -352,7 +390,7 @@ class NetCDF
     def redefine=(bool)
 
       begin
-        @netcdf_file.setRedefineMode(bool)
+        @netcdf_elmt.setRedefineMode(bool)
       rescue java.io.IOException => ioe
         $stderr.print "Error accessing file: #{@file_name}"
         $stderr.print ioe
@@ -383,13 +421,13 @@ class NetCDF
 
       array = NetCDFInterface.mold(type, layout, data)
       if (origin)
-        @netcdf_file.write(var_name, origin.to_java(:int), array)
+        @netcdf_elmt.write(var_name, origin.to_java(:int), array)
       else
-        @netcdf_file.write(var_name, array)
+        @netcdf_elmt.write(var_name, array)
       end
       
     end
-
+    
     #------------------------------------------------------------------------------------
     # writes a string data to the variable at origin
     # if data is not given, then it is assumed to be all zeroes
@@ -407,9 +445,9 @@ class NetCDF
 
       array = NetCDFInterface.mold(:string, layout, data)
       if (origin)
-        @netcdf_file.writeStringData(var_name, origin.to_java(:int), array)
+        @netcdf_elmt.writeStringData(var_name, origin.to_java(:int), array)
       else
-        @netcdf_file.writeStringData(var_name, array)
+        @netcdf_elmt.writeStringData(var_name, array)
       end
       
     end
@@ -428,6 +466,23 @@ class NetCDF
       end
 
       write(var_name, layout, write_data, origin)
+
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+    
+    private
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+    
+    def initialize(home_dir, name, version = nil, outside_scope = nil)
+
+      super(home_dir, name, outside_scope)
+      @version = NetCDF.writer_version(version) if version 
 
     end
 

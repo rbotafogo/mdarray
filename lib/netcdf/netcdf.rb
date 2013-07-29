@@ -33,15 +33,85 @@ class NetCDF
   #------------------------------------------------------------------------------------
 
   def self.define(home_dir, file_name, version, outside_scope = nil, &block)
-    _define(home_dir, file_name, true, version, outside_scope, &block)
+
+    writer = NetCDF::FileWriter.new_file(home_dir, file_name, version, outside_scope)
+    begin
+      writer.open
+      writer.instance_eval(&block)
+      writer.create
+      writer.close
+      writer
+    rescue
+      writer.close
+      raise "Illegal opperation occured on file: #{writer.file_name}"
+    end
+
   end
 
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
-  def self.redefine(home_dir, file_name, version, outside_scope = nil, &block)
-    _define(home_dir, file_name, false, version, outside_scope, &block)
+  def self.redefine(home_dir, file_name, outside_scope = nil, &block)
+
+    writer = NetCDF::FileWriter.existing_file(home_dir, file_name, outside_scope)
+    begin
+      writer.open
+      writer.redefine = true
+      # we are not really adding a root group, but actually getting the root group
+      # can only be done in define mode
+      writer.add_root_group
+      writer.instance_eval(&block)
+      writer.redefine = false
+      writer.close
+      writer
+    rescue Exception =>e
+      writer.close
+      p e.message
+      # p e.backtrace.inspect
+      raise "Illegal opperation occured on file: #{writer.file_name}"
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def self.write(home_dir, file_name, outside_scope = nil, &block)
+
+    writer = NetCDF::FileWriter.existing_file(home_dir, file_name, outside_scope)
+
+    begin
+      writer.open
+      writer.instance_eval(&block)
+      writer.close
+      writer
+    rescue
+      writer.close
+      raise "Illegal opperation occured on file: #{file_name}"
+    end
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def self.read(home_dir, file_name, outside_scope = nil, &block)
+
+    reader = NetCDF::File.new(home_dir, file_name, outside_scope)
+    begin
+      reader.open
+      reader.instance_eval(&block)
+      reader.close
+      reader
+    rescue Exception => e
+      reader.close
+      p e.message
+      raise "Illegal opperation occured on file: #{file_name}"
+    end
+
   end
 
   #------------------------------------------------------------------------------------
@@ -57,28 +127,7 @@ class NetCDF
   #------------------------------------------------------------------------------------
   
   def self.get_dtype(type)
-
     DataType.valueOf(type.upcase)
-
-=begin
-    case type
-      
-    when "boolean", :boolean then DataType.valueOf("BOOLEAN")
-    when "byte", :byte then DataType.valueOf("BYTE")
-    when "char", :char then DataType.valueOf("CHAR")
-    when "double", :double then DataType.valueOf("DOUBLE")
-    when "float", :float then DataType.valueOf("FLOAT")
-    when "int", :int then DataType.valueOf("INT")
-    when "long", :long then DataType.valueOf("LONG")
-    when "opaque", :opaque then DataType.valueOf("OPAQUE")
-    when "sequence", :sequence then DataType.valueOf("SEQUENCE")
-    when "short", :short then DataType.valueOf("SHORT")
-    when "string", :string then DataType.valueOf("STRING")
-    when "structure", :structure then DataType.valueOf("STRUCTURE")
-      
-    end
-=end
-
   end
 
   #------------------------------------------------------------------------------------
@@ -92,26 +141,6 @@ class NetCDF
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
-
-  private
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def self._define(home_dir, file_name, new_file, file_version, outside_scope = nil, 
-                   &block)
-
-    writeable = NetCDF::FileWriter.new(home_dir, file_name, file_version, 
-                                       outside_scope)
-    writeable.open_write(new_file)
-    writeable.redefine = true if !new_file
-    writeable.instance_eval(&block)
-    writeable.create
-    writeable.close
-    writeable
-
-  end
 
 end # NetCDF
 

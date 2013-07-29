@@ -4,17 +4,17 @@
 
 class NetCDF
 
-  #------------------------------------------------------------------------------------
+  #=======================================================================================
   # A Variable is a logical container for data. It has a dataType, a set of Dimensions 
   # that define its array shape, and optionally a set of Attributes. The data is a 
   # multidimensional array of primitive types, Strings, or Structures. Data access is 
   # done through the read() methods, which return a memory resident Array.
   # Immutable if setImmutable() was called.
-  #------------------------------------------------------------------------------------
+  #=======================================================================================
 
   class Variable
 
-    attr_reader :netcdf_variable
+    attr_reader :netcdf_elmt
     attr_reader :data
     attr_reader :attributes
     attr_reader :dimensions
@@ -25,7 +25,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def initialize(netcdf_variable)
-      @netcdf_variable = netcdf_variable
+      @netcdf_elmt = netcdf_variable
     end
 
     #------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def get_data_type
-      @netcdf_variable.getDataType().toString().to_sym
+      @netcdf_elmt.getDataType().toString().to_sym
     end
 
     #------------------------------------------------------------------------------------
@@ -43,9 +43,9 @@ class NetCDF
     def find_att(att_name, ignore_case = false)
 
       if (ignore_case)
-        @netcdf_variable.findAttributeIgnoreCase(att_name)
+        @netcdf_elmt.findAttributeIgnoreCase(att_name)
       else
-        @netcdf_variable.findAttribute(att_name)
+        @netcdf_elmt.findAttribute(att_name)
       end
 
     end
@@ -69,17 +69,17 @@ class NetCDF
 
       if (origin || shape)
         if (origin && shape)
-          @data = MDArray.new(@netcdf_variable.read(origin.to_java(:int), shape.to_java(:int)))
+          @data = MDArray.new(@netcdf_elmt.read(origin.to_java(:int), shape.to_java(:int)))
           return
         else
           raise "Need to provide origin and shape to retrieve data"
         end
       elsif (spec)
-        # @data = MDArray.new(@netcdf_variable.read(Java::UcarMa2.Section.new(spec)))
-        @data = MDArray.new(@netcdf_variable.read(spec))
+        # @data = MDArray.new(@netcdf_elmt.read(Java::UcarMa2.Section.new(spec)))
+        @data = MDArray.new(@netcdf_elmt.read(spec))
         return
       else
-        @data = MDArray.new(@netcdf_variable.read())
+        @data = MDArray.new(@netcdf_elmt.read())
       end
 
     end
@@ -124,18 +124,27 @@ class NetCDF
 
   end # Variable
 
-  #------------------------------------------------------------------------------------
+  #=======================================================================================
   #
-  #------------------------------------------------------------------------------------
+  #=======================================================================================
+
+  class VariableWriter < Variable
+
+  end # VariableWriter
+
+
+  #=======================================================================================
+  #
+  #=======================================================================================
 
   class StringVariable < Variable
-
     
   end # StringVariable
 
-  #------------------------------------------------------------------------------------
+
+  #=======================================================================================
   #
-  #------------------------------------------------------------------------------------
+  #=======================================================================================
 
   class TimeVariable < Variable
     include_package "ucar.nc2.time"
@@ -151,8 +160,8 @@ class NetCDF
     def initialize(netcdf_variable)
 
       super(netcdf_variable)
-      @calendar = @netcdf_variable.findAttribute("calendar").getStringValue()
-      @units = @netcdf_variable.findAttribute("units").getStringValue()
+      @calendar = @netcdf_elmt.findAttribute("calendar").getStringValue()
+      @units = @netcdf_elmt.findAttribute("units").getStringValue()
       date_unit = CalendarDateUnit.of(@calendar, @units)
       @base_date = date_unit.getBaseCalendarDate()
 
