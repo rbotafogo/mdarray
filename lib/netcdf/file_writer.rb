@@ -218,6 +218,15 @@ class NetCDF
     end
 
     #------------------------------------------------------------------------------------
+    # Finds a variable in the file
+    #------------------------------------------------------------------------------------
+
+    def find_variable(name)
+      var = @netcdf_elmt.findVariable(name)
+      var ? NetCDF::VariableWriter.new(var) : nil
+    end
+
+    #------------------------------------------------------------------------------------
     # Adds a variable attribute
     #------------------------------------------------------------------------------------
     
@@ -234,6 +243,56 @@ class NetCDF
     def variable_att(symbol, variable, att_name, value)
       instance_variable_set("@#{symbol}", 
                             add_variable_att(variable, att_name, value))
+    end
+
+    #------------------------------------------------------------------------------------
+    # Deletes a global attribute
+    #------------------------------------------------------------------------------------
+
+    def delete_global_att(attribute_name)
+      @netcdf_elmt.deleteGroupAttribute(@root_group.netcdf_elmt, attribute_name)
+    end
+
+    #------------------------------------------------------------------------------------
+    # Rename a global Attribute. Does not seem to work on NetCDF-3 files.
+    #------------------------------------------------------------------------------------
+
+    def rename_global_att(old_name, new_name)
+      @netcdf_elmt.renameGlobalAttribute(@root_group.netcdf_elmt, old_name, new_name)
+    end
+
+    #------------------------------------------------------------------------------------
+    # Rename a Dimension.
+    #------------------------------------------------------------------------------------
+
+    def rename_dimension(old_name, new_name)
+      @netcdf_elmt.renameDimension(@root_group.netcdf_elmt, old_name, new_name)
+    end
+
+
+
+    #------------------------------------------------------------------------------------
+    # Rename a Variable.
+    #------------------------------------------------------------------------------------
+
+    def rename_variable(old_name, new_name)
+      @netcdf_elmt.renameVariable(old_name, new_name)
+    end
+
+    #------------------------------------------------------------------------------------
+    # Deletes a variable attribute
+    #------------------------------------------------------------------------------------
+
+    def delete_variable_att(variable, att_name)
+      @netcdf_elmt.deleteVariableAttribute(variable.netcdf_elmt, att_name)
+    end
+
+    #------------------------------------------------------------------------------------
+    # Renames a variable attribute
+    #------------------------------------------------------------------------------------
+
+    def rename_variable_att(variable, att_name, new_name)
+      @netcdf_elmt.renameVariableAttribute(variable.netcdf_elmt, att_name, new_name)
     end
 
     #------------------------------------------------------------------------------------
@@ -302,84 +361,6 @@ class NetCDF
       @netcdf_elmt.getFileTypeDescription()
     end
 
-
-
-
-
-
-    #------------------------------------------------------------------------------------
-    # Deletes a global attribute
-    #------------------------------------------------------------------------------------
-
-    def delete_global_att(attribute_name)
-      @netcdf_elmt.deleteGlobalAttribute(attribute_name)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Rename a global Attribute.
-    #------------------------------------------------------------------------------------
-
-    def rename_global_att(old_name, new_name)
-      @netcdf_elmt.renameGlobalAttribute(old_name, new_name)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Rename a Dimension.
-    #------------------------------------------------------------------------------------
-
-    def rename_dimension(old_name, new_name)
-      @netcdf_elmt.renameDimension(old_name, new_name)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Adds coordinate variables.  This is a helper function that creates the dimension
-    # and the variable at the same time, following proper conventions.
-    # * TODO: check proper conventions.
-    # Calendar can have the following values:
-    #------------------------------------------------------------------------------------
-
-    def add_coordinate(var_name, type, size, *args)
-      
-      add_dimension(var_name, size)
-      add_variable(var_name, type, var_name, *args)
-
-      opts = Map.options(args)
-
-      case type
-      when "time"
-        add_variable_att(var_name, "long_name", "time")
-      else
-        add_variable_att(var_name, "long_name", var_name)
-      end
-
-    end
-
-    alias :coordinate :add_coordinate
-
-    #------------------------------------------------------------------------------------
-    # Rename a Variable.
-    #------------------------------------------------------------------------------------
-
-    def rename_variable(old_name, new_name)
-      @netcdf_elmt.renameVariable(old_name, new_name)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Deletes a variable attribute
-    #------------------------------------------------------------------------------------
-
-    def delete_variable_att(var_name, att_name)
-      @netcdf_elmt.deleteGlobalAttribute(var_name, att_name)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Renames a variable attribute
-    #------------------------------------------------------------------------------------
-
-    def rename_variable_att(var_name, att_name, new_name)
-      @netcdf_elmt.renameVariableAttribute(var_name, att_name, new_name)
-    end
-
     #------------------------------------------------------------------------------------
     # Switches redefine mode.  if true allows data to be redefined, if false, redefine
     # mode is closed.
@@ -411,21 +392,14 @@ class NetCDF
     # <tt>data</tt> data to write.  If data = nil, then an all zeroes data is assumed.
     #------------------------------------------------------------------------------------
 
-    def write(var_name, layout, data = nil, origin = nil, type = nil)
+    def write(variable, values, origin = nil)
 
-      var = find_variable(var_name)
-
-      if (type == nil)
-        type = var.get_data_type
-      end
-
-      array = NetCDFInterface.mold(type, layout, data)
       if (origin)
-        @netcdf_elmt.write(var_name, origin.to_java(:int), array)
+        @netcdf_elmt.write(variable.netcdf_elmt, origin.to_java(:int), values.nc_array)
       else
-        @netcdf_elmt.write(var_name, array)
+        @netcdf_elmt.write(variable.netcdf_elmt, values.nc_array)
       end
-      
+
     end
     
     #------------------------------------------------------------------------------------

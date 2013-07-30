@@ -106,10 +106,13 @@ class MDArray
   #------------------------------------------------------------------------------------
 
   def self.build_from_nc_array(type, nc_array, section = false)
+    if (!type)
+      type = MDArray.get_ncarray_type(nc_array)
+    end
     klass = Object.const_get("#{type.capitalize}MDArray")
     return klass.new(type, nc_array, section)
   end
-
+  
   #------------------------------------------------------------------------------------
   # Builds a boolean mdarray
   # @param shape [Array] the shape of the mdarray as a ruby array

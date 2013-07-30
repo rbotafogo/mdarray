@@ -426,6 +426,44 @@ class MDArray
 
   end
   
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  private
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def self.get_ncarray_type(nc_array)
+
+    if (nc_array.is_a? ArrayDouble)
+      "double"
+    elsif (nc_array.is_a? ArrayFloat)
+      "float"
+    elsif (nc_array.is_a? ArrayLong)
+      "long"
+    elsif (nc_array.is_a? ArrayInt)
+      "int"
+    elsif (nc_array.is_a? ArrayShort)
+      "short"
+    elsif (nc_array.is_a? ArrayByte)
+      "byte"
+    elsif (nc_array.is_a? ArrayChar)
+      "char"
+    elsif (nc_array.is_a? ArrayString)
+      "string"
+    elsif (nc_array.is_a? ArrayBoolean)
+      "boolean"
+    elsif (nc_array.is_a? ArrayObject)
+      "object"
+    else
+      raise "Unknow type for #{nc_array}"
+    end
+    
+  end
+
 end
 
 require_relative 'mdarray/proc_util'

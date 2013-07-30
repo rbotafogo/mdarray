@@ -69,7 +69,8 @@ class NetCDF
       writer.close
       p e.message
       # p e.backtrace.inspect
-      raise "Illegal opperation occured on file: #{writer.file_name}"
+      # raise "Illegal opperation occured on file: #{writer.file_name}"
+      raise e
     end
 
   end
@@ -87,9 +88,10 @@ class NetCDF
       writer.instance_eval(&block)
       writer.close
       writer
-    rescue
+    rescue Exception => e
       writer.close
-      raise "Illegal opperation occured on file: #{file_name}"
+      # raise "Illegal opperation occured on file: #{file_name}"
+      raise e
     end
 
   end
@@ -109,7 +111,8 @@ class NetCDF
     rescue Exception => e
       reader.close
       p e.message
-      raise "Illegal opperation occured on file: #{file_name}"
+      # raise "Illegal opperation occured on file: #{file_name}"
+      raise e
     end
 
   end
@@ -144,8 +147,5 @@ class NetCDF
 
 end # NetCDF
 
-require_relative 'group'
-require_relative 'dimension'
-require_relative 'variable'
-require_relative 'attribute'
+require_relative 'cdm_node'
 require_relative 'file'
