@@ -45,36 +45,46 @@ class MDArrayTest < Test::Unit::TestCase
       # Creates a new scope for defining the NetCDF file.  In order to access the 
       # ouside scope, that is, "here", we pass self as the third argument to define.
       # When self is passed as argument, @outside_scope is available inside the block.
+      # NetCDF.define block is in define mode, so it is not possible to write data in
+      # this block.  We need to open a new block with NetCDF.write for writing.  The
+      # cost of doing this is that we close the file at the end of the define block and
+      # need to reopen the file for writing.  However, since we probably only define the
+      # file once and write many times, this is not much of a problem.  If one prefers, 
+      # one could not use the define block and use the normal APIs.
       
       NetCDF.define(cygpath(@directory), "nc_output", "netcdf3", self) do
         
-        # can add global attributes by adding a single valued attribute or an array of 
+        #=================================================================================
+        # Add global attributes by adding a single valued attribute or an array of 
         # attributes.  When adding an array of attributes all elements of the array must
         # be of the same type, i.e, fixnum, floats or strings. Attributes with long numbers
         # are not allowed. This seems to be a restriction of Java-NetCDF.
+        # 
+        # Note that the attribute name can be used to make access to the attribute, for
+        # instance, on the first example "Values" can be accessed as @value later on.
+        #=================================================================================
 
-        global_att :fixnums, "Values", [1, 2, 3, 4]
-        @outside_scope.assert_equal(2, @fixnums.numeric_value(1))
+        global_att "Values", [1, 2, 3, 4]
+        @outside_scope.assert_equal(2, @ga_values.numeric_value(1))
 
-        global_att :strings, "Strings", ["abc", "efg"]
-        @outside_scope.assert_equal("abc", @strings.string_value(0))
+        global_att "Strings", ["abc", "efg"]
+        @outside_scope.assert_equal("abc", @ga_strings.string_value(0))
 
-        global_att :floats, "Floats", [1.34, 2.45]
+        global_att "Floats", [1.34, 2.45]
 
-        global_att :fixnum, "Fixnum", 3
-        @outside_scope.assert_equal(3, @fixnum.numeric_value)
+        global_att "Fixnum", 3
+        @outside_scope.assert_equal(3, @ga_fixnum.numeric_value)
 
-        global_att :string, "String", "this is a string"
-        global_att :float, "Float", 3.45
+        global_att "String", "this is a string"
+        global_att "Float", 3.45
 
-        global_att :desc, "Description", "This is a test file created by MDArray"
-
-        @outside_scope.assert_equal("String", @desc.data_type)
-        @outside_scope.assert_equal("Description", @desc.name)
+        global_att "Description", "This is a test file created by MDArray"
+        @outside_scope.assert_equal("String", @ga_description.data_type)
+        @outside_scope.assert_equal("Description", @ga_description.name)
         @outside_scope.assert_equal("This is a test file created by MDArray", 
-                                    @desc.string_value)
-        @outside_scope.assert_equal(true, @desc.string?)
-        @outside_scope.assert_equal(false, @desc.unsigned?)
+                                    @ga_description.string_value)
+        @outside_scope.assert_equal(true, @ga_description.string?)
+        @outside_scope.assert_equal(false, @ga_description.unsigned?)
 
         att = find_global_attribute("Fixnum")
         @outside_scope.assert_equal("Fixnum", att.name)
@@ -91,61 +101,75 @@ class MDArrayTest < Test::Unit::TestCase
         # Adding dimensions
         #=================================================================================
 
-        dimension :dim1, "dim1", 5
-        @outside_scope.assert_equal(5, @dim1.length)
-        @outside_scope.assert_equal("dim1", @dim1.name)
-        @outside_scope.assert_equal(true, @dim1.shared?)
-        @outside_scope.assert_equal(false, @dim1.unlimited?)
-        @outside_scope.assert_equal(false, @dim1.variable_length?)
+        dimension "dim1", 5
+        @outside_scope.assert_equal(5, @dim_dim1.length)
+        @outside_scope.assert_equal("dim1", @dim_dim1.name)
+        @outside_scope.assert_equal(true, @dim_dim1.shared?)
+        @outside_scope.assert_equal(false, @dim_dim1.unlimited?)
+        @outside_scope.assert_equal(false, @dim_dim1.variable_length?)
 
-        dimension :dim2, "dim2", 10
-        @outside_scope.assert_equal(true, @dim2.shared?)
+        dimension "dim2", 10
+        @outside_scope.assert_equal(true, @dim_dim2.shared?)
 
         # create an unlimited dimension by setting the size to 0
-        dimension :dim3, "dim3", 0
-        @outside_scope.assert_equal(true, @dim3.shared?)
-        @outside_scope.assert_equal(true, @dim3.unlimited?)
-        @outside_scope.assert_equal(false, @dim3.variable_length?)
+        dimension "dim3", 0
+        @outside_scope.assert_equal(true, @dim_dim3.shared?)
+        @outside_scope.assert_equal(true, @dim_dim3.unlimited?)
+        @outside_scope.assert_equal(false, @dim_dim3.variable_length?)
 
         # Cannot create a variable_length dimension in NetCDF-3 file.  Might
         # work on NetCDF-4.  Not tested.
-        # dimension :dim4, "dim4", -1
-        # @outside_scope.assert_equal(true, @dim4.variable_length?)
+        # dimension "dim4", -1
+        # @outside_scope.assert_equal(true, @dim_dim4.variable_length?)
 
         # Create a dimension that is not shared. Don't know exactly what happens
         # in NetCDF-3 files.  It does not give any bugs but the dimension does
         # not appear on a write_cdl call.
-        dimension :dim5, "dim5", 5, false
-        @outside_scope.assert_equal("dim5", @dim5.name)
-        @outside_scope.assert_equal(false, @dim5.shared?)
+        dimension "dim5", 5, false
+        @outside_scope.assert_equal("dim5", @dim_dim5.name)
+        @outside_scope.assert_equal(false, @dim_dim5.shared?)
 
         #=================================================================================
         # Adding variables
         #=================================================================================
 
         # One dimensional variable
-        variable :var1, "arr1", "int", [:dim1]
-        variable_att :att1, @var1, "description", "this is a variable"
-        variable_att :att2, @var1, "size", 5
-        variable_att :att3, @var1, "date", 10
-        variable_att :att4, @var1, "String List", ["abc", "def"]
-        variable_att :att5, @var1, "Float list", [1.37, 5.18]
+        variable "arr1", "int", [@dim_dim1]
+        variable_att @var_arr1, "description", "this is a variable"
+        variable_att @var_arr1, "size", 5
+        variable_att @var_arr1, "date", 10
+        variable_att @var_arr1, "String List", ["abc", "def"]
+        variable_att @var_arr1, "Float list", [1.37, 5.18]
 
         # two dimensional variable string variable is actually a three dimensional
         # variable.  NetCDF-3 does not support string variable, so this variable
         # is transformed to a "char" variable with one extra dimension, the string
         # size
-        variable :var2, "Dim2", "string", [:dim3, :dim2]
+        variable "var3", "int", [@dim_dim3]
+        variable "var4", "string", [@dim_dim3, @dim_dim2]
+        variable "var5", "double", [@dim_dim3, @dim_dim2]
 
         # controlling the size of the string variable
-        variable :var3, "Short String", "string", [:dim2], {:max_strlen => 20}
+        variable "Short", "string", [@dim_dim2], {:max_strlen => 20}
+        @outside_scope.assert_equal("Short", @var_short.name)
 
         # double variable with fixed size dimensions
-        variable :var4, "Double", "double", [:dim1, :dim2]
+        variable "Double", "double", [@dim_dim1, @dim_dim2]
 
         # double variable with an unlimited dimension.  Unlimited dimension must be the
         # first dimension in NetCDF-3 files.
-        variable :var5, "Double3", "double", [:dim3, :dim1, :dim2]
+        variable "Double3", "double", [@dim_dim3, @dim_dim1, @dim_dim2]
+        variable_att @var_double3, "_FillValue", -1
+
+        variable "Scalar", "double", []
+
+        #=================================================================================
+        # Add additional flags
+        #=================================================================================
+
+        # set fill to true... all elements should be filled with the fill_value
+        fill = true
+
 =begin
         large_file = true
         p get_file_type_description
@@ -154,28 +178,29 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
+#=begin
     #-------------------------------------------------------------------------------------
     # Opens a NetCDF file for writing data
     #-------------------------------------------------------------------------------------
   
     should "open a file for writing data" do
-    
+      
       NetCDF.write(cygpath(@directory), "nc_output", self) do
 
-        var = find_variable("Double")
-
+        # create some data to add to variable
         array = MDArray.typed_arange("double", 0, 50)
-        array.reshape!([5, 10])
+        array2 = MDArray.typed_arange("double", 0, 10)
+        array3 = MDArray.typed_arange("double", 0, 6)
+        string_array = MDArray.string([5], ["this", "is", "a", "string", "array"])
 
+        var = find_variable("Double")
+        @outside_scope.assert_equal("Double", var.name)
+        # reshape the first array to fit the variable shape
+        array.reshape!([5, 10])
         # Fill variable Double with data.  The whole variable gets data
-        if (var)
-          write(var, array)
-        else
-          raise "Variable Double not found"
-        end
+        write(var, array)
 
         # writing data only to the last dimension
-        array2 = MDArray.typed_arange("double", 0, 10)
         array2.reshape!([1, 10])
         write(var, array2, [4, 0])
 
@@ -183,14 +208,32 @@ class MDArrayTest < Test::Unit::TestCase
         # index of the unlimited dimension.  Array needs to be reshaped to the same
         # shape as the variable
         var3 = find_variable("Double3")
+        @outside_scope.assert_equal("Double3", var3.name)
         array.reshape!([1, 5, 10])
-        if (var3)
-          write(var3, array, [2, 0, 0])
-        else
-          raise "Variable Double3 not found"
-        end
+        write(var3, array, [2, 0, 0])
 
-                
+        # adding data to a subsection of the variable
+        array3.reshape!([1, 1, 6])
+        write(var3, array3, [1, 1, 1])
+
+        # reshaping the data in another way
+        array3.reshape!([1, 3, 2])
+        write(var3, array3, [0, 2, 3])
+
+        # writing string data
+        short = find_variable("Short") 
+        @outside_scope.assert_equal("Short", short.name)
+        write_string_data(short, string_array)
+
+        var4 = find_variable("var4")
+        string_array.reshape!([1, 5])
+        @outside_scope.assert_equal("var4", var4.name)
+        write_string_data(var4, string_array)
+
+        scalar = find_variable("Scalar")
+        @outside_scope.assert_equal("Scalar", scalar.name)
+        write(scalar, 5.34)
+
       end
       
     end
@@ -206,7 +249,7 @@ class MDArrayTest < Test::Unit::TestCase
       # ouside scope, that is, "here", we pass self as the third argument to define.
       # When self is passed as argument, @outside_scope is available inside the block.
       
-      reader = NetCDF.read(cygpath(@directory), "nc_output", self) do
+      NetCDF.read(cygpath(@directory), "nc_output", self) do
 #=begin      
         # print all global attributes
         global_attributes.each do |att|
@@ -235,11 +278,15 @@ class MDArrayTest < Test::Unit::TestCase
 
         var = find_variable("Double")
         var.read
-        var.data.print
+        var.print
+
+        var2 = find_variable("Double3")
+        var2.read
+        var2.print
 
         write_cdl
 #=end
-=begin
+#=begin
         p detail_info
         p file_type_description
         p file_type_id
@@ -248,13 +295,12 @@ class MDArrayTest < Test::Unit::TestCase
         p location
         p title
         p unlimited_dimension?
-=end
+#=end
 
       end
       
     end
-    
-
+#=end    
 
   end
   

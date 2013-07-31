@@ -273,7 +273,7 @@ class MDArrayTest < Test::Unit::TestCase
     # backing store as the original array.
     #-------------------------------------------------------------------------------------
 
-    should "permute array indices" do
+    should "transpose array indices" do
 
       # c shape is [2, 3, 4]
       # b shape is now [3, 2, 4] by transposing the first two dimensions

@@ -101,7 +101,7 @@ class NetCDF
     # Adds a global attribute
     #------------------------------------------------------------------------------------
     
-    def add_global_att(name, value, type = :int)
+    def add_global_att(name, value)
       attribute = NetCDF::AttributeWriter.build(name, value)
       add_group_att(@root_group, attribute)
     end
@@ -111,8 +111,10 @@ class NetCDF
     # group.  In NetCDF 3 there is only the root group.
     #------------------------------------------------------------------------------------
 
-    def global_att(symbol, name, value, type = :int)
-      instance_variable_set("@#{symbol}", add_global_att(name, value, type))
+    def global_att(name, value)
+      symbol = ("ga_" + name.gsub(/\s+/, "_").downcase).to_sym
+      att = add_global_att(name, value)
+      instance_variable_set("@#{symbol}", att)
     end
 
     #------------------------------------------------------------------------------------
@@ -167,7 +169,8 @@ class NetCDF
     # Adds a new dimension.
     #------------------------------------------------------------------------------------
 
-    def dimension(symbol, name, size, is_shared = true)
+    def dimension(name, size, is_shared = true)
+      symbol = ("dim_" + name.gsub(/\s+/, "_").downcase).to_sym
       instance_variable_set("@#{symbol}", add_dimension(name, size, is_shared))
     end
 
@@ -192,7 +195,7 @@ class NetCDF
       dim_list = java.util.ArrayList.new
       if (dims.is_a? Array)
         dims.each do |dim|
-          dim_list.add(instance_variable_get("@#{dim}").netcdf_elmt)
+          dim_list.add(dim.netcdf_elmt)
         end
       end
       
@@ -213,7 +216,8 @@ class NetCDF
     # Adds new variable
     #------------------------------------------------------------------------------------
 
-    def variable(symbol, name, type, dims, *args)
+    def variable(name, type, dims, *args)
+      symbol = ("var_" + name.gsub(/\s+/, "_").downcase).to_sym
       instance_variable_set("@#{symbol}", add_variable(name, type, dims, *args))
     end
 
@@ -240,7 +244,8 @@ class NetCDF
     # Adds new variable attribute
     #------------------------------------------------------------------------------------
 
-    def variable_att(symbol, variable, att_name, value)
+    def variable_att(variable, att_name, value)
+      symbol = ("va_" + variable.name + "_" + att_name.gsub(/\s+/, "_").downcase).to_sym
       instance_variable_set("@#{symbol}", 
                             add_variable_att(variable, att_name, value))
     end
@@ -394,7 +399,16 @@ class NetCDF
 
     def write(variable, values, origin = nil)
 
-      if (origin)
+      if (values.is_a? Numeric)
+        if (variable.scalar?)
+          type = variable.get_data_type
+          val = MDArray.build(type, [])
+          val.set_scalar(values)
+          @netcdf_elmt.write(variable.netcdf_elmt, val.nc_array)
+        else
+          raise "Variable #{variable.name} is not a scalar variable"
+        end
+      elsif (origin)
         @netcdf_elmt.write(variable.netcdf_elmt, origin.to_java(:int), values.nc_array)
       else
         @netcdf_elmt.write(variable.netcdf_elmt, values.nc_array)
@@ -413,15 +427,13 @@ class NetCDF
     # <tt>data</tt> data to write.  If data = nil, then an all zeroes data is assumed.
     #------------------------------------------------------------------------------------
 
-    def write_string(var_name, layout, data = nil, origin = nil)
+    def write_string_data(variable, values, origin = nil)
 
-      var = find_variable(var_name)
-
-      array = NetCDFInterface.mold(:string, layout, data)
       if (origin)
-        @netcdf_elmt.writeStringData(var_name, origin.to_java(:int), array)
+        @netcdf_elmt.writeStringData(variable.netcdf_elmt, origin.to_java(:int), 
+                                     values.nc_array)
       else
-        @netcdf_elmt.writeStringData(var_name, array)
+        @netcdf_elmt.writeStringData(variable.netcdf_elmt, values.nc_array)
       end
       
     end

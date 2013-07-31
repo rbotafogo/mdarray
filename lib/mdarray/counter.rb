@@ -178,6 +178,14 @@ class MDArray
       get_at_counter
     end
 
+    #---------------------------------------------------------------------------------------
+    #
+    #---------------------------------------------------------------------------------------
+
+    def get_scalar
+      @mdarray.nc_array.get
+    end
+
     #------------------------------------------------------------------------------------
     # Gets the element at the given counter.  Assumes that the counter is of the proper
     # shape. Also, counter should be an int java array
@@ -215,6 +223,14 @@ class MDArray
     def set(counter, value)
       set_counter_fast(counter)
       set_at_counter(value)
+    end
+
+    #---------------------------------------------------------------------------------------
+    #
+    #---------------------------------------------------------------------------------------
+
+    def set_scalar(value)
+      @mdarray.nc_array.set(value)
     end
 
     #------------------------------------------------------------------------------------

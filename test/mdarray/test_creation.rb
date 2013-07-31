@@ -358,6 +358,25 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
+    #-------------------------------------------------------------------------------------
+    # Creates a scalar array, i.e, array of size 0.  In general this is not necessary and
+    # should not be used as one can operate with scalars directly.  This is however needed 
+    # for writing scalar values on NetCDF-3 files.
+    #-------------------------------------------------------------------------------------
+
+    should "create scalar arrays" do
+
+      scalar = MDArray.double([])
+      scalar.set_scalar(2.55)
+      assert_equal(2.55, scalar.get_scalar)
+
+      scalar2 = MDArray.double([])
+      scalar2.set_scalar(5.55)
+      
+      scalar3 = scalar + scalar2
+
+    end
+
   end
 
 end
