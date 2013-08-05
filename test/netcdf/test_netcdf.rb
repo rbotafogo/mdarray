@@ -64,20 +64,25 @@ class MDArrayTest < Test::Unit::TestCase
         # instance, on the first example "Values" can be accessed as @value later on.
         #=================================================================================
 
-        global_att "Values", [1, 2, 3, 4]
-        @outside_scope.assert_equal(2, @ga_values.numeric_value(1))
-
-        global_att "Strings", ["abc", "efg"]
-        @outside_scope.assert_equal("abc", @ga_strings.string_value(0))
-
-        global_att "Floats", [1.34, 2.45]
-
         global_att "Fixnum", 3
         @outside_scope.assert_equal(3, @ga_fixnum.numeric_value)
 
-        global_att "String", "this is a string"
-        global_att "Float", 3.45
+        global_att "Float", 3.45, "float"
+        @outside_scope.assert_equal("float", @ga_float.data_type)
 
+        global_att "Double", 3.45, "double"
+        @outside_scope.assert_equal("double", @ga_double.data_type)
+
+        global_att "Int", 3.45
+        @outside_scope.assert_equal("int", @ga_int.data_type)
+
+        global_att "Byte", 3, "byte"
+        @outside_scope.assert_equal("byte", @ga_byte.data_type)
+
+        global_att "Short", 3, "short"
+        @outside_scope.assert_equal("short", @ga_short.data_type)
+        
+        global_att "String", "this is a string"
         global_att "Description", "This is a test file created by MDArray"
         @outside_scope.assert_equal("String", @ga_description.data_type)
         @outside_scope.assert_equal("Description", @ga_description.name)
@@ -85,6 +90,16 @@ class MDArrayTest < Test::Unit::TestCase
                                     @ga_description.string_value)
         @outside_scope.assert_equal(true, @ga_description.string?)
         @outside_scope.assert_equal(false, @ga_description.unsigned?)
+
+        global_att "Values", [1, 2, 3, 4], "double"
+        @outside_scope.assert_equal(true, @ga_values.array?)
+        @outside_scope.assert_equal("Values", @ga_values.name)
+        @outside_scope.assert_equal(2.0, @ga_values.numeric_value(1))
+
+        global_att "Strings", ["abc", "efg"]
+        @outside_scope.assert_equal("abc", @ga_strings.string_value(0))
+
+        global_att "Floats", [1.34, 2.45], "float"
 
         att = find_global_attribute("Fixnum")
         @outside_scope.assert_equal("Fixnum", att.name)
@@ -169,11 +184,8 @@ class MDArrayTest < Test::Unit::TestCase
 
         # set fill to true... all elements should be filled with the fill_value
         fill = true
-
-=begin
         large_file = true
-        p get_file_type_description
-=end      
+
       end
 
     end
@@ -237,11 +249,11 @@ class MDArrayTest < Test::Unit::TestCase
       end
       
     end
-
+#=end
     #-------------------------------------------------------------------------------------
     # Opens a NetCDF file for reading only
     #-------------------------------------------------------------------------------------
-
+=begin
     should "open a file just for reading" do
 
       # Opens a file for definition, passing the directory and file name.
@@ -250,7 +262,7 @@ class MDArrayTest < Test::Unit::TestCase
       # When self is passed as argument, @outside_scope is available inside the block.
       
       NetCDF.read(cygpath(@directory), "nc_output", self) do
-#=begin      
+
         # print all global attributes
         global_attributes.each do |att|
           p att.name
@@ -276,17 +288,28 @@ class MDArrayTest < Test::Unit::TestCase
         # unshared = find_dimension("dim5")
         # @outside_scope.assert_equal("dim5", unshared.name)
 
+        # reading the whole Double variable
         var = find_variable("Double")
         var.read
-        var.print
 
+        # reading a section of Double using origin and shape
+        var.read(:origin => [1, 1], :shape => [2, 3])
+
+        # reading a section of Double using a section specification
+        var.read(:spec => "0:4:2, 4:9:3")
+
+        # reading the whole Double3 variable
         var2 = find_variable("Double3")
         var2.read
-        var2.print
+
+        # makes a new variable as a subsection of Double3
+        var3 = var2.section(:origin => [0, 1, 1], :shape => [1, 4, 9])
+
+        # reading a section of Double3 using origin and shape
+        var2.read(:origin => [0, 1, 1], :shape => [1, 4, 9])
 
         write_cdl
-#=end
-#=begin
+
         p detail_info
         p file_type_description
         p file_type_id
@@ -295,15 +318,14 @@ class MDArrayTest < Test::Unit::TestCase
         p location
         p title
         p unlimited_dimension?
-#=end
 
       end
       
     end
-#=end    
-
+=end    
+    
   end
   
 end
-
+  
 # require_relative 'test_redefine'

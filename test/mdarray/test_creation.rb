@@ -377,6 +377,21 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
+    #-------------------------------------------------------------------------------------
+    # Creates a MDArray from a java array.  Needed for some internal methods. Not to be
+    # used in general
+    #-------------------------------------------------------------------------------------
+
+    should "creade arrays from java arrays" do
+
+      value = Array.new
+      (0...5).each do |val|
+        value << val.to_java(:float)
+      end
+      MDArray.from_jstorage("float", [1], value.to_java(:float))
+
+    end
+
   end
 
 end

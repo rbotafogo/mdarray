@@ -482,5 +482,7 @@ require_relative 'mdarray/counter'
 require_relative 'mdarray/ruby_stats'
 require_relative 'mdarray/lazy_mdarray'
 require_relative 'mdarray/csv'
+require_relative 'mdarray/section'
+
 require_relative 'colt/colt'
 require_relative 'netcdf/netcdf'

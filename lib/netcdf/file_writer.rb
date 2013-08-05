@@ -101,8 +101,8 @@ class NetCDF
     # Adds a global attribute
     #------------------------------------------------------------------------------------
     
-    def add_global_att(name, value)
-      attribute = NetCDF::AttributeWriter.build(name, value)
+    def add_global_att(name, value, type)
+      attribute = NetCDF::AttributeWriter.build(name, value, type)
       add_group_att(@root_group, attribute)
     end
 
@@ -111,9 +111,9 @@ class NetCDF
     # group.  In NetCDF 3 there is only the root group.
     #------------------------------------------------------------------------------------
 
-    def global_att(name, value)
+    def global_att(name, value, type = "int")
       symbol = ("ga_" + name.gsub(/\s+/, "_").downcase).to_sym
-      att = add_global_att(name, value)
+      att = add_global_att(name, value, type)
       instance_variable_set("@#{symbol}", att)
     end
 

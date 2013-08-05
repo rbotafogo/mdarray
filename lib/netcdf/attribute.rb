@@ -126,16 +126,17 @@ class NetCDF
     #
     #------------------------------------------------------------------------------------
 
-    def self.build(name, val)
+    def self.build(name, val, type = "int")
 
+      type = type.to_sym
       value = val
-      if (val.is_a? Fixnum)
-        value = val.to_java(:int)
+      if (val.is_a? Numeric)
+        value = val.to_java(type)
       elsif (val.is_a? Array)
         value = Array.new
         val.each do |elmt|
-          if (elmt.is_a? Fixnum)
-            value << elmt.to_java(:int)
+          if (elmt.is_a? Numeric)
+            value << elmt.to_java(type)
           else
             value << elmt
           end

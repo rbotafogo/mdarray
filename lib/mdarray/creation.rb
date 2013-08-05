@@ -91,13 +91,13 @@ class MDArray
   #
   #------------------------------------------------------------------------------------
 
-  def self.from_jstorage(type, shape, jstorage)
+  def self.from_jstorage(type, shape, jstorage, section = false)
 
     dtype = DataType.valueOf(type.upcase)
     jshape = shape.to_java :int
     nc_array = Java::UcarMa2.Array.factory(dtype, jshape, jstorage)
     klass = Object.const_get("#{type.capitalize}MDArray")
-    return klass.new(type, nc_array)
+    return klass.new(type, nc_array, section)
 
   end
 

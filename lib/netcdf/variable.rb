@@ -31,7 +31,6 @@ class NetCDF
 
   class Variable < CDMNode
 
-    attr_reader :data
     attr_reader :attributes
     attr_reader :dimensions
     attr_reader :index_iterator
@@ -42,6 +41,14 @@ class NetCDF
 
     def extra_info
       @netcdf_elmt.extraInfo()
+    end
+
+    #------------------------------------------------------------------------------------
+    # Create a new data cache, use this when you dont want to share the cache.
+    #------------------------------------------------------------------------------------
+
+    def create_new_cache
+      @netcdf_elmt.createNewCache()
     end
 
     #------------------------------------------------------------------------------------
@@ -278,14 +285,17 @@ class NetCDF
     def read(*args)
 
       opts = Map.options(args)
+      spec = opts.getopt(:spec)
       origin = opts.getopt(:origin)
       shape = opts.getopt(:shape)
 
       if (origin || shape)
-        @data = MDArray.new(@netcdf_elmt.read(origin.to_java, shape.to_java))
+        MDArray.build_from_nc_array(nil, @netcdf_elmt.read(origin.to_java(:int), 
+                                                           shape.to_java(:int)))
+      elsif (spec)
+        MDArray.build_from_nc_array(nil, @netcdf_elmt.read(spec))
       else
-        arr = @netcdf_elmt.read()
-        @data = MDArray.build_from_nc_array(nil, @netcdf_elmt.read())
+        MDArray.build_from_nc_array(nil, @netcdf_elmt.read())
       end
       
     end
@@ -338,23 +348,48 @@ class NetCDF
     end
 
     #------------------------------------------------------------------------------------
-    #
+    # Create a new Variable that is a logical subsection of this Variable.  The
+    # subsection can be specified passing the following arguments:
+    # shape
+    # origin
+    # size
+    # stride
+    # range
+    # section
+    # spec
     #------------------------------------------------------------------------------------
+
+    def section(*args)
+
+      sec = MDArray::Section.build(*args)
+      NetCDF::Variable.new(@netcdf_elmt.section(sec.netcdf_elmt))
+      
+    end
 
     #------------------------------------------------------------------------------------
     #
     #------------------------------------------------------------------------------------
 
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
+    def set_cached_data(array, metadata)
+      @netcdf_elmt.setCachedData(array.nc_array, metadata)
+    end
+    
     #------------------------------------------------------------------------------------
     # Prints the content of the current data slice
     #------------------------------------------------------------------------------------
     
     def to_string
-      @data.to_string
+      @netcdf_elmt.toString()
+    end
+
+    alias :to_s :to_string
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def to_string_debug
+      @netcdf_elmt.toSringDebug()
     end
 
     #------------------------------------------------------------------------------------
@@ -362,7 +397,7 @@ class NetCDF
     #------------------------------------------------------------------------------------
 
     def print
-      @data.print
+      p to_string
     end
 
   end # Variable
