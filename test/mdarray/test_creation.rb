@@ -316,49 +316,6 @@ class MDArrayTest < Test::Unit::TestCase
     end
 
     #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-
-    should "create boolean arrays" do
-
-      bool = MDArray.boolean([2, 2])
-      bool[0, 0] = true
-      assert_raise ( RuntimeError ) { bool[0, 1] = 10.0 }
-      assert_equal(bool[0, 0], true)
-      bool[0, 1] = false
-      assert_equal(bool[0, 1], false)
-
-    end
-
-    #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-
-    should "create string arrays" do
-
-      sarray = MDArray.string([2, 3], ["hello", "this", "is", "a", "string", "array"])
-      assert_equal(6, sarray.size)
-      assert_equal("hello", sarray.get([0, 0]))
-      assert_equal("hello this is a string array ", sarray.to_string)
-
-    end
-
-    #-------------------------------------------------------------------------------------
-    # A struct array is an array of pointers to structures
-    #-------------------------------------------------------------------------------------
-
-    should "create struct arrays" do
-
-      m = Hash.new
-      m[:hello] = "world"
-      m[:test] = 1.23
-
-      struct = MDArray.structure([10])
-      struct[0] = m
-
-    end
-
-    #-------------------------------------------------------------------------------------
     # Creates a scalar array, i.e, array of size 0.  In general this is not necessary and
     # should not be used as one can operate with scalars directly.  This is however needed 
     # for writing scalar values on NetCDF-3 files.

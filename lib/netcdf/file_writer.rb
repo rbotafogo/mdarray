@@ -175,14 +175,6 @@ class NetCDF
     end
 
     #------------------------------------------------------------------------------------
-    # Finds a dimension by full name
-    #------------------------------------------------------------------------------------
-    
-    def find_dimension(name)
-      NetCDF::DimensionWriter.new(@reader.findDimension(name))
-    end
-
-    #------------------------------------------------------------------------------------
     # Add a variable to the file.
     #------------------------------------------------------------------------------------
 
@@ -427,7 +419,12 @@ class NetCDF
     # <tt>data</tt> data to write.  If data = nil, then an all zeroes data is assumed.
     #------------------------------------------------------------------------------------
 
-    def write_string_data(variable, values, origin = nil)
+    def write_string(variable, values, origin = nil)
+
+      if (values.is_a? String)
+        val = MDArray.string([], [values])
+        return @netcdf_elmt.writeStringData(variable.netcdf_elmt, val.nc_array)
+      end
 
       if (origin)
         @netcdf_elmt.writeStringData(variable.netcdf_elmt, origin.to_java(:int), 

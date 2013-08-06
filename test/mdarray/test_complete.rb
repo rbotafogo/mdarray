@@ -50,6 +50,7 @@
 
 #=begin
 require_relative 'test_creation'
+require_relative 'test_non_numeric'
 require_relative 'test_access'
 require_relative 'test_operator'
 require_relative 'arithmetic_casting'
@@ -61,5 +62,6 @@ require_relative 'test_trigonometry'
 require_relative 'test_views'
 require_relative 'test_printing'
 require_relative 'test_lazy'
+require_relative 'test_sections'
 #require_relative 'test_performance'
 #=end
