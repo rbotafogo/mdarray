@@ -21,6 +21,14 @@
 
 require 'env.rb'
 
-# require 'mdarray/test_complete'
-# require 'colt/test_complete'
-require 'colt/test_matrix'
+require 'mdarray/test_complete'
+require 'colt/test_complete'
+require 'netcdf/test_complete'
+
+
+# Temporary tests.  Remove before shipping!
+
+# require 'colt/test_matrix'
+# require 'netcdf/test_netcdf'
+# require 'mdarray/test_sections'
+# require 'netcdf/netcdfwriter'

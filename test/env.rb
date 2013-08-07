@@ -34,6 +34,7 @@ if $COVERAGE == 'true'
     @filters = []
     add_group "MDArray", "lib/mdarray"
     add_group "Colt", "lib/colt"
+    add_group "NetCDF", "lib/netcdf"
   end
 
 end
@@ -75,7 +76,13 @@ if $MDARRAY_ENV == 'cygwin'
 
   $MDARRAY_TEST_DIR = cygpath($MDARRAY_TEST_DIR)
   $COLT_TEST_DIR = cygpath($COLT_TEST_DIR)
-  
+
+else
+
+  def cygpath(path)
+    path
+  end
+
 end
 
 =begin

@@ -235,12 +235,12 @@ class MDArrayTest < Test::Unit::TestCase
         # writing string data
         short = find_variable("Short") 
         @outside_scope.assert_equal("Short", short.name)
-        write_string_data(short, string_array)
+        write_string(short, string_array)
 
         var4 = find_variable("var4")
         string_array.reshape!([1, 5])
         @outside_scope.assert_equal("var4", var4.name)
-        write_string_data(var4, string_array)
+        write_string(var4, string_array)
 
         scalar = find_variable("Scalar")
         @outside_scope.assert_equal("Scalar", scalar.name)
@@ -253,7 +253,7 @@ class MDArrayTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     # Opens a NetCDF file for reading only
     #-------------------------------------------------------------------------------------
-=begin
+#=begin
     should "open a file just for reading" do
 
       # Opens a file for definition, passing the directory and file name.
@@ -322,7 +322,7 @@ class MDArrayTest < Test::Unit::TestCase
       end
       
     end
-=end    
+#=end    
     
   end
   
