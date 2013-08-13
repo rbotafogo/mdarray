@@ -24,6 +24,8 @@ parallelcolt/0.10.0/) is a multithreaded version of Colt (http://acs.lbl.gov/sof
 Colt provides a set of Open Source Libraries for High Performance Scientific and Technical 
 Computing in Java. Scientific and technical computing is characterized by demanding problem 
 sizes and a need for high performance at reasonably small memory footprint."
+
+For more information and (some) documentation please go to: https://github.com/rbotafogo/mdarray/wiki
 EOF
 
   gem.authors  = ['Rodrigo Botafogo']

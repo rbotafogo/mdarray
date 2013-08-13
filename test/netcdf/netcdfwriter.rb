@@ -9,7 +9,7 @@ class NetCDF
   #---------------------------------------------------------------------------------------
 
   def initialize
-    @dir = "~/tmp"
+    @dir = $TMP_TEST_DIR
     @filename1 = "testWriter"
     @filename2 = "testWriteRecord2"
     @max_strlen = 80

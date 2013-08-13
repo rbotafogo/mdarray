@@ -130,6 +130,8 @@ class MDArray
       return arr.get()
     end
 
+    # Build the new array as a section from the given one.  Last argument to build is
+    # "true" indicating this is a section.
     section = MDArray.build_from_nc_array(@type, arr, true)
     copy_print_parameters(section)
     return section
@@ -163,7 +165,33 @@ class MDArray
       arr = @nc_array.sectionNoReduce(jorigin, jshape, jstride)
     end
 
-    # this is an array section, set it to true
+    # Build the new array as a section from the given one.  Last argument to build is
+    # "true" indicating this is a section.
+    section = MDArray.build_from_nc_array(@type, arr, true)
+    copy_print_parameters(section)
+    return section
+
+  end
+
+  #---------------------------------------------------------------------------------------
+  # Gets a region from this array.  Region is the same as section but using a different
+  # interface.
+  #---------------------------------------------------------------------------------------
+
+  def region(*args)
+    
+    opts = Map.options(args)
+    reduce = opts.getopt(:reduce)
+    sec = MDArray::Section.build(*args)
+
+    if (reduce)
+      arr = @nc_array.section(sec.netcdf_elmt.getRanges())
+    else
+      arr = @nc_array.sectionNoReduce(sec.netcdf_elmt.getRanges())
+    end
+
+    # Build the new array as a section from the given one.  Last argument to build is
+    # "true" indicating this is a section.
     section = MDArray.build_from_nc_array(@type, arr, true)
     copy_print_parameters(section)
     return section

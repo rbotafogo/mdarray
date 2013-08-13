@@ -31,7 +31,7 @@ class MDArrayTest < Test::Unit::TestCase
 
     setup do
 
-      @directory = "/home/zxb3/tmp"
+      @directory = $TMP_TEST_DIR
 
     end
 

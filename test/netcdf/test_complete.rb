@@ -19,6 +19,8 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+Dir.mkdir($TMP_TEST_DIR) unless File.exists?($TMP_TEST_DIR)
+
 #=begin
 require_relative 'test_netcdf'
 require_relative 'netcdfwriter'

@@ -87,8 +87,7 @@ class DoubleMDMatrix2D < FloatingMDMatrix2D
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
-    @algebra = DenseDoubleAlgebra.new
+    super(mdarray, colt_matrix, DenseDoubleAlgebra.new)
   end
 
 end # DoubleMDMatrix
@@ -105,8 +104,7 @@ class FloatMDMatrix2D < FloatingMDMatrix2D
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
-    @algebra = DenseFloatAlgebra.new
+    super(mdarray, colt_matrix, DenseFloatAlgebra.new)
   end
 
 end # FloatMDMatrix

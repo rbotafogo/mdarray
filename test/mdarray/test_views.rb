@@ -180,6 +180,61 @@ class MDArrayTest < Test::Unit::TestCase
     end
     
     #-------------------------------------------------------------------------------------
+    # Regions and sections are the same functionality with a different interface
+    #-------------------------------------------------------------------------------------
+  
+    should "get array regions" do
+
+      # 1 -> first year (only 1 year)
+      # 20 -> 20 days
+      # 10 -> number os secs
+      # 7 - > number of values
+      
+      # b is a section of @a, starting at position (0) and taking only the first two 
+      # elements of the first dimension.  Getting all values, for all secs for the first
+      # 2 days
+      # b = @a.section([0, 0, 0, 0], [1, 2, 10, 7])
+      b = @a.region(:spec => "0:0, 0:1, 0:9, 0:6")
+      assert_equal(true, b.section?)
+      assert_equal([1, 2, 10, 7], b.shape)
+      ind = b.get_index
+      ind.each do |elmt|
+        assert_equal(@a.get(elmt), b.get(elmt))
+      end
+
+
+      # getting "open" for the first 2 days of the 2nd sec.  Values are organized
+      # as follows:
+      # (open, close, high, low, volume, e1, e2).
+      # Start at: [0, 0, 3, 0] => 
+      #   0 -> first year, 0 -> first day, 3 -> 2nd sec, 0 -> first value 
+      # Specification: [1, 2, 1, 1] =>
+      #   1 -> get only first year, 2 -> take 2 days from day 0 to day 1, 
+      #   1 -> take one security, already selected the 2nd one, 1 -> only one value
+      #   in this case the first one was selected.
+      # b = @a.section([0, 0, 3, 0], [1, 2, 1, 1])
+      b = @a.region(:spec => "0:0, 0:1, 3:3, 0:0")
+      assert_equal(40.00, b[0, 0, 0, 0])
+      assert_equal(41.00, b[0, 1, 0, 0])
+
+
+      # getting "close" (2nd) value of the 3rd sec for the second day with 
+      # shape reduction. Note that in this case, with shape reduction, b is a 
+      # number and not an array any more
+      # b = @a.section([0, 1, 2, 1], [1, 1, 1, 1], true)
+      b = @a.region(:origin => [0, 1, 2, 1], :shape => [1, 1, 1, 1], :reduce => true)
+      assert_equal(@a[0, 1, 2, 1], b)
+
+      # getting the "close" (2nd) value of the 3rd sec for the second day without
+      # shape reduction
+      # b = @a.section([0, 1, 2, 1], [1, 1, 1, 1])
+      b = @a.region(:origin => [0, 1, 2, 1], :size => [1, 1, 1, 1], :stride => [1, 1, 1, 1])
+      assert_equal([1, 1, 1, 1], b.shape)
+      assert_equal(@a[0, 1, 2, 1], b[0, 0, 0, 0])
+
+    end
+
+    #-------------------------------------------------------------------------------------
     # each_along_axes returns sub-arrays (sections) of the original array. Each section
     # is taken by walking along the given axis and getting all elements of the
     # axis that were not given.
