@@ -34,6 +34,14 @@ class MDArray
   #
   #------------------------------------------------------------------------------------
 
+  def flip(dim)
+    MDArray.build_from_nc_array(@type, @nc_array.flip(dim))
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
   def reshape(shape, copy = false)
 
     new_shape = shape.to_java :int
@@ -176,6 +184,14 @@ class MDArray
   #---------------------------------------------------------------------------------------
   # Gets a region from this array.  Region is the same as section but using a different
   # interface.
+  # parameters that can be given
+  # shape
+  # origin
+  # size
+  # stride
+  # range
+  # section
+  # spec
   #---------------------------------------------------------------------------------------
 
   def region(*args)

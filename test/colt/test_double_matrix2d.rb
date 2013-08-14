@@ -38,7 +38,7 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
-    should "test matrix functions" do
+    should "test 2d matrix functions" do
 
       b = MDMatrix.double([3], [1.5, 1, 1.3])
 
@@ -126,6 +126,23 @@ class MDArrayTest < Test::Unit::TestCase
       matrix1 = MDMatrix.from_mdarray(m)
       # mat2 = matrix.chol
       matrix1.print
+      printf("\n\n")
+
+      p "Transposing the above matrix"
+      matrix1.transpose.print
+      printf("\n\n")
+
+      p "getting regions from the above matrix"
+      p "specification is '0:0, 1:3'"
+      matrix1.region(:spec => "0:0, 1:3").print
+      printf("\n\n")
+
+      p "specification is '0:3:2, 1:3'"
+      matrix1.region(:spec => "0:3:2, 1:3").print
+      printf("\n\n")
+
+      p "flipping dim 0 of the matrix"
+      matrix1.flip(0).print
       printf("\n\n")
 
       m = MDArray.typed_arange("double", 16, 32)

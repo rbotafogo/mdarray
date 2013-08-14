@@ -39,9 +39,8 @@ class MDMatrix
 
   attr_reader :colt_matrix
   attr_reader :colt_algebra
+  attr_reader :colt_property
   attr_reader :mdarray
-  attr_reader :rank
-  attr_reader :property
 
   #------------------------------------------------------------------------------------
   # 
@@ -236,15 +235,15 @@ class MDMatrix
   private
 
   #------------------------------------------------------------------------------------
-  # 
+  # Only Floating Matrices have algebra.  Long and Int matrices do not have algebra.
   #------------------------------------------------------------------------------------
   
-  def initialize(mdarray, colt_matrix, algebra)
+  def initialize(mdarray, colt_matrix, colt_property, colt_algebra = nil)
     @mdarray = mdarray
     @colt_matrix = colt_matrix
-    @colt_algebra = algebra
+    @colt_property = colt_property
+    @colt_algebra = colt_algebra
     @rank = @mdarray.rank
-    @property = property_init(self)
   end
 
   #------------------------------------------------------------------------------------

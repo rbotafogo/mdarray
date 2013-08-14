@@ -25,18 +25,11 @@ class Colt
   module Property
     include_package "cern.colt.matrix.tdouble.algo"
     include_package "cern.colt.matrix.tfloat.algo"
+    include_package "cern.colt.matrix.tlong.algo"
+    include_package "cern.colt.matrix.tint.algo"
 
     attr_reader :colt_property
     attr_reader :colt_matrix
-    
-    #------------------------------------------------------------------------------------
-    # 
-    #------------------------------------------------------------------------------------
-    
-    def property_init(matrix)
-      @colt_property = matrix.colt_algebra.property()
-      @colt_matrix = matrix.colt_matrix
-    end
     
     #------------------------------------------------------------------------------------
     # Checks whether the given matrix A is rectangular.
@@ -196,7 +189,7 @@ class Colt
     end
 
     #------------------------------------------------------------------------------------
-    # A square matrix A is skew-symmetric if A = -transpose(A), that is A[i,j] == -A[j,i].
+    # 
     #------------------------------------------------------------------------------------
 
     def square?

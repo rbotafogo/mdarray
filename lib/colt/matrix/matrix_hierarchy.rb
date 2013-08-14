@@ -20,12 +20,33 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+##########################################################################################
+# Floating point Matrices
+##########################################################################################
+
+class FloatingMDMatrix < MDMatrix
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  private
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix, algebra)
+    super(mdarray, colt_matrix, algebra.property(), algebra)
+  end
+
+end
 
 ##########################################################################################
 # Floating point 1D Matrices
 ##########################################################################################
 
-class FloatingMDMatrix1D < MDMatrix
+class FloatingMDMatrix1D < FloatingMDMatrix
 
 end # FloatingMDMatrix1D
 
@@ -40,9 +61,8 @@ class DoubleMDMatrix1D < FloatingMDMatrix1D
   # 
   #------------------------------------------------------------------------------------
 
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
-    @algebra = DenseDoubleAlgebra.new
+  def initialize(mdarray, colt_matrix, tolerance = nil)
+    super(mdarray, colt_matrix, DenseDoubleAlgebra.new)
   end
 
 end # DoubleMDMatrix1D
@@ -58,20 +78,17 @@ class FloatMDMatrix1D < FloatingMDMatrix1D
   # 
   #------------------------------------------------------------------------------------
 
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
-    @algebra = DenseFloatAlgebra.new
+  def initialize(mdarray, colt_matrix, tolerance = nil)
+    super(mdarray, colt_matrix, DenseFloatAlgebra.new)
   end
 
 end # FloatMDMatrix1D
-
-
 
 ##########################################################################################
 # Floating point 2D Matrices
 ##########################################################################################
 
-class FloatingMDMatrix2D < MDMatrix
+class FloatingMDMatrix2D < FloatingMDMatrix
 
 end # FloatingMDMatrix2D
 
@@ -86,7 +103,7 @@ class DoubleMDMatrix2D < FloatingMDMatrix2D
   # 
   #------------------------------------------------------------------------------------
 
-  def initialize(mdarray, colt_matrix)
+  def initialize(mdarray, colt_matrix, tolerance = nil)
     super(mdarray, colt_matrix, DenseDoubleAlgebra.new)
   end
 
@@ -109,15 +126,11 @@ class FloatMDMatrix2D < FloatingMDMatrix2D
 
 end # FloatMDMatrix
 
-
-
-
-
 ##########################################################################################
 #
 ##########################################################################################
 
-class DoubleMDMatrix3D < MDMatrix
+class DoubleMDMatrix3D < FloatingMDMatrix1D
   include_package "cern.colt.matrix.tdouble.algo"
 
   #------------------------------------------------------------------------------------
@@ -125,8 +138,7 @@ class DoubleMDMatrix3D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
-    @algebra = DenseDoubleAlgebra.new
+    super(mdarray, colt_matrix, DenseDoubleAlgebra.new)
   end
 
 end # DoubleMDMatrix
@@ -135,7 +147,7 @@ end # DoubleMDMatrix
 #
 ##########################################################################################
 
-class FloatMDMatrix3D < MDMatrix
+class FloatMDMatrix3D < FloatingMDMatrix1D
   include_package "cern.colt.matrix.tfloat.algo"
 
   #------------------------------------------------------------------------------------
@@ -143,21 +155,41 @@ class FloatMDMatrix3D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
-    @algebra = DenseFloatAlgebra.new
+    super(mdarray, colt_matrix, DenseFloatAlgebra.new)
   end
 
-end # FloatMDMatrix
+end # FloatMDMatrix3D
 
 
 
+##########################################################################################
+# Floating point Matrices
+##########################################################################################
+
+class FixPointMDMatrix < MDMatrix
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  private
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def initialize(mdarray, colt_matrix, property)
+    super(mdarray, colt_matrix, property)
+  end
+
+end
 
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class LongMDMatrix1D < MDMatrix
+class LongMDMatrix1D < FixPointMDMatrix
   include_package "cern.colt.matrix.tlong.algo"
 
   #------------------------------------------------------------------------------------
@@ -165,7 +197,7 @@ class LongMDMatrix1D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
+    super(mdarray, colt_matrix, LongProperty.new)
   end
 
 end # LongMDMatrix
@@ -174,7 +206,7 @@ end # LongMDMatrix
 #
 ##########################################################################################
 
-class LongMDMatrix2D < MDMatrix
+class LongMDMatrix2D < FixPointMDMatrix
   include_package "cern.colt.matrix.tlong.algo"
 
   #------------------------------------------------------------------------------------
@@ -182,7 +214,7 @@ class LongMDMatrix2D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
+    super(mdarray, colt_matrix, LongProperty.new)
   end
 
 end # LongMDMatrix
@@ -191,7 +223,7 @@ end # LongMDMatrix
 #
 ##########################################################################################
 
-class LongMDMatrix3D < MDMatrix
+class LongMDMatrix3D < FixPointMDMatrix
   include_package "cern.colt.matrix.tlong.algo"
 
   #------------------------------------------------------------------------------------
@@ -199,7 +231,7 @@ class LongMDMatrix3D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
+    super(mdarray, colt_matrix, LongProperty.new)
   end
 
 end # LongMDMatrix
@@ -208,7 +240,7 @@ end # LongMDMatrix
 #
 ##########################################################################################
 
-class IntMDMatrix1D < MDMatrix
+class IntMDMatrix1D < FixPointMDMatrix
   include_package "cern.colt.matrix.tint.algo"
 
   #------------------------------------------------------------------------------------
@@ -216,7 +248,7 @@ class IntMDMatrix1D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
+    super(mdarray, colt_matrix, IntProperty.new)
   end
 
 end # IntMDMatrix
@@ -225,7 +257,7 @@ end # IntMDMatrix
 #
 ##########################################################################################
 
-class IntMDMatrix2D < MDMatrix
+class IntMDMatrix2D < FixPointMDMatrix
   include_package "cern.colt.matrix.tint.algo"
 
   #------------------------------------------------------------------------------------
@@ -233,7 +265,7 @@ class IntMDMatrix2D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
+    super(mdarray, colt_matrix, IntProperty.new)
   end
 
 end # IntMDMatrix
@@ -242,7 +274,7 @@ end # IntMDMatrix
 #
 ##########################################################################################
 
-class IntMDMatrix3D < MDMatrix
+class IntMDMatrix3D < FixPointMDMatrix
   include_package "cern.colt.matrix.tint.algo"
 
   #------------------------------------------------------------------------------------
@@ -250,7 +282,7 @@ class IntMDMatrix3D < MDMatrix
   #------------------------------------------------------------------------------------
 
   def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix)
+    super(mdarray, colt_matrix, IntProperty.new)
   end
 
 end # IntMDMatrix

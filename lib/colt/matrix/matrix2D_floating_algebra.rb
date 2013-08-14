@@ -37,7 +37,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def backward_solve(matrix1D)
-    result = @algebra.backwardSolve(@colt_matrix, matrix1D.colt_matrix)
+    result = @colt_algebra.backwardSolve(@colt_matrix, matrix1D.colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -49,7 +49,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def chol
-    result = @algebra.chol(@colt_matrix).getL()
+    result = @colt_algebra.chol(@colt_matrix).getL()
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -59,7 +59,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def cond
-    @algebra.cond(@colt_matrix)
+    @colt_algebra.cond(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def det
-    @algebra.det(@colt_matrix)
+    @colt_algebra.det(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def eig
-    eig = @algebra.eig(@colt_matrix)
+    eig = @colt_algebra.eig(@colt_matrix)
     [MDMatrix.from_colt_matrix(eig.getD), 
      MDMatrix.from_colt_matrix(eig.getImagEigenvalues),
      MDMatrix.from_colt_matrix(eig.getRealEigenvalues),
@@ -83,11 +83,20 @@ module Matrix2DFloatingAlgebra
   end
 
   #------------------------------------------------------------------------------------
+  # Create a new Array using same backing store as this Array, by flipping the index 
+  # so that it runs from shape[index]-1 to 0.
+  #------------------------------------------------------------------------------------
+
+  def flip(dim)
+    MDMatrix.from_mdarray(@mdarray.flip(dim))
+  end
+
+  #------------------------------------------------------------------------------------
   # Solves the lower triangular system L*x=b;
   #------------------------------------------------------------------------------------
 
   def forward_solve(matrix1D)
-    result = @algebra.forwardSolve(@colt_matrix, matrix1D.colt_matrix)
+    result = @colt_algebra.forwardSolve(@colt_matrix, matrix1D.colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -96,7 +105,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def inverse
-    result = @algebra.inverse(@colt_matrix)
+    result = @colt_algebra.inverse(@colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -109,7 +118,7 @@ module Matrix2DFloatingAlgebra
     if (matrix.rank != 2)
       raise "Rank should be 2"
     end
-    result = @algebra.kron(@colt_matrix, matrix.colt_matrix)
+    result = @colt_algebra.kron(@colt_matrix, matrix.colt_matrix)
     MDMatrix.from_colt_matrix(result)
 
   end
@@ -119,7 +128,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def lu
-    result = @algebra.lu(@colt_matrix)
+    result = @colt_algebra.lu(@colt_matrix)
     [result.isNonsingular(), result.det(), result.getPivot.to_a(),
      MDMatrix.from_colt_matrix(result.getL()),
      MDMatrix.from_colt_matrix(result.getU())]
@@ -148,7 +157,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def norm1
-    @algebra.norm1(@colt_matrix)
+    @colt_algebra.norm1(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -157,7 +166,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def norm2
-    @algebra.norm2(@colt_matrix)
+    @colt_algebra.norm2(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -165,7 +174,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def normF
-    @algebra.normF(@colt_matrix)
+    @colt_algebra.normF(@colt_matrix)
   end
 
   #------------------------------------------------------------------------------------
@@ -173,19 +182,8 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def norm_infinity
-    @algebra.normInfinity(@colt_matrix)
+    @colt_algebra.normInfinity(@colt_matrix)
   end
-
-  #------------------------------------------------------------------------------------
-  # Linear algebraic matrix power; B = A^k <==> B = A*A*...
-  #------------------------------------------------------------------------------------
-
-  def power(val)
-    result = @algebra.pow(@colt_matrix, val)
-    MDMatrix.from_colt_matrix(result)
-  end
-
-  alias :** :power
 
   #------------------------------------------------------------------------------------
   # Returns the effective numerical rank of matrix A, obtained from Singular Value 
@@ -193,15 +191,41 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def numerical_rank
-    @algebra.rank(@colt_matrix)
+    @colt_algebra.rank(@colt_matrix)
   end
+
+  #------------------------------------------------------------------------------------
+  # Makes a view of this array based on the given parameters
+  # shape
+  # origin
+  # size
+  # stride
+  # range
+  # section
+  # spec
+  #------------------------------------------------------------------------------------
+
+  def region(*args)
+    MDMatrix.from_mdarray(@mdarray.region(*args))
+  end
+
+  #------------------------------------------------------------------------------------
+  # Linear algebraic matrix power; B = A^k <==> B = A*A*...
+  #------------------------------------------------------------------------------------
+
+  def power(val)
+    result = @colt_algebra.pow(@colt_matrix, val)
+    MDMatrix.from_colt_matrix(result)
+  end
+
+  alias :** :power
 
   #------------------------------------------------------------------------------------
   # Solves A*X = B
   #------------------------------------------------------------------------------------
   
   def solve(matrix)
-    result = @algebra.solve(@colt_matrix, matrix.colt_matrix)
+    result = @colt_algebra.solve(@colt_matrix, matrix.colt_matrix)
     MDMatris.from_colt_matrix(resul)
   end
 
@@ -210,7 +234,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def solve_transpose(matrix)
-    result = @algebra.solveTranspose(@colt_matrix, matrix.colt_matrix)
+    result = @colt_algebra.solveTranspose(@colt_matrix, matrix.colt_matrix)
     MDMatris.from_colt_matrix(resul)
   end
 
@@ -219,7 +243,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def svd
-    result = @algebra.svd(@colt_matrix)
+    result = @colt_algebra.svd(@colt_matrix)
     [result.getInfo().val, result.cond(), result.norm2(), result.rank(), 
      result.getSingularValues().to_a(),
      MDMatrix.from_colt_matrix(result.getS()),
@@ -232,7 +256,15 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def trace
-    @algebra.trace(@colt_matrix)
+    @colt_algebra.trace(@colt_matrix)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Constructs and returns a new view which is the transposition of the given matrix A.
+  #------------------------------------------------------------------------------------
+  
+  def transpose
+    MDMatrix.from_mdarray(@mdarray.transpose(0, 1))
   end
 
   #------------------------------------------------------------------------------------
@@ -240,7 +272,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def trapezoidal_lower
-    result = @algebra.trapezoidalLower(@colt_matrix)
+    result = @colt_algebra.trapezoidalLower(@colt_matrix)
     MDMatrix.from_colt_matrix(result)
   end
 
@@ -249,7 +281,7 @@ module Matrix2DFloatingAlgebra
   #------------------------------------------------------------------------------------
 
   def vector_norm2
-    @algebra.vectorNorm2(@colt_matrix)
+    @colt_algebra.vectorNorm2(@colt_matrix)
   end
 
 end # 
@@ -266,7 +298,7 @@ module Matrix2DDoubleAlgebra
   #------------------------------------------------------------------------------------
 
   def qr(economy_size = true)
-    result = @algebra.qr(@colt_matrix)
+    result = @colt_algebra.qr(@colt_matrix)
     [result.hasFullRank(), MDMatrix.from_colt_matrix(result.getQ(economy_size)),
      MDMatrix.from_colt_matrix(result.getR(economy_size))]
   end
@@ -285,7 +317,7 @@ module Matrix2DFloatAlgebra
   #------------------------------------------------------------------------------------
 
   def qr
-    result = @algebra.qr(@colt_matrix)
+    result = @colt_algebra.qr(@colt_matrix)
     [result.hasFullRank(), 
      MDMatrix.from_colt_matrix(result.getH()),
      MDMatrix.from_colt_matrix(result.getQ()),
