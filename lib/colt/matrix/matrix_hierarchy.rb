@@ -43,60 +43,10 @@ class FloatingMDMatrix < MDMatrix
 end
 
 ##########################################################################################
-# Floating point 1D Matrices
-##########################################################################################
-
-class FloatingMDMatrix1D < FloatingMDMatrix
-
-end # FloatingMDMatrix1D
-
-##########################################################################################
 #
 ##########################################################################################
 
-class DoubleMDMatrix1D < FloatingMDMatrix1D
-  include_package "cern.colt.matrix.tdouble.algo"
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def initialize(mdarray, colt_matrix, tolerance = nil)
-    super(mdarray, colt_matrix, DenseDoubleAlgebra.new)
-  end
-
-end # DoubleMDMatrix1D
-
-##########################################################################################
-#
-##########################################################################################
-
-class FloatMDMatrix1D < FloatingMDMatrix1D
-  include_package "cern.colt.matrix.tfloat.algo"
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def initialize(mdarray, colt_matrix, tolerance = nil)
-    super(mdarray, colt_matrix, DenseFloatAlgebra.new)
-  end
-
-end # FloatMDMatrix1D
-
-##########################################################################################
-# Floating point 2D Matrices
-##########################################################################################
-
-class FloatingMDMatrix2D < FloatingMDMatrix
-
-end # FloatingMDMatrix2D
-
-##########################################################################################
-#
-##########################################################################################
-
-class DoubleMDMatrix2D < FloatingMDMatrix2D
+class DoubleMDMatrix < FloatingMDMatrix
   include_package "cern.colt.matrix.tdouble.algo"
 
   #------------------------------------------------------------------------------------
@@ -113,14 +63,40 @@ end # DoubleMDMatrix
 #
 ##########################################################################################
 
-class FloatMDMatrix2D < FloatingMDMatrix2D
+class DoubleMDMatrix1D < DoubleMDMatrix
+
+end # DoubleMDMatrix1D
+
+##########################################################################################
+#
+##########################################################################################
+
+class DoubleMDMatrix2D < DoubleMDMatrix
+
+end # DoubleMDMatrix2D
+
+##########################################################################################
+#
+##########################################################################################
+
+class DoubleMDMatrix3D < DoubleMDMatrix
+
+end # DoubleMDMatrix3D
+
+
+
+##########################################################################################
+#
+##########################################################################################
+
+class FloatMDMatrix < FloatingMDMatrix
   include_package "cern.colt.matrix.tfloat.algo"
 
   #------------------------------------------------------------------------------------
   # 
   #------------------------------------------------------------------------------------
 
-  def initialize(mdarray, colt_matrix)
+  def initialize(mdarray, colt_matrix, tolerance = nil)
     super(mdarray, colt_matrix, DenseFloatAlgebra.new)
   end
 
@@ -130,33 +106,25 @@ end # FloatMDMatrix
 #
 ##########################################################################################
 
-class DoubleMDMatrix3D < FloatingMDMatrix1D
-  include_package "cern.colt.matrix.tdouble.algo"
+class FloatMDMatrix1D < FloatMDMatrix
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
+end # FloatMDMatrix1D
 
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix, DenseDoubleAlgebra.new)
-  end
-
-end # DoubleMDMatrix
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class FloatMDMatrix3D < FloatingMDMatrix1D
-  include_package "cern.colt.matrix.tfloat.algo"
+class FloatMDMatrix2D < FloatMDMatrix
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
+end # FloatMDMatrix2D
 
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix, DenseFloatAlgebra.new)
-  end
+
+##########################################################################################
+#
+##########################################################################################
+
+class FloatMDMatrix3D < FloatMDMatrix
 
 end # FloatMDMatrix3D
 
@@ -182,14 +150,14 @@ class FixPointMDMatrix < MDMatrix
     super(mdarray, colt_matrix, property)
   end
 
-end
+end # FixPointMDMatrix
 
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class LongMDMatrix1D < FixPointMDMatrix
+class LongMDMatrix < FixPointMDMatrix
   include_package "cern.colt.matrix.tlong.algo"
 
   #------------------------------------------------------------------------------------
@@ -206,41 +174,32 @@ end # LongMDMatrix
 #
 ##########################################################################################
 
-class LongMDMatrix2D < FixPointMDMatrix
-  include_package "cern.colt.matrix.tlong.algo"
+class LongMDMatrix1D < LongMDMatrix
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix, LongProperty.new)
-  end
-
-end # LongMDMatrix
+end # LongMDMatrix1D
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class LongMDMatrix3D < FixPointMDMatrix
-  include_package "cern.colt.matrix.tlong.algo"
+class LongMDMatrix2D < LongMDMatrix
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix, LongProperty.new)
-  end
-
-end # LongMDMatrix
+end # LongMDMatrix2D
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class IntMDMatrix1D < FixPointMDMatrix
+class LongMDMatrix3D < LongMDMatrix
+
+end # LongMDMatrix3D
+
+
+##########################################################################################
+#
+##########################################################################################
+
+class IntMDMatrix < FixPointMDMatrix
   include_package "cern.colt.matrix.tint.algo"
 
   #------------------------------------------------------------------------------------
@@ -257,32 +216,22 @@ end # IntMDMatrix
 #
 ##########################################################################################
 
-class IntMDMatrix2D < FixPointMDMatrix
-  include_package "cern.colt.matrix.tint.algo"
+class IntMDMatrix1D < IntMDMatrix
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix, IntProperty.new)
-  end
-
-end # IntMDMatrix
+end # IntMDMatrix1D
 
 ##########################################################################################
 #
 ##########################################################################################
 
-class IntMDMatrix3D < FixPointMDMatrix
-  include_package "cern.colt.matrix.tint.algo"
+class IntMDMatrix2D < IntMDMatrix
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
+end # IntMDMatrix2D
 
-  def initialize(mdarray, colt_matrix)
-    super(mdarray, colt_matrix, IntProperty.new)
-  end
+##########################################################################################
+#
+##########################################################################################
 
-end # IntMDMatrix
+class IntMDMatrix3D < IntMDMatrix
+
+end # IntMDMatrix3D

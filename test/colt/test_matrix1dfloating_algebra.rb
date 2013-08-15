@@ -38,84 +38,28 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
-    should "test matrix functions" do
+    should "test 1d double matrix functions" do
 
-      b = MDMatrix.float([3], [1.5, 1, 1.3])
+      b = MDMatrix.double([3], [1.5, 1, 1.3])
 
-      pos = MDArray.float([3, 3], [2, -1, 0, -1, 2, -1, 0, -1, 2])
-      matrix = MDMatrix.from_mdarray(pos)
-      result = matrix.chol
-      p "Cholesky decomposition"
-      result.print
-      printf("\n\n")
+      pos = MDArray.double([9], [2, -1, 0, -1, 2, -1, 0, -1, 2])
+      matrix1 = MDMatrix.from_mdarray(pos)
 
-      eig = matrix.eig
-      p "eigen decomposition"
-      p "eigenvalue matrix"
-      eig[0].print
-      printf("\n\n")
-      p "imaginary parts of the eigenvalues"
-      eig[1].print
-      printf("\n\n")
-      p "real parts of the eigenvalues"
-      eig[2].print
-      printf("\n\n")
-      p "eigenvector matrix"
-      eig[3].print
+      p "getting regions from the above matrix"
+      p "specification is '0:6'"
+      matrix1.region(:spec => "0:6").print
       printf("\n\n")
 
-      lu = matrix.lu
-      p "lu decomposition"
-      p "is non singular: #{lu[0]}"
-      p "determinant: #{lu[1]}"
-      p "pivot vector: #{lu[2]}"
-      p "lower triangular matrix"
-      lu[3].print
-      printf("\n\n")
-      p "upper triangular matrix"
-      lu[4].print
+      p "specification is '0:9:2'"
+      matrix1.region(:spec => "0:9:2").print
       printf("\n\n")
 
-      # Returns the condition of matrix A, which is the ratio of largest to 
-      # smallest singular value.
-      p "condition of matrix"
-      p matrix.cond
-
-      # Solves the upper triangular system U*x=b;
-      p "solving the equation by backward_solve"
-      solve = lu[4].backward_solve(b)
-      solve.print
+      p "flipping dim 0 of the matrix"
+      matrix1.flip(0).print
       printf("\n\n")
 
-      # Solves the lower triangular system U*x=b;
-      p "solving the equation by forward_solve"
-      solve = lu[3].forward_solve(b)
-      solve.print
-      printf("\n\n")
-
-      qr = matrix.qr
-      p "QR decomposition"
-      p "Matrix has full rank: #{qr[0]}"
-      p "Householder vectors"
-      qr[1].print
-      printf("\n\n")
-      p "Orthogonal factor Q:"
-      qr[2].print
-      printf("\n\n")
-      p "Upper triangular factor, R"
-      qr[3].print
-      printf("\n\n")
-
-      m = MDArray.typed_arange("float", 0, 16)
-      m.reshape!([4, 4])
-      matrix1 = MDMatrix.from_mdarray(m)
-      # mat2 = matrix.chol
-      matrix1.print
-      printf("\n\n")
-
-      m = MDArray.typed_arange("float", 16, 32)
-      m.reshape!([4, 4])
-      matrix2 = MDMatrix.from_mdarray(m)
+      m = MDArray.typed_arange("double", 16, 32)
+      matrix2 = MDMatrix.from_mdarray(m).region(:spec => "0:9")
       matrix2.print
       printf("\n\n")
       
@@ -127,9 +71,6 @@ class MDArrayTest < Test::Unit::TestCase
       result = matrix1.kron(matrix2)
       p "Kronecker multiplication"
       result.print
-      printf("\n\n")
-
-      print "determinant is: #{result.det}"
       printf("\n\n")
 
       p "norm1"
@@ -148,12 +89,6 @@ class MDArrayTest < Test::Unit::TestCase
       power3.print 
       printf("\n\n")
 
-      p result.trace
-
-      trap_lower = result.trapezoidal_lower
-      trap_lower.print
-      printf("\n\n")
-
       p result.vector_norm2
 
       result.normalize!
@@ -165,7 +100,7 @@ class MDArrayTest < Test::Unit::TestCase
       result.mdarray.print
 
     end
-#=end
+
   end
 
 end

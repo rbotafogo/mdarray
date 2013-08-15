@@ -21,7 +21,6 @@
 ##########################################################################################
 
 require 'java'
-require_relative 'property'
 
 class MDMatrix
   include_package "cern.colt.matrix.tdouble.impl"
@@ -390,3 +389,4 @@ end # MDMatrix
 
 require_relative 'matrix_hierarchy'
 require_relative 'matrix2D_floating_algebra'
+require_relative 'property'

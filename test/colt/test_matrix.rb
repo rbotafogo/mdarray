@@ -168,5 +168,7 @@ class MDArrayTest < Test::Unit::TestCase
 
 end
 
-require_relative 'test_double_matrix2d'
-# require_relative 'test_float_matrix2d'
+require_relative 'test_matrix2d_algebra'
+require_relative 'test_matrix1dfloating_algebra'
+require 'colt/test_properties'
+

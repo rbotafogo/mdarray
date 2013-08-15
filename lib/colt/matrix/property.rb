@@ -209,7 +209,7 @@ class Colt
     # equal 0
     #------------------------------------------------------------------------------------
 
-    def stricly_triangular?
+    def strictly_triangular?
       @colt_property.isStrictlyTriangular(@colt_matrix)
     end
 
@@ -283,16 +283,16 @@ class Colt
     # nonzero and i > j.
     #------------------------------------------------------------------------------------
 
-    def lower_bandwith
-      @colt_property.lowerBandwith(@colt_matrix)
+    def lower_bandwidth
+      @colt_property.lowerBandwidth(@colt_matrix)
     end
 
     #------------------------------------------------------------------------------------
     # Returns the semi-bandwidth of the given square matrix A.
     #------------------------------------------------------------------------------------
 
-    def semi_bandwith
-      @colt_property.semiBandwith(@colt_matrix)
+    def semi_bandwidth
+      @colt_property.semiBandwidth(@colt_matrix)
     end
 
     #------------------------------------------------------------------------------------
@@ -312,11 +312,19 @@ class Colt
     end
 
     #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def tolerance
+      @colt_property.tolerance()
+    end
+
+    #------------------------------------------------------------------------------------
     # Returns summary information about the given matrix A.
     #------------------------------------------------------------------------------------
 
-    def to_string
-      @colt_property.toString(@colt_matrix)
+    def properties
+      printf(@colt_property.toString(@colt_matrix))
     end
 
     #------------------------------------------------------------------------------------
@@ -324,8 +332,8 @@ class Colt
     # nonzero and j > i.
     #------------------------------------------------------------------------------------
 
-    def upper_bandwith
-      @colt_property.upperBandwith(@colt_matrix)
+    def upper_bandwidth
+      @colt_property.upperBandwidth(@colt_matrix)
     end
 
   end
@@ -340,4 +348,16 @@ class MDMatrix
 
   include Colt::Property
 
-end
+end # MDMatrix
+
+##########################################################################################
+#
+##########################################################################################
+
+class FixPointMDMatrix
+
+  def singular?
+    raise "Cannot calculate singular matrix for fix point matrix"
+  end
+  
+end # IntMDMatrix
