@@ -45,133 +45,50 @@ class MDMatrix
   # 
   #------------------------------------------------------------------------------------
 
-  def self.build(type, shape, storage = nil)
-    if (shape.size > 3)
-      raise "Cannot create MDMatrix of size greater than 3"
+  def fill(val, func = nil)
+
+    if (func)
+      return MDMatrix.from_colt_matrix(@colt_matrix.assign(val.colt_matrix, func))
     end
-    self.from_mdarray(MDArray.build(type, shape, storage))
-  end
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.double(shape, storage = nil)
-    self.build("double", shape, storage)
-  end
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.float(shape, storage = nil)
-    self.build("float", shape, storage)
-  end
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.long(shape, storage = nil)
-    self.build("long", shape, storage)
-  end
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.int(shape, storage = nil)
-    self.build("int", shape, storage)
-  end
-
-  #------------------------------------------------------------------------------------
-  # Creates a MDMatrix from an MDArray.
-  # (int rows, int columns, double[] elements, int rowZero, int columnZero, 
-  # int rowStride, int columnStride, boolean isView)
-  #------------------------------------------------------------------------------------
-
-  def self.from_mdarray(mdarray)
-
-    case mdarray.rank
-
-    when 1
-      dense1D(mdarray)
-    when 2
-      dense2D(mdarray)
-    when 3
-      dense3D(mdarray)
+    if ((val.is_a? Numeric) || (val.is_a? Proc) || (val.is_a? Class))
+      MDMatrix.from_colt_matrix(@colt_matrix.assign(val))
+    elsif (val.is_a? MDMatrix)
+      MDMatrix.from_colt_matrix(@colt_matrix.assign(val.colt_matrix))
     else
-      raise "Cannot create MDMatrix of rank greater than 3"
+      raise "Cannot fill a Matrix with the given value"
     end
-
-  end
-
-  #------------------------------------------------------------------------------------
-  # Creates a new MDMatrix from a given colt_matrix
-  #------------------------------------------------------------------------------------
-
-  def self.from_colt_matrix(colt_matrix)
-
-    if (colt_matrix.is_a? DenseDoubleMatrix3D)
-      mdarray = MDArray.from_jstorage("double", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return DoubleMDMatrix3D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseFloatMatrix3D)
-      mdarray = MDArray.from_jstorage("float", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return FloatMDMatrix3D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseLongMatrix3D)
-      mdarray = MDArray.from_jstorage("long", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return LongMDMatrix3D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseIntMatrix3D)
-      mdarray = MDArray.from_jstorage("int", 
-                                      [colt_matrix.slices, colt_matrix.rows, 
-                                       colt_matrix.columns], colt_matrix.elements)
-      return IntMDMatrix3D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseDoubleMatrix2D)
-      mdarray = MDArray.from_jstorage("double", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return DoubleMDMatrix2D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseFloatMatrix2D)
-      mdarray = MDArray.from_jstorage("float", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return FloatMDMatrix2D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseLongMatrix2D)
-      mdarray = MDArray.from_jstorage("long", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return LongMDMatrix2D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseIntMatrix2D)
-      mdarray = MDArray.from_jstorage("int", [colt_matrix.rows, colt_matrix.columns], 
-                                      colt_matrix.elements)
-      return IntMDMatrix2D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseDoubleMatrix1D)
-      mdarray = MDArray.from_jstorage("double", [colt_matrix.size], colt_matrix.elements)
-      return DoubleMDMatrix1D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseFloatMatrix1D)
-      mdarray = MDArray.from_jstorage("float", [colt_matrix.size], colt_matrix.elements)
-      return FloatMDMatrix1D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseLongMatrix1D)
-      mdarray = MDArray.from_jstorage("long", [colt_matrix.size], colt_matrix.elements)
-      return LongMDMatrix1D.from_mdarray(mdarray)
-    elsif (colt_matrix.is_a? DenseIntMatrix1D)
-      mdarray = MDArray.from_jstorage("int", [colt_matrix.size], colt_matrix.elements)
-      return IntMDMatrix1D.from_mdarray(mdarray)
-    end
-
   end
 
   #------------------------------------------------------------------------------------
   # 
   #------------------------------------------------------------------------------------
 
-  def copy
-    MDMatrix.from_mdarray(self.mdarray.copy)
+  def set(row, column, val)
+    @colt_matrix.set(row, column, val)
   end
 
+  alias :[]= :set
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def get(*index)
+    @colt_matrix.get(*index)
+  end
+
+  alias :[] :get
+
+  #------------------------------------------------------------------------------------
+  # Create a new Array using same backing store as this Array, by flipping the index 
+  # so that it runs from shape[index]-1 to 0.
+  #------------------------------------------------------------------------------------
+  
+  def flip(dim)
+    MDMatrix.from_mdarray(@mdarray.flip(dim))
+  end
+  
   #------------------------------------------------------------------------------------
   # 
   #------------------------------------------------------------------------------------
@@ -196,6 +113,29 @@ class MDMatrix
     @mdarray.shape
   end
 
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def size
+    @mdarray.size
+  end
+
+  #------------------------------------------------------------------------------------
+  # Makes a view of this array based on the given parameters
+  # shape
+  # origin
+  # size
+  # stride
+  # range
+  # section
+  # spec
+  #------------------------------------------------------------------------------------
+  
+  def region(*args)
+    MDMatrix.from_mdarray(@mdarray.region(*args))
+  end
+  
   #------------------------------------------------------------------------------------
   # 
   #------------------------------------------------------------------------------------
@@ -227,166 +167,9 @@ class MDMatrix
 
   end
 
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  private
-
-  #------------------------------------------------------------------------------------
-  # Only Floating Matrices have algebra.  Long and Int matrices do not have algebra.
-  #------------------------------------------------------------------------------------
-  
-  def initialize(mdarray, colt_matrix, colt_property, colt_algebra = nil)
-    @mdarray = mdarray
-    @colt_matrix = colt_matrix
-    @colt_property = colt_property
-    @colt_algebra = colt_algebra
-    @rank = @mdarray.rank
-  end
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.dense1D(mdarray)
-
-    storage = mdarray.nc_array.getStorage()
-    index = mdarray.nc_array.getIndex()
-    size = index.size
-
-    klass = index.getClass
-    field = klass.getDeclaredField("stride0")
-    field.setAccessible true
-    stride0 = field.get(index)
-    # p stride0
-
-    klass = klass.getSuperclass()
-    field = klass.getDeclaredField("offset")
-    field.setAccessible true
-    offset = field.get(index)
-    # p offset
-
-    case mdarray.type
-    when "double"
-      colt_matrix = DenseDoubleMatrix1D.new(size, storage, offset, stride0, false)
-      DoubleMDMatrix1D.new(mdarray, colt_matrix)
-    when "float"
-      colt_matrix = DenseFloatMatrix1D.new(size, storage, offset, stride0, false)
-      FloatMDMatrix1D.new(mdarray, colt_matrix)
-    when "long"
-      colt_matrix = DenseLongMatrix1D.new(size, storage, offset, stride0, false)
-      LongMDMatrix1D.new(mdarray, colt_matrix)
-    when "int"
-      colt_matrix = DenseIntMatrix1D.new(size, storage, offset, stride0, false)
-      IntMDMatrix1D.new(mdarray, colt_matrix)
-    end
-
-  end
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.dense2D(mdarray)
-
-    storage = mdarray.nc_array.getStorage()
-    index = mdarray.nc_array.getIndex()
-    shape = index.getShape()
-
-    klass = index.getClass
-    field = klass.getDeclaredField("stride0")
-    field.setAccessible true
-    stride0 = field.get(index)
-    # p stride0
-
-    field = klass.getDeclaredField("stride1")
-    field.setAccessible true
-    stride1 = field.get(index)
-    # p stride1
-
-    klass = klass.getSuperclass()
-    field = klass.getDeclaredField("offset")
-    field.setAccessible true
-    offset = field.get(index)
-    # p offset
-
-    case mdarray.type
-    when "double"
-      colt_matrix = DenseDoubleMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
-                                            stride0, stride1, false)
-      DoubleMDMatrix2D.new(mdarray, colt_matrix)
-    when "float"
-      colt_matrix = DenseFloatMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
-                                           stride0, stride1, false)
-      FloatMDMatrix2D.new(mdarray, colt_matrix)
-    when "long"
-      colt_matrix = DenseLongMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
-                                          stride0, stride1, false)
-      LongMDMatrix2D.new(mdarray, colt_matrix)
-    when "int"
-      colt_matrix = DenseIntMatrix2D.new(shape[0], shape[1], storage, offset, 0, 
-                                         stride0, stride1, false)
-      IntMDMatrix2D.new(mdarray, colt_matrix)
-    end
-
-  end
-
-  #------------------------------------------------------------------------------------
-  # 
-  #------------------------------------------------------------------------------------
-
-  def self.dense3D(mdarray)
-
-    storage = mdarray.nc_array.getStorage()
-    index = mdarray.nc_array.getIndex()
-    shape = index.getShape()
-
-    klass = index.getClass
-    field = klass.getDeclaredField("stride0")
-    field.setAccessible true
-    stride0 = field.get(index)
-    # p stride0
-
-    field = klass.getDeclaredField("stride1")
-    field.setAccessible true
-    stride1 = field.get(index)
-    # p stride1
-
-    field = klass.getDeclaredField("stride2")
-    field.setAccessible true
-    stride2 = field.get(index)
-    # p stride2
-
-    klass = klass.getSuperclass()
-    field = klass.getDeclaredField("offset")
-    field.setAccessible true
-    offset = field.get(index)
-    # p offset
-
-    case mdarray.type
-    when "double"
-      colt_matrix = DenseDoubleMatrix3D.new(shape[0], shape[1], shape[2], storage, 
-                                            offset, 0, 0, stride0, stride1, stride2, false)
-      DoubleMDMatrix3D.new(mdarray, colt_matrix)
-    when "float"
-      colt_matrix = DenseFloatMatrix3D.new(shape[0], shape[1], shape[2], storage, 
-                                           offset, 0, 0, stride0, stride1, stride2, false)
-      FloatMDMatrix3D.new(mdarray, colt_matrix)
-    when "long"
-      colt_matrix = DenseLongMatrix3D.new(shape[0], shape[1], shape[2], storage, 
-                                          offset, 0, 0, stride0, stride1, stride2, false)
-      LongMDMatrix3D.new(mdarray, colt_matrix)
-    when "int"
-      colt_matrix = DenseIntMatrix3D.new(shape[0], shape[1], shape[2], storage, 
-                                         offset, 0, 0, stride0, stride1, stride2, false)
-      IntMDMatrix3D.new(mdarray, colt_matrix)
-    end
-
-  end
-
 end # MDMatrix
 
-require_relative 'matrix_hierarchy'
-require_relative 'matrix2D_floating_algebra'
+require_relative 'creation'
+require_relative 'hierarchy'
+require_relative 'algebra'
 require_relative 'property'

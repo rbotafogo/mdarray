@@ -58,33 +58,23 @@ class MDArrayTest < Test::Unit::TestCase
                                         .region(:spec => "0:2, 0:2, 0:0", :reduce => true))
 
       # identity matrix
-      identity = MDMatrix
-        .from_mdarray(MDArray.fromfunction("double", [5, 5]) { |x, y| 1 if x == y })
+      identity = MDMatrix.fromfunction("double", [5, 5]) { |i, j| 1 if i == j }
 
       # diagonaly dominant matrix by row and column
-      diag_dominant = MDMatrix
-        .from_mdarray(MDArray.fromfunction("double", [4, 4]) do |x, y|
-                        if (x == y)
-                          5 * (x +1) + 5 * (y + 1)
-                        else
-                          x + y 
-                        end
-                      end)
+      diag_dominant = MDMatrix.fromfunction("double", [4, 4]) do |x, y|
+        (x == y)? 5 * (x +1) + 5 * (y + 1) : x + y 
+      end
 
       # upper diagonal matrix
-      ud = MDMatrix
-        .from_mdarray(MDArray.fromfunction("double", [4, 4]) { |x, y|
-                        x + y if x < y })
+      ud = MDMatrix.fromfunction("double", [4, 4]) { |x, y| x + y if x < y }
 
       # lower diagonal matrix
-      ld = MDMatrix
-        .from_mdarray(MDArray.fromfunction("double", [4, 4]) { |x, y|
-                        x + y if x > y })
+      ld = MDMatrix.fromfunction("double", [4, 4]) { |x, y| x + y if x > y }
 
-      c2 = MDMatrix.from_mdarray(MDArray.double([2, 2], [2, 2, 2, 2]))
+      c2 = MDMatrix.double([2, 2], [2, 2, 2, 2])
 
       # zero matrix
-      zero = MDMatrix.from_mdarray(MDArray.double([3, 3]))
+      zero = MDMatrix.double([3, 3])
 
       # Checks whether the given matrix A is rectangular, i.e., if columns >= rows.  
       # If not rectangular raise exception, otherwise, does nothing.

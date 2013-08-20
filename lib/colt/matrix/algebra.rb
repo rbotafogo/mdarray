@@ -30,6 +30,68 @@ require 'java'
 
 class Colt
 
+  ##########################################################################################
+  #
+  ##########################################################################################
+  
+  module Matrix1DAlgebra
+
+    #------------------------------------------------------------------------------------
+    # Returns the dot product of two vectors x and y, which is Sum(x[i]*y[i]).
+    #------------------------------------------------------------------------------------
+
+    def dot_product(matrix, from = 0, length = matrix.size)
+      @colt_matrix.zDotProduct(matrix.colt_matrix, from, length)
+    end
+
+    alias :* :dot_product
+
+  end # Matrix1DAlgebra
+
+  ##########################################################################################
+  #
+  ##########################################################################################
+  
+  module Matrix2DAlgebra
+
+    #------------------------------------------------------------------------------------
+    # Linear algebraic matrix-matrix multiplication; C = alpha * A x B + beta*C. 
+    # C[i,j] = alpha*Sum(A[i,k] * B[k,j]) + beta*C[i,j], k=0..n-1.
+    # Matrix shapes: A(m x n), B(n x p), C(m x p).
+    # Note: Matrix shape conformance is checked after potential transpositions.
+    #------------------------------------------------------------------------------------
+    
+    def mult(matrix, alpha = 1, beta = 0, transA = false, transB = false, result = nil)
+      
+      if (matrix.rank > 2)
+        raise "Rank should be 1 or 2"
+      elsif (matrix.rank == 2)      
+        result = MDMatrix
+          .build(@mdarray.type, [@mdarray.shape[0], matrix.mdarray.shape[1]]) if result == nil
+        @colt_matrix.zMult(matrix.colt_matrix, result.colt_matrix, alpha, beta,
+                           transA, transB)
+      else # multiplying by a vector
+        result = MDMatrix.build(@mdarray.type, [@mdarray.shape[1]]) if result == nil
+        @colt_matrix.zMult(matrix.colt_matrix, result.colt_matrix, alpha, beta, transA)
+      end
+
+      # MDMatrix.from_colt_matrix(result)
+      result
+      
+    end
+    
+    alias :* :mult
+
+    #------------------------------------------------------------------------------------
+    # Constructs and returns a new view which is the transposition of the given matrix A.
+    #------------------------------------------------------------------------------------
+    
+    def transpose
+      MDMatrix.from_mdarray(@mdarray.transpose(0, 1))
+    end
+
+  end # Matrix2DAlgebra
+
   ########################################################################################
   #
   ########################################################################################
@@ -37,45 +99,13 @@ class Colt
   module MatrixFloatingAlgebra
 
     #------------------------------------------------------------------------------------
-    # Create a new Array using same backing store as this Array, by flipping the index 
-    # so that it runs from shape[index]-1 to 0.
-    #------------------------------------------------------------------------------------
-    
-    def flip(dim)
-      MDMatrix.from_mdarray(@mdarray.flip(dim))
-    end
-
-    #------------------------------------------------------------------------------------
     # Computes the Kronecker product of two real matrices.
     #------------------------------------------------------------------------------------
     
     def kron(matrix)
-      
-      if (matrix.rank != 2)
-        raise "Rank should be 2"
-      end
       result = @colt_algebra.kron(@colt_matrix, matrix.colt_matrix)
       MDMatrix.from_colt_matrix(result)
-      
     end
-
-    #------------------------------------------------------------------------------------
-    # Multiplies this matrix by another matrix
-    #------------------------------------------------------------------------------------
-    
-    def mult(matrix)
-      
-      if (matrix.rank > 2)
-        raise "Rank should be 1 or 2"
-      end
-      
-      result = @colt_matrix.like
-      @colt_matrix.zMult(matrix.colt_matrix, result)
-      MDMatrix.from_colt_matrix(result)
-      
-    end
-    
-    alias :* :mult
 
     #------------------------------------------------------------------------------------
     # Returns the one-norm of vector x, which is Sum(abs(x[i])).
@@ -108,21 +138,6 @@ class Colt
     
     def norm_infinity
       @colt_algebra.normInfinity(@colt_matrix)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Makes a view of this array based on the given parameters
-    # shape
-    # origin
-    # size
-    # stride
-    # range
-    # section
-    # spec
-    #------------------------------------------------------------------------------------
-    
-    def region(*args)
-      MDMatrix.from_mdarray(@mdarray.region(*args))
     end
 
   end # MatrixFloatingAlgebra
@@ -273,15 +288,7 @@ class Colt
     def trace
       @colt_algebra.trace(@colt_matrix)
     end
-    
-    #------------------------------------------------------------------------------------
-    # Constructs and returns a new view which is the transposition of the given matrix A.
-    #------------------------------------------------------------------------------------
-    
-    def transpose
-      MDMatrix.from_mdarray(@mdarray.transpose(0, 1))
-    end
-    
+        
     #------------------------------------------------------------------------------------
     # Modifies the matrix to be a lower trapezoidal matrix.
     #------------------------------------------------------------------------------------
@@ -301,11 +308,9 @@ class Colt
     
   end # Matrix2dFloatingAlgebra
 
-
   ##########################################################################################
   #
   ##########################################################################################
-  
   
   module Matrix2DDoubleAlgebra
     include_package "cern.colt.matrix.tdouble.algo"
@@ -353,6 +358,7 @@ end # Colt
 class DoubleMDMatrix1D
 
   include Colt::MatrixFloatingAlgebra
+  include Colt::Matrix1DAlgebra
 
 end
 
@@ -363,6 +369,7 @@ end
 class DoubleMDMatrix2D
 
   include Colt::MatrixFloatingAlgebra
+  include Colt::Matrix2DAlgebra
   include Colt::Matrix2DFloatingAlgebra
   include Colt::Matrix2DDoubleAlgebra
 
@@ -375,6 +382,7 @@ end
 class FloatMDMatrix1D
 
   include Colt::MatrixFloatingAlgebra
+  include Colt::Matrix1DAlgebra
 
 end
 
@@ -385,7 +393,48 @@ end
 class FloatMDMatrix2D
 
   include Colt::MatrixFloatingAlgebra
+  include Colt::Matrix2DAlgebra
   include Colt::Matrix2DFloatingAlgebra
   include Colt::Matrix2DFloatAlgebra
+
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+class LongMDMatrix1D
+
+  include Colt::Matrix1DAlgebra
+
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+class LongMDMatrix2D
+
+  include Colt::Matrix2DAlgebra
+
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+class IntMDMatrix1D
+
+  include Colt::Matrix1DAlgebra
+
+end
+
+##########################################################################################
+#
+##########################################################################################
+
+class IntMDMatrix2D
+
+  include Colt::Matrix2DAlgebra
 
 end

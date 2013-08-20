@@ -38,90 +38,9 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
-    should "test 2d double matrix functions" do
+    should "test 2d long matrix functions" do
 
-      b = MDMatrix.double([3], [1.5, 1, 1.3])
-
-      pos = MDArray.double([3, 3], [2, -1, 0, -1, 2, -1, 0, -1, 2])
-      matrix = MDMatrix.from_mdarray(pos)
-      result = matrix.chol
-      p "Cholesky decomposition"
-      result.print
-      printf("\n\n")
-
-      eig = matrix.eig
-      p "eigen decomposition"
-      p "eigenvalue matrix"
-      eig[0].print
-      printf("\n\n")
-      p "imaginary parts of the eigenvalues"
-      eig[1].print
-      printf("\n\n")
-      p "real parts of the eigenvalues"
-      eig[2].print
-      printf("\n\n")
-      p "eigenvector matrix"
-      eig[3].print
-      printf("\n\n")
-
-      lu = matrix.lu
-      p "lu decomposition"
-      p "is non singular: #{lu[0]}"
-      p "determinant: #{lu[1]}"
-      p "pivot vector: #{lu[2]}"
-      p "lower triangular matrix"
-      lu[3].print
-      printf("\n\n")
-      p "upper triangular matrix"
-      lu[4].print
-      printf("\n\n")
-
-      # Returns the condition of matrix A, which is the ratio of largest to 
-      # smallest singular value.
-      p "condition of matrix"
-      p matrix.cond
-
-      # Solves the upper triangular system U*x=b;
-      p "solving the equation by backward_solve"
-      solve = lu[4].backward_solve(b)
-      solve.print
-      printf("\n\n")
-
-      # Solves the lower triangular system U*x=b;
-      p "solving the equation by forward_solve"
-      solve = lu[3].forward_solve(b)
-      solve.print
-      printf("\n\n")
-
-      qr = matrix.qr
-      p "QR decomposition"
-      p "Matrix has full rank: #{qr[0]}"
-      p "Orthogonal factor Q:"
-      qr[1].print
-      printf("\n\n")
-      p "Upper triangular factor, R"
-      qr[2].print
-      printf("\n\n")
-
-      svd = matrix.svd
-      p "Singular value decomposition"
-      p "operation success? #{svd[0]}" # 0 success; < 0 ith value is illegal; > 0 not converge
-      p "cond: #{svd[1]}"
-      p "norm2: #{svd[2]}"
-      p "rank: #{svd[3]}"
-      p "singular values"
-      p svd[4]
-      p "Diagonal matrix of singular values"
-      # svd[5].print
-      printf("\n\n")
-      p "left singular vectors U"
-      svd[6].print
-      printf("\n\n")
-      p "right singular vectors V"
-      svd[7].print
-      printf("\n\n")
-
-      m = MDArray.typed_arange("double", 0, 16)
+      m = MDArray.typed_arange("long", 0, 16)
       m.reshape!([4, 4])
       matrix1 = MDMatrix.from_mdarray(m)
       # mat2 = matrix.chol
@@ -145,56 +64,43 @@ class MDArrayTest < Test::Unit::TestCase
       matrix1.flip(0).print
       printf("\n\n")
 
-      m = MDArray.typed_arange("double", 16, 32)
+      m = MDArray.typed_arange("long", 16, 32)
       m.reshape!([4, 4])
       matrix2 = MDMatrix.from_mdarray(m)
       matrix2.print
       printf("\n\n")
       
       result = matrix1 * matrix2
-      p "matrix multiplication"
+      p "matrix multiplication of square matrices"
       result.print 
       printf("\n\n")
 
-      result = matrix1.kron(matrix2)
-      p "Kronecker multiplication"
-      result.print
+      p "matrix multiplication of rec matrices"
+      array1 = MDMatrix.long([2, 3], [1, 2, 3, 4, 5, 6])
+      array2 = MDMatrix.long([3, 2], [1, 2, 3, 4, 5, 6])
+      mult = array1 * array2
+      mult.print
       printf("\n\n")
 
-      print "determinant is: #{result.det}"
+      p "matrix multiplication of rec matrices passing alpha and beta parameters."
+      p "C = alpha * A x B + beta*C"
+      mult = array1.mult(array2, 2, 2)
+      mult.print
       printf("\n\n")
 
-      p "norm1"
-      p result.norm1
-
-      p "norm2"
-      p result.norm2
-
-      p "Returns the Frobenius norm of matrix A, which is Sqrt(Sum(A[i,j]^2))"
-      p result.normF
-
-      p "Returns the infinity norm of matrix A, which is the maximum absolute row sum."
-      p result.norm_infinity
-
-      power3 = result ** 3
-      power3.print 
+      p "matrix multiplication of rec matrices passing alpha, beta and return (C) parameters."
+      p "C = alpha * A x B + beta*C"
+      result = MDMatrix.long([2, 2], [2, 2, 2, 2])
+      mult = array1.mult(array2, 2, 2, false, false, result)
+      mult.print
       printf("\n\n")
 
-      p result.trace
-
-      trap_lower = result.trapezoidal_lower
-      trap_lower.print
+      p "matrix multiplication by vector"
+      array1 = MDMatrix.long([2, 3], [1, 2, 3, 4, 5, 6])
+      array2 = MDMatrix.long([3], [4, 5, 6])
+      mult = array1 * array2
+      mult.print
       printf("\n\n")
-
-      p result.vector_norm2
-
-      result.normalize!
-      result.print
-      printf("\n\n")
-
-      p "summing all values of result: #{result.sum}"
-
-      result.mdarray.print
 
     end
 
@@ -203,90 +109,9 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
-    should "test 2d float matrix functions" do
+    should "test 2d int matrix functions" do
 
-      b = MDMatrix.float([3], [1.5, 1, 1.3])
-
-      pos = MDArray.float([3, 3], [2, -1, 0, -1, 2, -1, 0, -1, 2])
-      matrix = MDMatrix.from_mdarray(pos)
-      result = matrix.chol
-      p "Cholesky decomposition"
-      result.print
-      printf("\n\n")
-
-      eig = matrix.eig
-      p "eigen decomposition"
-      p "eigenvalue matrix"
-      eig[0].print
-      printf("\n\n")
-      p "imaginary parts of the eigenvalues"
-      eig[1].print
-      printf("\n\n")
-      p "real parts of the eigenvalues"
-      eig[2].print
-      printf("\n\n")
-      p "eigenvector matrix"
-      eig[3].print
-      printf("\n\n")
-
-      lu = matrix.lu
-      p "lu decomposition"
-      p "is non singular: #{lu[0]}"
-      p "determinant: #{lu[1]}"
-      p "pivot vector: #{lu[2]}"
-      p "lower triangular matrix"
-      lu[3].print
-      printf("\n\n")
-      p "upper triangular matrix"
-      lu[4].print
-      printf("\n\n")
-
-      # Returns the condition of matrix A, which is the ratio of largest to 
-      # smallest singular value.
-      p "condition of matrix"
-      p matrix.cond
-
-      # Solves the upper triangular system U*x=b;
-      p "solving the equation by backward_solve"
-      solve = lu[4].backward_solve(b)
-      solve.print
-      printf("\n\n")
-
-      # Solves the lower triangular system U*x=b;
-      p "solving the equation by forward_solve"
-      solve = lu[3].forward_solve(b)
-      solve.print
-      printf("\n\n")
-
-      qr = matrix.qr
-      p "QR decomposition"
-      p "Matrix has full rank: #{qr[0]}"
-      p "Orthogonal factor Q:"
-      qr[1].print
-      printf("\n\n")
-      p "Upper triangular factor, R"
-      qr[2].print
-      printf("\n\n")
-
-      svd = matrix.svd
-      p "Singular value decomposition"
-      p "operation success? #{svd[0]}" # 0 success; < 0 ith value is illegal; > 0 not converge
-      p "cond: #{svd[1]}"
-      p "norm2: #{svd[2]}"
-      p "rank: #{svd[3]}"
-      p "singular values"
-      p svd[4]
-      p "Diagonal matrix of singular values"
-      # svd[5].print
-      printf("\n\n")
-      p "left singular vectors U"
-      svd[6].print
-      printf("\n\n")
-      p "right singular vectors V"
-      svd[7].print
-      printf("\n\n")
-
-      m = MDArray.typed_arange("float", 0, 16)
+      m = MDArray.typed_arange("int", 0, 16)
       m.reshape!([4, 4])
       matrix1 = MDMatrix.from_mdarray(m)
       # mat2 = matrix.chol
@@ -310,56 +135,43 @@ class MDArrayTest < Test::Unit::TestCase
       matrix1.flip(0).print
       printf("\n\n")
 
-      m = MDArray.typed_arange("float", 16, 32)
+      m = MDArray.typed_arange("int", 16, 32)
       m.reshape!([4, 4])
       matrix2 = MDMatrix.from_mdarray(m)
       matrix2.print
       printf("\n\n")
       
       result = matrix1 * matrix2
-      p "matrix multiplication"
+      p "matrix multiplication of square matrices"
       result.print 
       printf("\n\n")
 
-      result = matrix1.kron(matrix2)
-      p "Kronecker multiplication"
-      result.print
+      p "matrix multiplication of rec matrices"
+      array1 = MDMatrix.int([2, 3], [1, 2, 3, 4, 5, 6])
+      array2 = MDMatrix.int([3, 2], [1, 2, 3, 4, 5, 6])
+      mult = array1 * array2
+      mult.print
       printf("\n\n")
 
-      print "determinant is: #{result.det}"
+      p "matrix multiplication of rec matrices passing alpha and beta parameters."
+      p "C = alpha * A x B + beta*C"
+      mult = array1.mult(array2, 2, 2)
+      mult.print
       printf("\n\n")
 
-      p "norm1"
-      p result.norm1
-
-      p "norm2"
-      p result.norm2
-
-      p "Returns the Frobenius norm of matrix A, which is Sqrt(Sum(A[i,j]^2))"
-      p result.normF
-
-      p "Returns the infinity norm of matrix A, which is the maximum absolute row sum."
-      p result.norm_infinity
-
-      power3 = result ** 3
-      power3.print 
+      p "matrix multiplication of rec matrices passing alpha, beta and return (C) parameters."
+      p "C = alpha * A x B + beta*C"
+      result = MDMatrix.int([2, 2], [2, 2, 2, 2])
+      mult = array1.mult(array2, 2, 2, false, false, result)
+      mult.print
       printf("\n\n")
 
-      p result.trace
-
-      trap_lower = result.trapezoidal_lower
-      trap_lower.print
+      p "matrix multiplication by vector"
+      array1 = MDMatrix.int([2, 3], [1, 2, 3, 4, 5, 6])
+      array2 = MDMatrix.int([3], [4, 5, 6])
+      mult = array1 * array2
+      mult.print
       printf("\n\n")
-
-      p result.vector_norm2
-
-      result.normalize!
-      result.print
-      printf("\n\n")
-
-      p "summing all values of result: #{result.sum}"
-
-      result.mdarray.print
 
     end
 

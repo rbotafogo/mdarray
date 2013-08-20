@@ -19,7 +19,9 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-require_relative 'test_statistics'
-require_relative 'test_stat_list'
-require_relative 'test_math'
-require_relative 'matrix/test_complete'
+require_relative 'test_creation'
+require_relative 'test_matrix2d_floatingalgebra'
+require_relative 'test_matrix2d_fixpointalgebra'
+require_relative 'test_matrix1d_floatingalgebra'
+require_relative 'test_properties'
+
