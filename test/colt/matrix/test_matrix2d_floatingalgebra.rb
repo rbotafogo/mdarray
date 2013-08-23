@@ -33,7 +33,7 @@ class MDArrayTest < Test::Unit::TestCase
 
    
     end
-
+#=begin
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
@@ -63,19 +63,19 @@ class MDArrayTest < Test::Unit::TestCase
       # fill the Matrix with the value of method apply from a given class.
       # In general this solution is more efficient than the above solution with
       # Proc.  
-      class Func
+      class DoubleFunc
         def self.apply(x)
           x/2
         end
       end
 
-      b.fill(Func)
+      b.fill(DoubleFunc)
       assert_equal(3.125, b[2,0])
       b.print
       printf("\n\n")
 
       # defines a class with a method apply with two arguments
-      class Func2
+      class DoubleFunc2
         def self.apply(x, y)
           (x + y) ** 2
         end
@@ -83,8 +83,56 @@ class MDArrayTest < Test::Unit::TestCase
       
       # fill array a with the value the result of a function to each cell; 
       # x[row,col] = function(x[row,col],y[row,col]).
-      a.fill(b, Func2)
+      a.fill(b, DoubleFunc2)
       a.print
+      printf("\n\n")
+
+      tens = MDMatrix.init_with("double", [5, 3], 10.0)
+      tens.print
+      printf("\n\n")
+
+      typed_arange = MDMatrix.typed_arange("double", 0, 20, 2)
+      typed_arange.print
+      printf("\n\n")
+
+      typed_arange.reshape!([5, 2])
+
+      p "reducing the value of typed_arange by summing all value"
+      val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x })
+      p val
+      assert_equal(90, val)
+
+      p "reducing the value of typed_arange by summing the square of all value"
+      val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x * x})
+      p val
+      assert_equal(1140, val)
+
+      p "reducing the value of typed_arange by summing all value larger than 8"
+      val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x },
+                                Proc.new { |x| x > 8 })
+      p val
+
+      linspace = MDMatrix.linspace("double", 0, 10, 50)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are bigger than 5 to 1.0
+      linspace.fill_cond(Proc.new { |x| x > 5 }, 1.0)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are smaller than 5 to the square value
+      linspace.fill_cond(Proc.new { |x| x < 5 }, Proc.new { |x| x * x })
+      linspace.print
+      printf("\n\n")
+      
+      ones = MDMatrix.ones("double", [3, 5])
+      ones.print
+      printf("\n\n")
+
+      arange = MDMatrix.arange(0, 10)
+      arange.print
+      printf("\n\n")
 
     end
 
@@ -278,7 +326,89 @@ class MDArrayTest < Test::Unit::TestCase
       result.mdarray.print
 
     end
+#=end
 
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "get and set values for float Matrix" do
+
+      a = MDMatrix.float([4, 4])
+      a[0, 0] = 1
+      assert_equal(1, a[0, 0])
+      assert_equal(0.0, a[0, 1])
+
+      a.fill(2.5)
+      assert_equal(2.5, a[3, 3])
+
+      b = MDMatrix.float([4, 4])
+      b.fill(a)
+      assert_equal(2.5, b[1, 3])
+
+      # fill the matrix with the value of a Proc evaluation.  The argument to the 
+      # Proc is the content of the array at the given index, i.e, x = b[i] for all i.
+      func = Proc.new { |x| x ** 2 }
+      b.fill(func)
+      assert_equal(6.25, b[0, 3])
+      b.print
+      printf("\n\n")
+
+      p "defining function in a class"
+
+      # fill the Matrix with the value of method apply from a given class.
+      # In general this solution is more efficient than the above solution with
+      # Proc.  
+      class Func
+        def self.apply(x)
+          x/2
+        end
+      end
+
+      b.fill(Func)
+      assert_equal(3.125, b[2,0])
+      b.print
+      printf("\n\n")
+
+      # defines a class with a method apply with two arguments
+      class Func2
+        def self.apply(x, y)
+          (x + y) ** 2
+        end
+      end
+      
+      # fill array a with the value the result of a function to each cell; 
+      # x[row,col] = function(x[row,col],y[row,col]).
+      a.fill(b, Func2)
+      a.print
+
+      tens = MDMatrix.init_with("float", [5, 3], 10.0)
+      tens.print
+      printf("\n\n")
+
+      typed_arange = MDMatrix.typed_arange("float", 0, 20, 2)
+      typed_arange.print
+      printf("\n\n")
+      
+      linspace = MDMatrix.linspace("float", 0, 10, 50)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are bigger than 5 to 1.0
+      linspace.fill_cond(Proc.new { |x| x > 5 }, 1.0)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are smaller than 5 to the square value
+      linspace.fill_cond(Proc.new { |x| x < 5 }, Proc.new { |x| x * x })
+      linspace.print
+      printf("\n\n")
+
+      ones = MDMatrix.ones("float", [3, 5])
+      ones.print
+      printf("\n\n")
+
+    end
 
     #-------------------------------------------------------------------------------------
     #

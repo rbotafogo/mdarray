@@ -38,6 +38,91 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
+    should "get and set values for long Matrix" do
+
+      a = MDMatrix.long([4, 4])
+      a[0, 0] = 1
+      assert_equal(1, a[0, 0])
+      assert_equal(0.0, a[0, 1])
+
+      a.fill(2)
+      assert_equal(2, a[3, 3])
+
+      b = MDMatrix.long([4, 4])
+      b.fill(a)
+      assert_equal(2, b[1, 3])
+
+      # fill the matrix with the value of a Proc evaluation.  The argument to the 
+      # Proc is the content of the array at the given index, i.e, x = b[i] for all i.
+      func = Proc.new { |x| x ** 2 }
+      b.fill(func)
+      assert_equal(4, b[0, 3])
+      b.print
+      printf("\n\n")
+
+      # fill the Matrix with the value of method apply from a given class.
+      # In general this solution is more efficient than the above solution with
+      # Proc.  
+      class LongFunc
+        def self.apply(x)
+          x/2
+        end
+      end
+
+      b.fill(LongFunc)
+      assert_equal(2, b[2,0])
+      b.print
+      printf("\n\n")
+
+      # defines a class with a method apply with two arguments
+      class LongFunc2
+        def self.apply(x, y)
+          (x + y) ** 2
+        end
+      end
+      
+      # fill array a with the value the result of a function to each cell; 
+      # x[row,col] = function(x[row,col],y[row,col]).
+      a.fill(b, LongFunc2)
+      a.print
+      printf("\n\n")
+
+      tens = MDMatrix.init_with("long", [5, 3], 10.0)
+      tens.print
+      printf("\n\n")
+
+      typed_arange = MDMatrix.typed_arange("long", 0, 20, 2)
+      typed_arange.print
+      printf("\n\n")
+      
+      linspace = MDMatrix.linspace("long", 0, 10, 50)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are bigger than 5 to 1.0
+      linspace.fill_cond(Proc.new { |x| x > 5 }, 1.0)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are smaller than 5 to the square value
+      linspace.fill_cond(Proc.new { |x| x < 5 }, Proc.new { |x| x * x })
+      linspace.print
+      printf("\n\n")
+      
+      ones = MDMatrix.ones("long", [3, 5])
+      ones.print
+      printf("\n\n")
+
+      arange = MDMatrix.arange(0, 10)
+      arange.print
+      printf("\n\n")
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
     should "test 2d long matrix functions" do
 
       m = MDArray.typed_arange("long", 0, 16)
@@ -104,6 +189,90 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "get and set values for int Matrix" do
+
+      a = MDMatrix.int([4, 4])
+      a[0, 0] = 1
+      assert_equal(1, a[0, 0])
+      assert_equal(0.0, a[0, 1])
+
+      a.fill(2)
+      assert_equal(2, a[3, 3])
+
+      b = MDMatrix.int([4, 4])
+      b.fill(a)
+      assert_equal(2, b[1, 3])
+
+      # fill the matrix with the value of a Proc evaluation.  The argument to the 
+      # Proc is the content of the array at the given index, i.e, x = b[i] for all i.
+      func = Proc.new { |x| x ** 2 }
+      b.fill(func)
+      assert_equal(4, b[0, 3])
+      b.print
+      printf("\n\n")
+
+      # fill the Matrix with the value of method apply from a given class.
+      # In general this solution is more efficient than the above solution with
+      # Proc.  
+      class IntFunc
+        def self.apply(x)
+          x/2
+        end
+      end
+
+      b.fill(IntFunc)
+      assert_equal(2, b[2,0])
+      b.print
+      printf("\n\n")
+
+      # defines a class with a method apply with two arguments
+      class IntFunc2
+        def self.apply(x, y)
+          (x + y) ** 2
+        end
+      end
+      
+      # fill array a with the value the result of a function to each cell; 
+      # x[row,col] = function(x[row,col],y[row,col]).
+      a.fill(b, IntFunc2)
+      a.print
+      printf("\n\n")
+
+      tens = MDMatrix.init_with("int", [5, 3], 10.0)
+      tens.print
+      printf("\n\n")
+
+      typed_arange = MDMatrix.typed_arange("int", 0, 20, 2)
+      typed_arange.print
+      printf("\n\n")
+      
+      linspace = MDMatrix.linspace("int", 0, 10, 50)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are bigger than 5 to 1.0
+      linspace.fill_cond(Proc.new { |x| x > 5 }, 1.0)
+      linspace.print
+      printf("\n\n")
+
+      # set the value of all cells that are smaller than 5 to the square value
+      linspace.fill_cond(Proc.new { |x| x < 5 }, Proc.new { |x| x * x })
+      linspace.print
+      printf("\n\n")
+      
+      ones = MDMatrix.ones("int", [3, 5])
+      ones.print
+      printf("\n\n")
+
+      arange = MDMatrix.arange(0, 10)
+      arange.print
+      printf("\n\n")
+
+    end
 
     #-------------------------------------------------------------------------------------
     #

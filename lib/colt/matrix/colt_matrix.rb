@@ -42,7 +42,18 @@ class MDMatrix
   attr_reader :mdarray
 
   #------------------------------------------------------------------------------------
-  # 
+  # Reshapes the Matrix. Not working yet.
+  #------------------------------------------------------------------------------------
+
+  def reshape!(shape)
+    "in reshape!"
+    p shape
+    @mdarray.print
+    @colt_matrix = MDMatrix.from_mdarray(@mdarray.reshape!(shape))
+  end
+
+  #------------------------------------------------------------------------------------
+  # Fills the array with the given value
   #------------------------------------------------------------------------------------
 
   def fill(val, func = nil)
@@ -58,6 +69,25 @@ class MDMatrix
     else
       raise "Cannot fill a Matrix with the given value"
     end
+  end
+
+  #------------------------------------------------------------------------------------
+  # Fills the matrix based on a given condition
+  #------------------------------------------------------------------------------------
+
+  def fill_cond(cond, val)
+    return MDMatrix.from_colt_matrix(@colt_matrix.assign(cond, val))
+  end
+
+  #------------------------------------------------------------------------------------
+  # Applies a function to each cell and aggregates the results. Returns a value v such 
+  # that v==a(size()) where a(i) == aggr( a(i-1), f(get(row,column)) ) and terminators 
+  # are a(1) == f(get(0,0)), a(0)==Double.NaN. 
+  #------------------------------------------------------------------------------------
+
+  def reduce(aggr, func, cond = nil)
+    (cond)? @colt_matrix.aggregate(aggr, func, cond) : 
+      @colt_matrix.aggregate(aggr, func)
   end
 
   #------------------------------------------------------------------------------------

@@ -162,6 +162,51 @@ class MDMatrix
   # 
   #------------------------------------------------------------------------------------
 
+  def self.init_with(type, shape, value)
+    mdarray = MDArray.init_with(type, shape, value)
+    MDMatrix.from_mdarray(mdarray)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def self.arange(*args)
+    mdarray = MDArray.arange(*args)
+    MDMatrix.from_mdarray(mdarray)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def self.typed_arange(type, *args)
+    mdarray = MDArray.typed_arange(type, *args)
+    MDMatrix.from_mdarray(mdarray)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def self.linspace(type, start, stop, number)
+    mdarray = MDArray.linspace(type, start, stop, number)
+    MDMatrix.from_mdarray(mdarray)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def self.ones(type, shape)
+    mdarray = MDArray.ones(type, shape)
+    MDMatrix.from_mdarray(mdarray)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
   def copy
     MDMatrix.from_mdarray(self.mdarray.copy)
   end
