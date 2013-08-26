@@ -46,10 +46,8 @@ class MDMatrix
   #------------------------------------------------------------------------------------
 
   def reshape!(shape)
-    "in reshape!"
-    p shape
-    @mdarray.print
-    @colt_matrix = MDMatrix.from_mdarray(@mdarray.reshape!(shape))
+    @mdarray.reshape!(shape)
+    @colt_matrix = MDMatrix.from_mdarray(@mdarray).colt_matrix
   end
 
   #------------------------------------------------------------------------------------

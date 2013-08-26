@@ -96,6 +96,9 @@ class MDArrayTest < Test::Unit::TestCase
       printf("\n\n")
 
       typed_arange.reshape!([5, 2])
+      p "printing typed_arange"
+      typed_arange.print
+      printf("\n\n")
 
       p "reducing the value of typed_arange by summing all value"
       val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x })
@@ -390,6 +393,27 @@ class MDArrayTest < Test::Unit::TestCase
       typed_arange.print
       printf("\n\n")
       
+      typed_arange.reshape!([5, 2])
+      p "printing typed_arange"
+      typed_arange.print
+      printf("\n\n")
+
+      p "reducing the value of typed_arange by summing all value"
+      val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x })
+      p val
+      assert_equal(90, val)
+
+      p "reducing the value of typed_arange by summing the square of all value"
+      val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x * x})
+      p val
+      assert_equal(1140, val)
+
+      p "reducing the value of typed_arange by summing all value larger than 8"
+      val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x },
+                                Proc.new { |x| x > 8 })
+      p val
+
+
       linspace = MDMatrix.linspace("float", 0, 10, 50)
       linspace.print
       printf("\n\n")
@@ -607,155 +631,5 @@ S =
 (22)    3.5640020352605677
 (33)    1.9842281528992616
 (44)    0.3495556671751232
-
-
-
-
-
-
-
-Dot product (or inner product of scalar product) of 2 vectors
-
->>> import scipy as sp
->>> x = sp.array([1,-2, .0])
->>> y = sp.array([2, 5, -1.0])
->>> dotproduct = sp.dot(x,y)
->>> print dotproduct
--8.0
-Matrix product.
-
->>> import scipy as sp
->>> A = sp.array([[3.2, -1, 2],[2,-2,4],[1.5,-1,-4]])
->>> B = sp.array([[1., 2.],[-1., 2.0],[2, -1.5]])
-
->>> Matrixproduct = sp.dot(A,B)
->>> print Matrixproduct
-[[ 8.2,  1.4]
- [ 12.,  -6. ]
- [ -5.5,  7. ]]
-Matrix-vector product
-
->>> import scipy as sp
->>> x = sp.array([1,-2, .0])
->>> A = sp.array([[3.2, -1, 2],[2,-2,4],[1.5,-1,-4]])
->>> b = sp.dot(A,x)
->>> print b
-[ 5.2,  6.,   3.5]
-Diagonal, transpose and trace
-
->>> print sp.diagonal(A)   #returns the diagonal of A
-array([ 3.2, -2., -4.]) 
->>> D = sp.diag((1, 2, 3))  # return a diagonal matrix
-[[1 0 0]
- [0 2 0]
- [0 0 3]]
->>> print sp.transpose(A)
-[[ 3.2  2.   1.5]
- [-1.  -2.  -1. ]
- [ 2.   4.  -4. ]]
->>> print sp.trace(A)
--2.7999999999999998
-Determinant and inverse. To compute the determinant or the inverse of a matrix, we need the numpy linear algebra submodule linalg
-
->>> import numpy 
->>> import numpy.linalg
->>> A = numpy.array([[3.2, -1, 2],[2,-2,4],[1.5,-1,-4]])
->>> determinant = numpy.linalg.det(A)
->>> print determinant
-26.4
->>> inverse = numpy.linalg.inv(A)
-[[ 0.45454545 -0.22727273  0.        ]
- [ 0.53030303 -0.59848485 -0.33333333]
- [ 0.03787879  0.06439394 -0.16666667]]
-1.2 Eigenvalue and Eigenvectors
-
-
->>> import numpy as np
->>> import np.linalg
->>> A = np.array([[3.2, -1, 2],[2,-2,4],[1.5,-1,-4]])
->>> e_values, e_vectors = np.linalg.eig(A)       #returns a list e_values of eigenvalues and a matrix e_vector whose row i corresponds 
-                                                 #to the eigenvectors associated with eigenvalue i
->>> print e_values
-[ 2.965908+0.j, -2.882954+0.76793809j, -2.882954-0.76793809j ]
->>> print e_vectors    # row i corresponds to the eigenvector
-		       # associated with eigenvalues i
-[[ 0.88158576+0.j, -0.25687900+0.02847007j, -0.25687900-0.02847007j]
- [ 0.45531661+0.j, -0.89064266+0.j, -0.89064266+0.j        ]
- [ 0.12447222+0.j,  0.32503863-0.18522464j, 0.32503863+0.18522464j]]
-1.3 Matrix factorization
-
-LU factorization (LU_Decomposition.py). 
-Given a matrix A, A can be written as A = PLU where L lower triangular matrix U upper triangular matrix P is the matrix whose row i is a permutation of the identity matrix row i
-	LU_Decomposition.py
-"""
-LU decomposition: M  = PLU
-"""
-import scipy
-import scipy.linalg
-
-if __name__ == "__main__":
-	M = scipy.array([ [1,-2, 3], [0,2,-1], [1,3,-2] ])
-	P, L, U = scipy.linalg.lu(M)
-	
-	print "P = ",P
-	print "L = ",L
-	print 'U = ', U
-QR factorization (QR_Decomposition.py). 
-Given a mxn matrix M, find a mxm unitary matrix Q  -  that is   where   is the adjoint of Q  -  and a mxn upper triangular matrix R such that M = QR.
-"""
-QR decomposition: M = QR
-"""
-import scipy
-import scipy.linalg
-
-if __name__ == "__main__":
-	M = scipy.array([ [1,-2,3], [2,1,-1], [1,0,2], [0,-2,-1]])
-	Q, R = scipy.linalg.qr(M)
-	
-	print "Q = ",Q
-	print "R = ", R
-Singular values decomposition:(SVD.py) 
-For a given mxn matrix A.   and   are Hermitians - a matrix H is Hermitian if it is equal to its adjoint, i.e.  - so their eigenvalues are all real positive numbers. Further there are at most Min(m,n) non-zero identical eigenvalues  for   and   . The square roots of these are called singular values. A can be decomposed as   where U is a mxm matrix of eigenvectors of  , V is a nxn matrix of eigenvectors of   and   is mxn diagonal matrix whose entries are the singular values. The command linalg.svd will return U, V, and a list of singular values. To obtain the matrix  use linalg.diagsvd.
-
-"""
-SVD,  A = U \Sigma V
-"""
-import scipy
-import scipy.linalg
-if __name__ == "__main__":
-	A = scipy.array([[1,-2],[2,0],[-1,3]])
-	U,s,V = scipy.linalg.svd(A) #s is the list os singular values
-	
-	print "U = ",U
-	print "V = ", V
-	print "singular values list = ",s
-	Sigma = scipy.mat(scipy.linalg.diagsvd(s,3,2))
-	print "Sigma = ", Sigma
-Cholesky factorization (CholeskyDecomposition.py): Given a Hermitian matrix M. Find a decomposition as M =   where U is a upper triangular matrix and   is the adjoint of U
-"""
-Cholesky decomposition.  M = VU where 
-U is a upper triangular matrix and V is the adjoint of U
-"""
-import scipy
-import scipy.linalg
-
-if __name__ == "__main__":
-	M =  scipy.array([[1,0,-1],[1,2,1],[0,-1,2]])
-	U = scipy.linalg.cholesky(M)
-	
-	print "U = ", U
-Schur factorization (SchurDecomposition.py): For a square nxn matrix M, find a unitary matrix Z and a upper-triangular (or quasi-triangular) matrix T such that 
-"""
-Schur decomposition:  M = ZTZh, where Zh is the adjoint of Z 
-"""
-import scipy
-import scipy.linalg
-
-if __name__ == "__main__":
-	M =  scipy.array([[1,0,-1],[1,2,1],[0,-1,2]])
-	Z, T = scipy.linalg.schur(M)
-	
-	print "Z = ", Z
-	print 'T = ', T
 
 =end

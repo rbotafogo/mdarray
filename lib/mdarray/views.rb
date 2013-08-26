@@ -66,6 +66,7 @@ class MDArray
     # when we reshape an array we need to re-initialize its index and local_iterator
     @local_index = Counter.new(self)
     @local_iterator = nil
+    @self
   end
 
   #------------------------------------------------------------------------------------
