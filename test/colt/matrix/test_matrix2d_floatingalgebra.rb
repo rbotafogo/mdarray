@@ -38,6 +38,36 @@ class MDArrayTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
+    should "do basic matrix algebra" do
+
+      a = MDMatrix.double([4, 4])
+      a.fill(2.5)
+
+      b = MDMatrix.fromfunction("double", [4, 4]) { |x, y| x + y }
+
+      p "matrix addition"
+      c = a + b
+      c.print
+      printf("\n\n")
+
+      p "scalar multiplication"
+      c = a * 2
+      c.print
+      printf("\n\n")
+
+      p "scalar multiplication"
+      c = 2 * a
+      c.print
+      printf("\n\n")
+
+
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
     should "get and set values for double Matrix" do
 
       a = MDMatrix.double([4, 4])

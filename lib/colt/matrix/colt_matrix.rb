@@ -42,13 +42,45 @@ class MDMatrix
   attr_reader :mdarray
 
   #------------------------------------------------------------------------------------
-  # Reshapes the Matrix. Not working yet.
+  # 
   #------------------------------------------------------------------------------------
 
-  def reshape!(shape)
-    @mdarray.reshape!(shape)
-    @colt_matrix = MDMatrix.from_mdarray(@mdarray).colt_matrix
+  def add(other_val)
+    if (other_val.is_a? Numeric)
+      MDMatrix.from_mdarray(@mdarray + other_val)
+    elsif (other_val.is_a? MDMatrix)
+      MDMatrix.from_mdarray(@mdarray + other_val.mdarray)
+    else
+      raise "Cannot add a matrix to the given value"
+    end
   end
+
+  alias :+ :add
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def coerce(num)
+    p "calling coerce"
+    [self, num]
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def sub(other_val)
+    if (other_val.is_a? Numeric)
+      MDMatrix.from_mdarray(@mdarray - other_val)
+    elsif (other_val.is_a? MDMatrix)
+      MDMatrix.from_mdarray(@mdarray - matrix.mdarray)
+    else
+      raise "Cannot subtract the given value from matrix"
+    end
+  end
+
+  alias :- :sub
 
   #------------------------------------------------------------------------------------
   # Fills the array with the given value
@@ -86,6 +118,16 @@ class MDMatrix
   def reduce(aggr, func, cond = nil)
     (cond)? @colt_matrix.aggregate(aggr, func, cond) : 
       @colt_matrix.aggregate(aggr, func)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Reshapes the Matrix.
+  #------------------------------------------------------------------------------------
+
+  def reshape!(shape)
+    @mdarray.reshape!(shape)
+    @colt_matrix = MDMatrix.from_mdarray(@mdarray).colt_matrix
+    self
   end
 
   #------------------------------------------------------------------------------------

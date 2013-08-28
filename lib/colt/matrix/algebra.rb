@@ -40,11 +40,23 @@ class Colt
     # Returns the dot product of two vectors x and y, which is Sum(x[i]*y[i]).
     #------------------------------------------------------------------------------------
 
-    def dot_product(matrix, from = 0, length = matrix.size)
-      @colt_matrix.zDotProduct(matrix.colt_matrix, from, length)
-    end
+    def mult(other_val, from = 0, length = matrix.size)
 
-    alias :* :dot_product
+      if (other_val.is_a? Numeric)
+        MDMatrix.from_mdarray(@mdarray * other_val)
+      elsif (other_val.is_a? MDMatrix)
+        if (other_val.rank > 1)
+          raise "Rank should be 1"
+        else
+          @colt_matrix.zDotProduct(matrix.colt_matrix, from, length)
+        end
+      else
+        raise "Cannot multiply matrix by given value"
+      end
+      
+    end
+    
+    alias :* :mult
 
   end # Matrix1DAlgebra
 
@@ -61,22 +73,29 @@ class Colt
     # Note: Matrix shape conformance is checked after potential transpositions.
     #------------------------------------------------------------------------------------
     
-    def mult(matrix, alpha = 1, beta = 0, transA = false, transB = false, result = nil)
+    def mult(other_val, alpha = 1, beta = 0, transA = false, transB = false, result = nil)
       
-      if (matrix.rank > 2)
-        raise "Rank should be 1 or 2"
-      elsif (matrix.rank == 2)      
-        result = MDMatrix
-          .build(@mdarray.type, [@mdarray.shape[0], matrix.mdarray.shape[1]]) if result == nil
-        @colt_matrix.zMult(matrix.colt_matrix, result.colt_matrix, alpha, beta,
-                           transA, transB)
-      else # multiplying by a vector
-        result = MDMatrix.build(@mdarray.type, [@mdarray.shape[1]]) if result == nil
-        @colt_matrix.zMult(matrix.colt_matrix, result.colt_matrix, alpha, beta, transA)
+      if (other_val.is_a? Numeric)
+        MDMatrix.from_mdarray(@mdarray * other_val)
+      elsif (other_val.is_a? MDMatrix)
+        if (other_val.rank > 2)
+          raise "Rank should be 1 or 2"
+        elsif (other_val.rank == 2)      
+          result = MDMatrix
+            .build(@mdarray.type, [@mdarray.shape[0], 
+                                   other_val.mdarray.shape[1]]) if result == nil
+          @colt_matrix.zMult(other_val.colt_matrix, result.colt_matrix, alpha, beta,
+                             transA, transB)
+        else # multiplying by a vector
+          result = MDMatrix.build(@mdarray.type, [@mdarray.shape[1]]) if result == nil
+          @colt_matrix.zMult(other_val.colt_matrix, result.colt_matrix, alpha, beta, transA)
+        end
+        
+        # MDMatrix.from_colt_matrix(result)
+        result
+      else
+        raise "Cannot multiply matrix by given value"
       end
-
-      # MDMatrix.from_colt_matrix(result)
-      result
       
     end
     
