@@ -227,6 +227,7 @@ class MDMatrix
     @colt_property = colt_property
     @colt_algebra = colt_algebra
     @rank = @mdarray.rank
+    @coerced = false                # should never be changed by any client
   end
 
   #------------------------------------------------------------------------------------

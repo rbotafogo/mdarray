@@ -40,6 +40,19 @@ class MDMatrix
   attr_reader :colt_algebra
   attr_reader :colt_property
   attr_reader :mdarray
+  attr_accessor :coerced
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def coerce(num)
+
+    matrix = MDMatrix.from_mdarray(@mdarray)
+    matrix.coerced = true
+    [matrix, num]
+
+  end
 
   #------------------------------------------------------------------------------------
   # 
@@ -61,10 +74,20 @@ class MDMatrix
   # 
   #------------------------------------------------------------------------------------
 
-  def coerce(num)
-    p "calling coerce"
-    [self, num]
+  def div(other_val)
+    
+    if (other_val.is_a? Numeric)
+      val1, val2 = (@coerced)? [other_val, @mdarray] : [@mdarray, other_val] 
+      MDMatrix.from_mdarray(val1 / val2)
+    elsif (other_val.is_a? MDMatrix)
+      self * other_val.inverse
+    else
+      raise "Cannot divide the given value from matrix"
+    end
+
   end
+
+  alias :/ :div
 
   #------------------------------------------------------------------------------------
   # 
@@ -72,7 +95,8 @@ class MDMatrix
 
   def sub(other_val)
     if (other_val.is_a? Numeric)
-      MDMatrix.from_mdarray(@mdarray - other_val)
+      val1, val2 = (@coerced)? [other_val, @mdarray] : [@mdarray, other_val] 
+      MDMatrix.from_mdarray(val1 - val2)
     elsif (other_val.is_a? MDMatrix)
       MDMatrix.from_mdarray(@mdarray - matrix.mdarray)
     else

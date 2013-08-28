@@ -55,12 +55,45 @@ class MDArrayTest < Test::Unit::TestCase
       c.print
       printf("\n\n")
 
-      p "scalar multiplication"
+      p "scalar multiplication with coercion"
       c = 2 * a
       c.print
       printf("\n\n")
 
+      p "scalar subtraction"
+      c = a - 2
+      c.print
+      printf("\n\n")
 
+      p "scalar subtraction with coercion"
+      c = 2 - a
+      c.print
+      printf("\n\n")
+
+      p "dividing two matrices... actually multiply by the inverse"
+      val1 = MDMatrix.double([2], [118.4, 135.2])
+      val2 = MDMatrix.double([2, 2], [3, 3.5, 3.2, 3.6])
+      val1.print
+      printf("\n\n")
+      val2.print
+      printf("\n\n")
+
+      div = val1 / val2
+      p "result of division"
+      div.print
+      printf("\n\n")
+
+      p "multiply by the inverse"
+      r1 = val2.inverse
+      r1.print
+      printf("\n\n")
+
+      val1.print
+      printf("\n\n")
+
+      mult = r1 * val1
+      mult.print
+      printf("\n\n")
 
     end
 

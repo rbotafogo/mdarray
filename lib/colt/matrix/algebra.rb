@@ -40,15 +40,17 @@ class Colt
     # Returns the dot product of two vectors x and y, which is Sum(x[i]*y[i]).
     #------------------------------------------------------------------------------------
 
-    def mult(other_val, from = 0, length = matrix.size)
+    def mult(other_val, from = 0, length = other_val.size)
 
       if (other_val.is_a? Numeric)
         MDMatrix.from_mdarray(@mdarray * other_val)
       elsif (other_val.is_a? MDMatrix)
-        if (other_val.rank > 1)
-          raise "Rank should be 1"
+        if (other_val.rank == 2)
+          MDMatrix
+            .from_colt_matrix(other_val.transpose.colt_matrix.zMult(@colt_matrix, nil))
         else
-          @colt_matrix.zDotProduct(matrix.colt_matrix, from, length)
+          MDMatrix
+            .from_colt_matrix(@colt_matrix.zDotProduct(other_val.colt_matrix, from, length))
         end
       else
         raise "Cannot multiply matrix by given value"
