@@ -119,9 +119,8 @@ class MDArrayTest < Test::Unit::TestCase
       # Proc is the content of the array at the given index, i.e, x = b[i] for all i.
       func = Proc.new { |x| x ** 2 }
       b.fill(func)
-      assert_equal(6.25, b[0, 3])
-      b.print
-      printf("\n\n")
+      assert_equal(2.5 ** 2, b[0, 3])
+      assert_equal(2.5 ** 2, b[1, 1])
 
       # fill the Matrix with the value of method apply from a given class.
       # In general this solution is more efficient than the above solution with
@@ -134,8 +133,6 @@ class MDArrayTest < Test::Unit::TestCase
 
       b.fill(DoubleFunc)
       assert_equal(3.125, b[2,0])
-      b.print
-      printf("\n\n")
 
       # defines a class with a method apply with two arguments
       class DoubleFunc2
@@ -144,61 +141,53 @@ class MDArrayTest < Test::Unit::TestCase
         end
       end
       
-      # fill array a with the value the result of a function to each cell; 
+      # fill array a with the value ot the result of a function to each cell; 
       # x[row,col] = function(x[row,col],y[row,col]).
+      tmp = a[0,1]
       a.fill(b, DoubleFunc2)
-      a.print
-      printf("\n\n")
+      assert_equal((tmp + b[0, 1]) ** 2, a[0, 1]) 
 
       tens = MDMatrix.init_with("double", [5, 3], 10.0)
-      tens.print
-      printf("\n\n")
+      assert_equal(10.0, tens[2, 2])
 
       typed_arange = MDMatrix.typed_arange("double", 0, 20, 2)
-      typed_arange.print
-      printf("\n\n")
+      assert_equal(0, typed_arange[0])
+      assert_equal(2, typed_arange[1])
+      assert_equal(4, typed_arange[2])
 
       typed_arange.reshape!([5, 2])
-      p "printing typed_arange"
-      typed_arange.print
-      printf("\n\n")
 
-      p "reducing the value of typed_arange by summing all value"
       val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x })
-      p val
       assert_equal(90, val)
 
-      p "reducing the value of typed_arange by summing the square of all value"
       val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x * x})
-      p val
       assert_equal(1140, val)
 
-      p "reducing the value of typed_arange by summing all value larger than 8"
       val = typed_arange.reduce(Proc.new { |x, y| x + y }, Proc.new { |x| x },
                                 Proc.new { |x| x > 8 })
-      p val
+      assert_equal(70, val)
 
       linspace = MDMatrix.linspace("double", 0, 10, 50)
-      linspace.print
-      printf("\n\n")
+      assert_equal(0.20408163265306123, linspace[1])
+      assert_equal(1.0204081632653061, linspace[5])
 
       # set the value of all cells that are bigger than 5 to 1.0
       linspace.fill_cond(Proc.new { |x| x > 5 }, 1.0)
-      linspace.print
-      printf("\n\n")
+      assert_equal(1.0, linspace[25])
+      assert_equal(1.0, linspace[27])
+      assert_not_equal(1.0, linspace[24])
 
       # set the value of all cells that are smaller than 5 to the square value
       linspace.fill_cond(Proc.new { |x| x < 5 }, Proc.new { |x| x * x })
-      linspace.print
-      printf("\n\n")
+      assert_equal(0.20408163265306123 ** 2, linspace[1])
+      assert_equal(1.0204081632653061 ** 2, linspace[5])
       
       ones = MDMatrix.ones("double", [3, 5])
-      ones.print
-      printf("\n\n")
+      assert_equal(1.0, ones[2, 1])
 
       arange = MDMatrix.arange(0, 10)
-      arange.print
-      printf("\n\n")
+      assert_equal(0, arange[0])
+      assert_equal(1, arange[1])
 
     end
 
@@ -210,13 +199,22 @@ class MDArrayTest < Test::Unit::TestCase
 
       b = MDMatrix.double([3], [1.5, 1, 1.3])
 
-      pos = MDArray.double([3, 3], [2, -1, 0, -1, 2, -1, 0, -1, 2])
+      pos = MDArray.double([3, 3], [4, 12, -16, 12, 37, -43, -16, -43, 98])
       matrix = MDMatrix.from_mdarray(pos)
-      result = matrix.chol
+
+      # Cholesky decomposition from wikipedia example
+      chol = matrix.chol
+      assert_equal(2, chol[0, 0])
+      assert_equal(6, chol[1, 0])
+      assert_equal(-8, chol[2, 0])
+      assert_equal(5, chol[2, 1])
+      assert_equal(3, chol[2, 2])
+
       p "Cholesky decomposition"
       result.print
       printf("\n\n")
 
+      # Eigenvalue decomposition
       eig = matrix.eig
       p "eigen decomposition"
       p "eigenvalue matrix"

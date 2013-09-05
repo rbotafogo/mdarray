@@ -31,6 +31,7 @@ EOF
   gem.authors  = ['Rodrigo Botafogo']
   gem.email    = 'rodrigo.a.botafogo@gmail.com'
   gem.homepage = 'http://github.com/rbotafogo/mdarray/wiki'
+  gem.license = 'MIT'
 
   gem.add_dependency('map', [">= 6.3.0"])
   gem.add_dependency('shoulda')
