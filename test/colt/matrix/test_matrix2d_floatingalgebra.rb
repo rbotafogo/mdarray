@@ -25,7 +25,7 @@ require 'shoulda'
 
 require 'mdarray'
 
-class MDArrayTest < Test::Unit::TestCase
+class MDMatrixTest < Test::Unit::TestCase
 
   context "Colt Matrix" do
 
@@ -45,55 +45,45 @@ class MDArrayTest < Test::Unit::TestCase
 
       b = MDMatrix.fromfunction("double", [4, 4]) { |x, y| x + y }
 
-      p "matrix addition"
       c = a + b
-      c.print
-      printf("\n\n")
+      b.reset_traversal
+      c.each do |val|
+        assert_equal(2.5 + b.next, val)
+      end
 
-      p "scalar multiplication"
       c = a * 2
-      c.print
-      printf("\n\n")
+      a.reset_traversal
+      c.each do |val|
+        assert_equal(a.next * 2, val)
+      end
 
-      p "scalar multiplication with coercion"
       c = 2 * a
-      c.print
-      printf("\n\n")
+      a.reset_traversal
+      c.each do |val|
+        assert_equal(a.next * 2, val)
+      end
 
-      p "scalar subtraction"
       c = a - 2
-      c.print
-      printf("\n\n")
+      a.reset_traversal
+      c.each do |val|
+        assert_equal(a.next - 2, val)
+      end
 
-      p "scalar subtraction with coercion"
       c = 2 - a
+      a.reset_traversal
+      c.each do |val|
+        assert_equal(2 - a.next, val)
+      end
+
+      # Need to test/implement matrix division
+      p "Matrix division"
+      c = a / a
       c.print
-      printf("\n\n")
 
-      p "dividing two matrices... actually multiply by the inverse"
-      val1 = MDMatrix.double([2], [118.4, 135.2])
-      val2 = MDMatrix.double([2, 2], [3, 3.5, 3.2, 3.6])
-      val1.print
-      printf("\n\n")
-      val2.print
-      printf("\n\n")
+      c = a / b
+      c.print
 
-      div = val1 / val2
-      p "result of division"
-      div.print
-      printf("\n\n")
 
-      p "multiply by the inverse"
-      r1 = val2.inverse
-      r1.print
-      printf("\n\n")
-
-      val1.print
-      printf("\n\n")
-
-      mult = r1 * val1
-      mult.print
-      printf("\n\n")
 
     end
 
@@ -210,10 +200,7 @@ class MDArrayTest < Test::Unit::TestCase
       assert_equal(5, chol[2, 1])
       assert_equal(3, chol[2, 2])
 
-      p "Cholesky decomposition"
-      result.print
-      printf("\n\n")
-
+      matrix = MDMatrix.double([2, 2], [2, 3, 2, 1])
       # Eigenvalue decomposition
       eig = matrix.eig
       p "eigen decomposition"
@@ -269,14 +256,24 @@ class MDArrayTest < Test::Unit::TestCase
       qr[2].print
       printf("\n\n")
 
+      matrix = MDMatrix.double([5, 5], [2.0, 0.0, 8.0, 6.0, 0.0,\
+                                        1.0, 6.0, 0.0, 1.0, 7.0,\
+                                        5.0, 0.0, 7.0, 4.0, 0.0,\
+                                        7.0, 0.0, 8.0, 5.0, 0.0,\
+                                        0.0, 10.0, 0.0, 0.0, 7.0])
+
       svd = matrix.svd
       p "Singular value decomposition"
       p "operation success? #{svd[0]}" # 0 success; < 0 ith value is illegal; > 0 not converge
       p "cond: #{svd[1]}"
       p "norm2: #{svd[2]}"
       p "rank: #{svd[3]}"
-      p "singular values"
-      p svd[4]
+      assert_equal(17.91837085874625, svd[4][0])
+      assert_equal(15.17137188041607, svd[4][1])
+      assert_equal(3.5640020352605677, svd[4][2])
+      assert_equal(1.9842281528992616, svd[4][3])
+      assert_equal(0.3495556671751232, svd[4][4])
+
       p "Diagonal matrix of singular values"
       # svd[5].print
       printf("\n\n")
@@ -344,8 +341,8 @@ class MDArrayTest < Test::Unit::TestCase
 
       p "matrix multiplication by vector"
       array1 = MDMatrix.double([2, 3], [1, 2, 3, 4, 5, 6])
-      array2 = MDMatrix.double([3], [4, 5, 6])
-      mult = array1 * array2
+      vector = MDMatrix.double([3], [4, 5, 6])
+      mult = array1 * vector
       mult.print
       printf("\n\n")
 
@@ -674,17 +671,17 @@ A =2.0  0.0 8.0 6.0 0.0
    7.0 0.0 8.0 5.0 0.0 
    0.0 10.0 0.0 0.0 7.0
 
-U = -0.542255   0.0649957  0.821617  0.105747  -0.124490 
-    -0.101812  -0.593461 -0.112552  0.788123   0.0602700
-    -0.524953   0.0593817 -0.212969 -0.115742   0.813724 
-    -0.644870   0.0704063 -0.508744 -0.0599027 -0.562829 
-    -0.0644952 -0.796930  0.0900097 -0.592195  -0.0441263
+      u = MDMatrix.double([5, 5], [-0.542255, 0.0649957, 0.821617, 0.105747, -0.124490,\
+                                   -0.101812, -0.593461, -0.112552, 0.788123, 0.0602700,\
+                                   -0.524953, 0.0593817, -0.212969, -0.115742, 0.813724,\
+                                   -0.644870, 0.0704063, -0.508744, -0.0599027, -0.562829,\
+                                   -0.0644952, -0.796930, 0.0900097, -0.592195, -0.0441263])
 
-VT =-0.464617   0.0215065 -0.868509   0.000799554 -0.171349
-    -0.0700860 -0.759988  0.0630715 -0.601346   -0.227841
-    -0.735094   0.0987971  0.284009  -0.223485    0.565040
-    -0.484392   0.0254474  0.398866   0.332684   -0.703523
-    -0.0649698 -0.641520 -0.0442743  0.691201    0.323284
+      vt = MDMatrix.double([5, 5], [-0.464617, 0.0215065, -0.868509, 0.000799554, -0.171349,\
+                                    -0.0700860, -0.759988, 0.0630715, -0.601346, -0.227841,\
+                                    -0.735094, 0.0987971, 0.284009, -0.223485, 0.565040,\
+                                    -0.484392, 0.0254474, 0.398866, 0.332684, -0.703523,\
+                                    -0.0649698, -0.641520, -0.0442743, 0.691201, 0.323284])
 
 S = 
 (00)    17.91837085874625
