@@ -164,6 +164,32 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
 
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "create matrices from high order sliced MDArray" do
+
+      d1 = MDArray.typed_arange("double", 0, 420)
+      d1.reshape!([5, 4, 3, 7])
+
+      p "three dimensional array"
+      d1.print
+      matrix = MDMatrix.from_mdarray(d1.slice(0, 0))
+      p "two dimensional matrix from given array"
+      matrix.print
+      p " "
+
+      p "from 4 to two"
+      matrix = MDMatrix.from_mdarray(d1.region(:spec => "0:0, 0:0, 0:2, 0:6").reduce)
+      matrix.print
+      p " "
+      matrix.mdarray.print
+
+      # matrix = MDMatrix.from_mdarray(
+
+    end
+
   end
 
 end

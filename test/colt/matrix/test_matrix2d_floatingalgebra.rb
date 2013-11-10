@@ -76,14 +76,14 @@ class MDMatrixTest < Test::Unit::TestCase
       end
 
       # Need to test/implement matrix division
-      p "Matrix division"
-      c = a / a
-      c.print
+      assert_raise ( RuntimeError ) { c = a / a }
+      assert_raise ( RuntimeError ) { c = a / b }
 
+      p "Matrix division"
+      b.generate_non_singular!
       c = a / b
       c.print
-
-
+      printf("\n\n")
 
     end
 
@@ -314,8 +314,8 @@ class MDMatrixTest < Test::Unit::TestCase
       matrix2.print
       printf("\n\n")
       
-      result = matrix1 * matrix2
       p "matrix multiplication of square matrices"
+      result = matrix1 * matrix2
       result.print 
       printf("\n\n")
 

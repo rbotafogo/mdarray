@@ -115,11 +115,11 @@ class Colt
     end
 
     #------------------------------------------------------------------------------------
-    # Modifies the given matrix square matrix A such that it is diagonally dominant by 
+    # Modifies the square matrix such that it is diagonally dominant by 
     # row and column, hence non-singular, hence invertible.
     #------------------------------------------------------------------------------------
 
-    def generate_non_singular
+    def generate_non_singular!
       @colt_property.generateNonSingular(@colt_matrix)
     end
 

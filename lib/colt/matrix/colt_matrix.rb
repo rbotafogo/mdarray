@@ -80,7 +80,12 @@ class MDMatrix
       val1, val2 = (@coerced)? [other_val, @mdarray] : [@mdarray, other_val] 
       MDMatrix.from_mdarray(val1 / val2)
     elsif (other_val.is_a? MDMatrix)
-      self * other_val.inverse
+      begin
+        self * other_val.inverse
+      rescue Exception => e
+        puts e.message
+        raise "Dividing by singular matrix is not possible"
+      end
     else
       raise "Cannot divide the given value from matrix"
     end
