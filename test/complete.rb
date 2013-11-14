@@ -21,16 +21,16 @@
 
 require 'env.rb'
 
-# require 'mdarray/test_complete'
-# require 'colt/test_complete'
-# require 'netcdf/test_complete'
+ require 'mdarray/test_complete'
+ require 'colt/test_complete'
+ require 'netcdf/test_complete'
 
 
 # Temporary tests.  Remove before shipping!
 
 # require 'colt/matrix/test_complete'
 
-require 'colt/matrix/test_matrix2d_floatingalgebra'
+# require 'colt/matrix/test_matrix2d_floatingalgebra'
 # require 'colt/matrix/test_matrix2d_fixpointalgebra'
 
 # require 'colt/matrix/test_matrix1d_floatingalgebra'

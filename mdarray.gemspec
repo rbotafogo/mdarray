@@ -13,8 +13,8 @@ Gem::Specification.new do |gem|
   gem.description = <<-EOF 
 "MDArray is a multi dimensional array implemented for JRuby inspired by NumPy (www.numpy.org) and 
 Masahiro Tanaka´s Narray (narray.rubyforge.org).  MDArray stands on the shoulders of Java-NetCDF 
-and Parallel Colt.  At this point MDArray has libraries for mathematical, trigonometric and 
-descriptive statistics methods.
+and Parallel Colt.  At this point MDArray has libraries for linear algebra, mathematical, 
+trigonometric and descriptive statistics methods.
 
 NetCDF-Java Library is a Java interface to NetCDF files, as well as to many other types of 
 scientific data formats.  It is developed and distributed by Unidata (http://www.unidata.ucar.edu). 
@@ -31,7 +31,7 @@ EOF
   gem.authors  = ['Rodrigo Botafogo']
   gem.email    = 'rodrigo.a.botafogo@gmail.com'
   gem.homepage = 'http://github.com/rbotafogo/mdarray/wiki'
-  gem.license = 'MIT'
+  gem.license = 'BSD 2-clause'
 
   gem.add_dependency('map', [">= 6.3.0"])
   gem.add_dependency('shoulda')
