@@ -52,7 +52,7 @@ class MDArrayTest < Test::Unit::TestCase
       # file once and write many times, this is not much of a problem.  If one prefers, 
       # one could not use the define block and use the normal APIs.
       
-      NetCDF.define(cygpath(@directory), "nc_output", "netcdf3", self) do
+      NetCDF.define(@directory, "nc_output", "netcdf3", self) do
         
         #=================================================================================
         # Add global attributes by adding a single valued attribute or an array of 
@@ -197,7 +197,7 @@ class MDArrayTest < Test::Unit::TestCase
   
     should "open a file for writing data" do
       
-      NetCDF.write(cygpath(@directory), "nc_output", self) do
+      NetCDF.write(@directory, "nc_output", self) do
 
         # create some data to add to variable
         array = MDArray.typed_arange("double", 0, 50)
@@ -261,7 +261,7 @@ class MDArrayTest < Test::Unit::TestCase
       # ouside scope, that is, "here", we pass self as the third argument to define.
       # When self is passed as argument, @outside_scope is available inside the block.
       
-      NetCDF.read(cygpath(@directory), "nc_output", self) do
+      NetCDF.read(@directory, "nc_output", self) do
 
         # print all global attributes
         global_attributes.each do |att|

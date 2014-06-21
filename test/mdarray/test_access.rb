@@ -66,6 +66,21 @@ class MDArrayTest < Test::Unit::TestCase
       @b.set([1, 1, 1], 5.25)
       assert_equal(5.25, @b.get([1, 1, 1]))
 
+      assert_equal(1, @a.get)
+      assert_equal(1, @a.get_as(:int))
+      assert_equal(1, @a.get_as(:int, [0, 0, 0]))
+      assert_equal(1, @a.get_as(:double, [0, 0, 0]))
+
+      assert_equal(5.25, @b[1, 1, 1])
+      assert_raise (RuntimeError) { @b.get_as(:boolean, [1, 1, 1]) }
+      assert_equal(5, @b.get_as(:byte, [1, 1, 1]))
+      assert_equal(5, @b.get_as(:char, [1, 1, 1]))
+      assert_equal(5, @b.get_as(:short, [1, 1, 1]))
+      assert_equal(5, @b.get_as(:int, [1, 1, 1]))
+      assert_equal(5, @b.get_as(:long, [1, 1, 1]))
+      assert_equal(5.25, @b.get_as(:float, [1, 1, 1]))
+      assert_equal(5.25, @b.get_as(:object, [1, 1, 1]))
+
     end
 
     #-------------------------------------------------------------------------------------

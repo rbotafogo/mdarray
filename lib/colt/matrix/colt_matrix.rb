@@ -80,7 +80,12 @@ class MDMatrix
       val1, val2 = (@coerced)? [other_val, @mdarray] : [@mdarray, other_val] 
       MDMatrix.from_mdarray(val1 / val2)
     elsif (other_val.is_a? MDMatrix)
-      self * other_val.inverse
+      begin
+        self * other_val.inverse
+      rescue Exception => e
+        puts e.message
+        raise "Dividing by singular matrix is not possible"
+      end
     else
       raise "Cannot divide the given value from matrix"
     end
@@ -105,6 +110,38 @@ class MDMatrix
   end
 
   alias :- :sub
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def each(&block)
+    @mdarray.each(&block)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def each_with_counter(&block)
+    @mdarray.each_with_counter(&block)
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def reset_traversal
+    @mdarray.reset_traversal
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def next
+    @mdarray.next
+  end
 
   #------------------------------------------------------------------------------------
   # Fills the array with the given value

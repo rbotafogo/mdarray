@@ -42,6 +42,11 @@ class Colt
 
     def mult(other_val, from = 0, length = other_val.size)
 
+      p "mult"
+      @mdarray.print
+      other_val.mdarray.print
+      printf("\n\n")
+
       if (other_val.is_a? Numeric)
         MDMatrix.from_mdarray(@mdarray * other_val)
       elsif (other_val.is_a? MDMatrix)
@@ -49,8 +54,8 @@ class Colt
           MDMatrix
             .from_colt_matrix(other_val.transpose.colt_matrix.zMult(@colt_matrix, nil))
         else
-          MDMatrix
-            .from_colt_matrix(@colt_matrix.zDotProduct(other_val.colt_matrix, from, length))
+          p "other_val.rank = #{other_val.rank}"
+          @colt_matrix.zDotProduct(other_val.colt_matrix, from, length)
         end
       else
         raise "Cannot multiply matrix by given value"

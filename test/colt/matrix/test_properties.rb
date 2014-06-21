@@ -114,7 +114,7 @@ class MDArrayTest < Test::Unit::TestCase
 
       non_sing = square.copy
       # modifies the matrix to a non-singular matrix
-      non_sing.generate_non_singular
+      non_sing.generate_non_singular!
 
       assert_equal(true, c2.equals?(2))
       assert_equal(true, identity.equals?(identity))
@@ -269,7 +269,7 @@ class MDArrayTest < Test::Unit::TestCase
 
       non_sing = square.copy
       # modifies the matrix to a non-singular matrix
-      non_sing.generate_non_singular
+      non_sing.generate_non_singular!
 
       assert_equal(true, c2.equals?(2))
       assert_equal(true, identity.equals?(identity))
@@ -424,7 +424,7 @@ class MDArrayTest < Test::Unit::TestCase
 
       non_sing = square.copy
       # modifies the matrix to a non-singular matrix
-      non_sing.generate_non_singular
+      non_sing.generate_non_singular!
 
       assert_equal(true, c2.equals?(2))
       assert_equal(true, identity.equals?(identity))
@@ -580,7 +580,7 @@ class MDArrayTest < Test::Unit::TestCase
 
       non_sing = square.copy
       # modifies the matrix to a non-singular matrix
-      non_sing.generate_non_singular
+      non_sing.generate_non_singular!
 
       assert_equal(true, c2.equals?(2))
       assert_equal(true, identity.equals?(identity))

@@ -19,6 +19,12 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+$TEST_COMPLETE_COLT = true
+
+if !$TEST_COMPLETE
+  require '../env.rb'
+end
+
 require_relative 'test_statistics'
 require_relative 'test_stat_list'
 require_relative 'test_math'

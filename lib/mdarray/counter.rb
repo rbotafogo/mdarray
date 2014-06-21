@@ -178,6 +178,43 @@ class MDArray
       get_at_counter
     end
 
+    #------------------------------------------------------------------------------------
+    # Gets the element at the courrent counter with the given type
+    #------------------------------------------------------------------------------------
+
+    def get_as(type, count = nil)
+
+      count ? set_counter_fast(count) : set_counter_fast(self.counter)
+
+      begin
+        case type
+        when :boolean
+          @mdarray.nc_array.getBoolean(@nc_index)
+        when :byte
+          @mdarray.nc_array.getByte(@nc_index)
+        when :char
+          @mdarray.nc_array.getChar(@nc_index)
+        when :short
+          @mdarray.nc_array.getShort(@nc_index)
+        when :int
+          @mdarray.nc_array.getInt(@nc_index)
+        when :long
+          @mdarray.nc_array.getLong(@nc_index)
+        when :float 
+          @mdarray.nc_array.getFloat(@nc_index)
+        when :double
+          @mdarray.nc_array.getDouble(@nc_index)
+        when :string
+          @mdarray.nc_array.getObject(@nc_index).to_s
+        else 
+          @mdarray.nc_array.getObject(@nc_index)
+        end
+      rescue Java::UcarMa2::ForbiddenConversionException
+        raise "cannot convert to type #{type}"
+      end
+
+    end
+
     #---------------------------------------------------------------------------------------
     #
     #---------------------------------------------------------------------------------------
@@ -401,8 +438,6 @@ class MDArray
           @mdarray.nc_array.setChar(@nc_index, value)
         when "short" 
           @mdarray.nc_array.setShort(@nc_index, value)
-        when "unsigned" 
-          @mdarray.nc_array.setUnsigned(@nc_index, value)
         when "int" 
           @mdarray.nc_array.setInt(@nc_index, value)
         when "long" 

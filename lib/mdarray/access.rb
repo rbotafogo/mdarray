@@ -63,11 +63,22 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  # 
+  # When get is used to retrieve an element, it is assumed that the index does not need
+  # correction, for instance, no negative index is allowed.  If one wants to use 
+  # negative indexes, then method [] should be used.  So mat.get([-1, 0, 0]) raises an
+  # exception while mat[-1, 0, 0] gets the last value for the first dimension.
   #------------------------------------------------------------------------------------
 
   def get(index = nil)
     @local_index.get(index)
+  end
+
+  #---------------------------------------------------------------------------------------
+  #
+  #---------------------------------------------------------------------------------------
+
+  def get_as(type, counter = nil)
+    @local_index.get_as(type, counter)
   end
 
   #---------------------------------------------------------------------------------------
@@ -209,6 +220,20 @@ class MDArray
     while (elmt = self.next)
       yield elmt if block_given?
     end
+
+  end
+
+  #----------------------------------------------------------------------------------------
+  # Given an MDArray, makes it immutable.  Renjin data cannot be changed as Renjin assumes
+  # it can delay processing.
+  #----------------------------------------------------------------------------------------
+
+  def immutable
+
+    instance_eval { def set(name, value) raise "Array is immutable" end }
+    instance_eval { def set_scalar(name, value) raise "Array is immutable" end }
+    instance_eval { def set_next(value) raise "Array is immutable" end }
+    instance_eval { def []=(name, value) raise "Array is immutable" end }
 
   end
 

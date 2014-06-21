@@ -30,7 +30,7 @@ class NetCDF
     # Inside a block we have another scope, so the block cannot access any variables, etc. 
     # from the ouside scope. If we pass the outside scope, in this case we are passing self,
     # we can access variables in the outside scope by using @outside_scope.<variable>.
-    NetCDF.define(cygpath(@dir), @filename1, "netcdf3", self) do
+    NetCDF.define(@dir, @filename1, "netcdf3", self) do
       
       # add dimensions
       dimension "lat", 64
@@ -72,7 +72,7 @@ class NetCDF
 
   def write_file
 
-    NetCDF.write(cygpath(@dir), @filename1, self) do
+    NetCDF.write(@dir, @filename1, self) do
 
       temperature = find_variable("temperature")
       shape = temperature.shape
@@ -108,7 +108,7 @@ class NetCDF
 
   def define_one_at_time
 
-    NetCDF.define(cygpath(@dir), @filename2, "netcdf3", self) do
+    NetCDF.define(@dir, @filename2, "netcdf3", self) do
       
       dimension "lat", 3
       dimension "lon", 4
@@ -142,7 +142,7 @@ class NetCDF
 
   def write_one_at_time
 
-    NetCDF.write(cygpath(@dir), @filename2, self) do
+    NetCDF.write(@dir, @filename2, self) do
 
       lat = find_variable("lat")
       lon = find_variable("lon")

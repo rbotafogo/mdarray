@@ -19,8 +19,11 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-# require 'simplecov'
-# require '../env.rb'
+$TEST_COMPLETE_MDARRAY = true
+
+if !$TEST_COMPLETE
+  require '../env.rb'
+end
 
 # MDArray main object is the homogeneous multidimensional array. It is a table
 # of elements (usually numbers), all of the same type, indexed by a tuple of 

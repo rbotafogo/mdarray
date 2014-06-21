@@ -23,7 +23,7 @@ require_relative 'test_creation'
 require_relative 'test_matrix2d_floatingalgebra'
 require_relative 'test_matrix2d_fixpointalgebra'
 require_relative 'test_matrix1d_floatingalgebra'
-require_relative 'test_matrix1d_fixpointalgebra'
+#require_relative 'test_matrix1d_fixpointalgebra'
 require_relative 'test_operations'
 require_relative 'test_properties'
 
