@@ -5,3 +5,4 @@ test/coverage/
 doc
 .yardoc
 src/build/
+*.nc
