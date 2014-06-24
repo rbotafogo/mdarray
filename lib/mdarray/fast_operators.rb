@@ -78,6 +78,7 @@ class FastBinaryOperator < BinaryOperator
 
     calc = nil
     get_args(*args) do |op1, op2, shape, *other_args|
+      return nil if op2 == nil
       calc = MDArray.build(@type, shape)
       if (@coerced)
         helper = @helper::CoerceBinaryOperator
@@ -103,8 +104,10 @@ class FastBinaryOperator < BinaryOperator
   def fill(*args)
 
     get_args(*args) do |op1, op2, shape, *other_args|
+      return nil if op2 == nil
       helper = @helper::FillBinaryOperator
       helper.send("apply", op1, op2)
+
     end
 
   end
@@ -116,6 +119,7 @@ class FastBinaryOperator < BinaryOperator
   def in_place(*args)
 
     get_args(*args) do |op1, op2, shape, *other_args|
+      return nil if op2 == nil
       helper = @helper::InplaceBinaryOperator
       helper.send("apply", op1, op2, @do_func)
     end
@@ -131,6 +135,7 @@ class FastBinaryOperator < BinaryOperator
     calc = nil
 
     get_args(*args) do |op1, op2, shape, *other_args|
+      return nil if op2 == nil
       helper = @helper::ReduceBinaryOperator
       calc = @pre_condition_result
       calc = helper.send("apply", calc, op1, op2, @do_func)
@@ -149,6 +154,7 @@ class FastBinaryOperator < BinaryOperator
     calc = nil
 
     get_args(*args) do |op1, op2, shape, *other_args|
+      return nil if op2 == nil
       helper = @helper::ComplexReduceBinaryOperator
       calc = @pre_condition_result
       calc = helper.send("apply", calc, op1, op2, @do_func)

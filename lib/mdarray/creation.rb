@@ -93,6 +93,10 @@ class MDArray
 
   def self.from_jstorage(type, shape, jstorage, section = false)
 
+    if (shape.size == 1 && shape[0] == 0)
+      return nil
+    end
+
     dtype = DataType.valueOf(type.upcase)
     jshape = shape.to_java :int
     nc_array = Java::UcarMa2.Array.factory(dtype, jshape, jstorage)
