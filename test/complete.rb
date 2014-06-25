@@ -19,7 +19,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-$TEST_COMPLETE = true
+$ENVIR = true
 
 require 'env.rb'
 

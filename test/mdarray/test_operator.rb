@@ -19,6 +19,11 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+if !(defined? $ENVIR)
+  $ENVIR = true
+  require_relative '../env.rb'
+end
+
 require 'rubygems'
 require "test/unit"
 require 'shoulda'
@@ -55,6 +60,26 @@ class MDArrayTest < Test::Unit::TestCase
       @bool2 = MDArray.boolean([4], [false, false, true, true])
 
     end # setup
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "work properly with nil" do
+
+      a = MDArray.int([5, 3, 5])
+
+      assert_raise ( RuntimeError ) { a.fill(nil) }
+      assert_raise ( RuntimeError ) { a + nil }
+      assert_raise ( RuntimeError ) { a.add!(nil) }
+
+      assert_equal(false, a == nil)
+      assert_equal(true, a != nil)
+      assert_equal(false, a.eq(nil))
+      assert_equal(false, a > nil)
+      assert_equal(false, a <= nil)
+
+    end
 
     #-------------------------------------------------------------------------------------
     #

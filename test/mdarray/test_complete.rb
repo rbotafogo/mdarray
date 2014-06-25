@@ -19,10 +19,9 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-$TEST_COMPLETE_MDARRAY = true
-
-if !$TEST_COMPLETE
-  require '../env.rb'
+if !(defined? $ENVIR)
+  $ENVIR = true
+  require_relative '../env.rb'
 end
 
 # MDArray main object is the homogeneous multidimensional array. It is a table

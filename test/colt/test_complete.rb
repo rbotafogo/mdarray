@@ -19,10 +19,9 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-$TEST_COMPLETE_COLT = true
-
-if !$TEST_COMPLETE
-  require '../env.rb'
+if !(defined? $ENVIR)
+  $ENVIR = true
+  require_relative '../env.rb'
 end
 
 require_relative 'test_statistics'

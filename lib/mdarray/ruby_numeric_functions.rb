@@ -258,6 +258,13 @@ module ComparisonOperators
   alias :<= :le
   alias :< :lt
   alias :== :eq
+  
+=begin
+  def ==(arg)
+    return false if arg == nil
+    eq(self, arg)
+  end
+=end
 
 end # ComparisonOperators
 

@@ -84,9 +84,16 @@ module RubyFunctions
   #------------------------------------------------------------------------------------
 
   def make_comparison_operator(name, func)
-    make_binary_op(name, "default", func, RubyFunctions.binary_helper, "boolean")
-  end
 
+    make_binary_op("_#{name}", "default", func, RubyFunctions.binary_helper, "boolean")
+
+    define_method(name) do |op2, requested_type = nil, *args|
+      return false if op2 == nil
+      self.send("_#{name}", op2, requested_type, *args)
+    end
+
+  end
+  
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------

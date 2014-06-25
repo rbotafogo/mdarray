@@ -19,10 +19,9 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-$TEST_COMPLETE_NETCDF = true
-
-if !$TEST_COMPLETE
-  require '../env.rb'
+if !(defined? $ENVIR)
+  $ENVIR = true
+  require_relative '../env.rb'
 end
 
 Dir.mkdir($TMP_TEST_DIR) unless File.exists?($TMP_TEST_DIR)

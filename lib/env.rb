@@ -1,4 +1,5 @@
 require 'java'
+require_relative '../config.rb'
 
 $CLASSPATH << "#{File.dirname(__FILE__)}/../vendor/"
 
