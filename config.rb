@@ -109,7 +109,9 @@ if $COVERAGE == 'true'
   
   SimpleCov.start do
     @filters = []
-    add_group "SciCom", "lib/scicom"
+    add_group "MDArray", "lib/mdarray"
+    add_group "Colt", "lib/colt"
+    add_group "NetCDF", "lib/netcdf"
   end
   
 end
