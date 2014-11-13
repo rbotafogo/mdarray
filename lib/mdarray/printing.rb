@@ -66,6 +66,8 @@ class MDArray
       @formatter = method(:float_formatter)
     when "double"
       @formatter = method(:float_formatter)
+    when "string"
+      @formatter = method(:string_formatter)
     else
       @formatter = method(:default_formatter)
     end
@@ -202,6 +204,14 @@ class MDArray
 
   def float_formatter(float)
     "%.#{@float_output_precision}f" % float
+  end
+
+  #------------------------------------------------------------------------------------
+  # 
+  #------------------------------------------------------------------------------------
+
+  def string_formatter(val)
+    val.to_str
   end
 
   #------------------------------------------------------------------------------------

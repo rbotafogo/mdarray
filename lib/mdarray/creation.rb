@@ -60,7 +60,7 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.build(type, shape, storage = nil)
+  def self.build(type, shape, storage = nil, layout = :row)
 
     if (shape.is_a? String)
       # building from csv
@@ -123,8 +123,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.boolean(shape, storage = nil)
-    self.build("boolean", shape, storage)
+  def self.boolean(shape, storage = nil, layout = :row)
+    self.build("boolean", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.byte(shape, storage = nil)
-    self.build("byte", shape, storage)
+  def self.byte(shape, storage = nil, layout = :row)
+    self.build("byte", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -143,8 +143,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.char(shape, storage = nil)
-    self.build("char", shape, storage)
+  def self.char(shape, storage = nil, layout = :row)
+    self.build("char", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -154,8 +154,8 @@ class MDArray
   #
   #------------------------------------------------------------------------------------
 
-  def self.short(shape, storage = nil)
-    self.build("short", shape, storage)
+  def self.short(shape, storage = nil, layout = :row)
+    self.build("short", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -164,8 +164,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.int(shape, storage = nil)
-    self.build("int", shape, storage)
+  def self.int(shape, storage = nil, layout = :row)
+    self.build("int", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -175,8 +175,8 @@ class MDArray
   #
   #------------------------------------------------------------------------------------
 
-  def self.long(shape, storage = nil)
-    self.build("long", shape, storage)
+  def self.long(shape, storage = nil, layout = :row)
+    self.build("long", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -185,8 +185,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.float(shape, storage = nil)
-    self.build("float", shape, storage)
+  def self.float(shape, storage = nil, layout = :row)
+    self.build("float", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -195,8 +195,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.double(shape, storage = nil)
-    self.build("double", shape, storage)
+  def self.double(shape, storage = nil, layout = :row)
+    self.build("double", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -205,8 +205,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.string(shape, storage = nil)
-    self.build("string", shape, storage)
+  def self.string(shape, storage = nil, layout = :row)
+    self.build("string", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
@@ -215,8 +215,8 @@ class MDArray
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
-  def self.structure(shape, storage = nil)
-    self.build("structure", shape, storage)
+  def self.structure(shape, storage = nil, layout = :row)
+    self.build("structure", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
