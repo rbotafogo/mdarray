@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'rubygems/platform'
 
 require_relative 'version'
@@ -40,7 +41,7 @@ EOF
   gem.add_development_dependency('kramdown', [">= 1.0.1"])
 
   # ensure the gem is built out of versioned files
-  gem.files = Dir['Rakefile', 'version.rb', '{lib,test}/**/*.rb', 'test/**/*.csv',
+  gem.files = Dir['Rakefile', 'version.rb', 'config.rb', '{lib,test}/**/*.rb', 'test/**/*.csv',
                   'test/**/*.xlsx',
                   '{bin,doc,spec,vendor,target}/**/*', 
                   'README*', 'LICENSE*'] # & `git ls-files -z`.split("\0")
