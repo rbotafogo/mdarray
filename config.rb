@@ -5,10 +5,13 @@ require 'rbconfig'
 ##########################################################################################
 
 # set to true if development environment
-$DVLP = true
+# $DVLP = true
 
 # Set to 'cygwin' when in cygwin
-$ENV = 'cygwin'
+# $ENV = 'cygwin'
+
+# Dependencies that are not yet installed (still in development)
+# $DEPEND = Array.new
 
 ##########################################################################################
 
@@ -138,7 +141,7 @@ if ($DVLP == true)
   # depend(<other_gems>)
   $DEPEND.each do |dep|
     depend(dep)
-  end
+  end if $DEPEND
   
   #----------------------------------------------------------------------------------------
   # If we need to test for coverage
