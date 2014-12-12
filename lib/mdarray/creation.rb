@@ -77,7 +77,12 @@ class MDArray
 
     if (storage)
       jstorage = storage.to_java type.downcase.to_sym
-      nc_array = Java::UcarMa2.Array.factory(dtype, jshape, jstorage)
+      if (type == "string")
+        index = Java::UcarMa2.Index.factory(jshape)
+        nc_array = Java::UcarMa2.ArrayString.factory(index, jstorage)
+      else
+        nc_array = Java::UcarMa2.Array.factory(dtype, jshape, jstorage)
+      end
     else
       nc_array = Java::UcarMa2.Array.factory(dtype, jshape)
     end

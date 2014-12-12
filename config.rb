@@ -5,13 +5,13 @@ require 'rbconfig'
 ##########################################################################################
 
 # set to true if development environment
-# $DVLP = true
+$DVLP = true
 
 # Set to 'cygwin' when in cygwin
-# $ENV = 'cygwin'
+$ENV = 'cygwin'
 
 # Dependencies that are not yet installed (still in development)
-# $DEPEND = Array.new
+$DEPEND = Array.new
 
 ##########################################################################################
 

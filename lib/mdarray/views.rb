@@ -56,13 +56,20 @@ class MDArray
 
   end
 
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
+  #----------------------------------------------------------------------------------------
+  # This method fixes a bug in netcdf-java!!! 
+  #----------------------------------------------------------------------------------------
 
   def reshape!(shape)
     new_shape = shape.to_java :int
-    @nc_array = @nc_array.reshapeNoCopy(new_shape)
+    # Netcdf-Java bug... reshape of ArrayString becomes an ArrayObject.  In principle
+    # should not require comparison with ArrayString here
+    if (@nc_array.is_a? ArrayString)
+      @nc_array = Java::UcarMa2.ArrayString.factory(@nc_array.getIndex(), 
+        @nc_array.getStorage())
+    else
+      @nc_array = @nc_array.reshapeNoCopy(new_shape)
+    end
     # when we reshape an array we need to re-initialize its index and local_iterator
     @local_index = Counter.new(self)
     @local_iterator = nil
