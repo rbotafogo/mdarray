@@ -72,12 +72,22 @@ class MDArray
       storage = parameters[2]
     end
 
-    dtype = DataType.valueOf(type.upcase)
+    # Java-NetCDF creates an ArrayObject when given type string.  It should create an
+    # ArrayString instead.  Some string methods in Java-NetCDF expect an ArrayObject
+    # instead of an ArrayString, however, other libraries actually expect an ArrayString,
+    # so we know have two type: "string" stores internally the data as an ArrayObject, 
+    # "rstring" stores data internally as an ArrayString
+    rtype = (type == "rstring")? "string" : type
+    dtype = DataType.valueOf(rtype.upcase)
+
     jshape = shape.to_java :int
 
     if (storage)
-      jstorage = storage.to_java type.downcase.to_sym
-      if (type == "string")
+      jstorage = storage.to_java rtype.downcase.to_sym
+      if (type == "rstring")
+        # circunvent bug in Java-NetCDF.  Type rstring is actually type string but should
+        # and should build and ArrayString and not an ObjectString which is currently being
+        # build.
         index = Java::UcarMa2.Index.factory(jshape)
         nc_array = Java::UcarMa2.ArrayString.factory(index, jstorage)
       else
@@ -87,8 +97,8 @@ class MDArray
       nc_array = Java::UcarMa2.Array.factory(dtype, jshape)
     end
 
-    klass = Object.const_get("#{type.capitalize}MDArray")
-    return klass.new(type, nc_array)
+    klass = Object.const_get("#{rtype.capitalize}MDArray")
+    return klass.new(rtype, nc_array)
 
   end
 
@@ -205,13 +215,26 @@ class MDArray
   end
 
   #------------------------------------------------------------------------------------
-  # Builds a string mdarray
+  # Builds a string mdarray. Java-NetCDF does not actuallly build a string array when
+  # type string is passed, it builds an object array.  This is an open issue with 
+  # Java-NetCDF.
   # @param shape [Array] the shape of the mdarray as a ruby array
   # @param storage [Array] a ruby array with the initialization data
   #------------------------------------------------------------------------------------
 
   def self.string(shape, storage = nil, layout = :row)
     self.build("string", shape, storage, layout)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Builds a string mdarray.  Really builds an string array.  Only exists to fix the
+  # Java-NetCDF issue described above.
+  # @param shape [Array] the shape of the mdarray as a ruby array
+  # @param storage [Array] a ruby array with the initialization data
+  #------------------------------------------------------------------------------------
+
+  def self.rstring(shape, storage = nil, layout = :row)
+    self.build("rstring", shape, storage, layout)
   end
 
   #------------------------------------------------------------------------------------
