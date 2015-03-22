@@ -201,6 +201,11 @@ class MDMatrixTest < Test::Unit::TestCase
       assert_equal(3, chol[2, 2])
 
       matrix = MDMatrix.double([2, 2], [2, 3, 2, 1])
+      
+      # Finding Determinant
+      det = matrix.det
+      assert_equal(-4, det)
+
       # Eigenvalue decomposition
       eig = matrix.eig
       p "eigen decomposition"
