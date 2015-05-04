@@ -5,13 +5,14 @@ require 'rbconfig'
 ##########################################################################################
 
 # set to true if development environment
-# $DVLP = true
+$DVLP = true
 
-# Set to 'cygwin' when in cygwin
-# $ENV = 'cygwin'
+# Set development dependency: those are gems that are also in development and thus not
+# installed in the gem directory.  Need a way of accessing them
+$DVLP_DEPEND=["mdarray"]
 
-# Dependencies that are not yet installed (still in development)
-$DEPEND = Array.new
+# Set dependencies from other local gems provided in the vendor directory. 
+$VENDOR_DEPEND=[]
 
 ##########################################################################################
 
@@ -44,15 +45,15 @@ def mklib(path, home_path = true)
     lib = path
   end
   
-  $LOAD_PATH << lib
-  
+  $LOAD_PATH.insert(0, lib)
+
 end
 
 ##########################################################################################
 # Prepare environment to work inside Cygwin
 ##########################################################################################
 
-if $ENV == 'cygwin'
+if @platform == 'windows-cygwin'
   
   #---------------------------------------------------------------------------------------
   # Return the cygpath of a path
@@ -71,17 +72,6 @@ else
   def set_path(path)
     path
   end
-  
-end
-
-#---------------------------------------------------------------------------------------
-# Set dependencies
-#---------------------------------------------------------------------------------------
-
-def depend(name)
-  
-  dependency_dir = MDArray.project_dir + "/" + name
-  mklib(dependency_dir)
   
 end
 
@@ -129,20 +119,42 @@ class MDArray
 
 end
 
+#---------------------------------------------------------------------------------------
+# Set dependencies
+#---------------------------------------------------------------------------------------
+
+def depend(name)
+  
+  dependency_dir = MDArray.project_dir + "/" + name
+  mklib(dependency_dir)
+  
+end
+
+$VENDOR_DEPEND.each do |dep|
+  vendor_depend(dep)
+end if $VENDOR_DEPEND
+
 ##########################################################################################
 # Config gem
 ##########################################################################################
 
 if ($DVLP == true)
 
-  mklib(MDArray.home_dir)
+  #---------------------------------------------------------------------------------------
+  # Set development dependencies
+  #---------------------------------------------------------------------------------------
   
+  def depend(name)
+    dependency_dir = MDArray.project_dir + "/" + name
+    mklib(dependency_dir)
+  end
+
   # Add dependencies here
   # depend(<other_gems>)
-  $DEPEND.each do |dep|
+  $DVLP_DEPEND.each do |dep|
     depend(dep)
-  end if $DEPEND
-  
+  end if $DVLP_DEPEND
+
   #----------------------------------------------------------------------------------------
   # If we need to test for coverage
   #----------------------------------------------------------------------------------------
