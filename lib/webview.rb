@@ -24,4 +24,4 @@
 require 'java'
 
 require 'jrubyfx'
-require_relative 'nashorn/nashorn'
+require_relative 'webview/webview'

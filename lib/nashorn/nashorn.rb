@@ -21,11 +21,12 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+
 #==========================================================================================
 #
 #==========================================================================================
 
-class Nashorn
+class Nashorn < JRubyFX::Application
   include_package "javax.script"
 
   #----------------------------------------------------------------------------------------
@@ -34,17 +35,46 @@ class Nashorn
 
   attr_reader :engine
 
+  # When view is true the following variables will be set
+  attr_reader :browser
+  attr_reader :window
+  attr_reader :document
+
+  def start(stage)
+
+    # Create a WebView and get a web_engine
+    @browser = WebView.new
+    @window = browser.engine.executeScript("window")
+    @web_engine = browser.getEngine()
+    @web_engine.setJavaScriptEnabled(true)
+
+    # Create a Nashorn engine
+    factory = Java::JavaxScript.ScriptEngineManager.new()
+    @engine = factory.getEngineByName("nashorn")
+
+    # JSAdapter.new
+
+  end
+
+=begin
   #----------------------------------------------------------------------------------------
   #
   #----------------------------------------------------------------------------------------
 
-  def initialize
+  def initialize(view = false)
 
-    factory = Java::JavaxScript.ScriptEngineManager.new()
-    @engine = factory.getEngineByName("nashorn")
-    super
+    if view
+      @browser = WebView.new
+      @engine = browser.getEngine()
+    else
+      factory = Java::JavaxScript.ScriptEngineManager.new()
+      @engine = factory.getEngineByName("nashorn")
+      super()
+    end
 
   end
+=end
+
 
   #----------------------------------------------------------------------------------------
   #
@@ -272,4 +302,6 @@ end
 #
 #==========================================================================================
 
-J = Nashorn.new
+# J = Nashorn.new(true)
+J = Nashorn
+J.launch

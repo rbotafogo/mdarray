@@ -21,7 +21,36 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-require 'java'
+if !(defined? $ENVIR)
+  $ENVIR = true
+  require_relative '../env.rb'
+end
 
-require 'jrubyfx'
-require_relative 'nashorn/nashorn'
+require 'rubygems'
+require "test/unit"
+require 'shoulda'
+
+require 'webview'
+
+class WebviewTest < Test::Unit::TestCase
+
+  context "Engine test" do
+
+    setup do
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "access webview engine" do
+
+      wv = Webview.launch
+
+
+    end
+    
+  end
+  
+end
