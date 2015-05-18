@@ -30,6 +30,7 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
+require 'mdarray'
 require 'webview'
 
 class WebviewTest < Test::Unit::TestCase
@@ -46,7 +47,9 @@ class WebviewTest < Test::Unit::TestCase
 
     should "access webview engine" do
 
-      wv = Webview.launch
+      dbl = MDArray.double([2, 2], [1, 2, 3, 4])
+      
+      wv = Webview.launch(dbl)
 
 
     end

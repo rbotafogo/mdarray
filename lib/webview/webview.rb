@@ -49,9 +49,28 @@ class Webview < JRubyFX::Application
   attr_reader :window
   attr_reader :document
 
-  def test_script
-    
-<<EOS
+  class << self
+    attr_accessor :mdarray
+    attr_accessor :cols
+  end
+
+  #----------------------------------------------------------------------------------------
+  # Converts an MDArray into a javascript array
+  #----------------------------------------------------------------------------------------
+
+  def mdarray_javascript(web_engine, data)
+
+    window.set_member("java_data", data.nc_array)
+
+  end
+
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
+
+  def set_data(web_engine)
+
+    data = <<EOS
 
   var data = [
               {date: "12/27/2012", http_404: 2, http_200: 190, http_302: 100},
@@ -67,7 +86,26 @@ class Webview < JRubyFX::Application
               {date: "01/06/2013", http_404: 2, http_200: 200, http_302: 1},
               {date: "01/07/2013", http_404: 1, http_200: 200, http_302: 100}
               ];
-       
+
+EOS
+
+    web_engine.execute_script(data)
+
+  end
+
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
+
+  def test_script(web_engine)
+    
+    set_data(web_engine)
+    window.setMember("nc_array", Webview.mdarray.nc_array)
+
+    scrpt = <<EOS
+
+dcfx.convert();
+
               var ndx = crossfilter(data); 
 var parseDate = d3.time.format("%m/%d/%Y").parse;
 data.forEach(function(d) {
@@ -81,17 +119,14 @@ var hits = dateDim.group().reduceSum(function(d) {return d.total;});
 var minDate = dateDim.bottom(1)[0].date;
 var maxDate = dateDim.top(1)[0].date;
 
-var hitslineChart  = dc.lineChart("#chart-line-hitsperday"); 
-
-hitslineChart
-	.width(500).height(200)
-	.dimension(dateDim)
-	.group(hits)
-	.x(d3.time.scale().domain([minDate,maxDate])); 
+dcfx.line_chart("#chart-line-hitsperday", 500, 400, dateDim, hits, minDate, maxDate);
 
 dc.renderAll(); 
 
 EOS
+
+    web_engine.execute_script(scrpt)
+
   end
 
   #----------------------------------------------------------------------------------------
@@ -112,11 +147,11 @@ EOS
     web_engine.setJavaScriptEnabled(true)
 
     script_button = build(Button, "Run script")
-    script_button.set_on_action { |e| web_engine.execute_script(test_script) }
+    script_button.set_on_action { |e| test_script(web_engine) }
 
     pane = nil
     with(stage, title: "Image Viewer") do
-      layout_scene(400, 400, :oldlace) do
+      layout_scene(600, 600, :oldlace) do
         pane = border_pane do
           center browser
 
@@ -151,7 +186,20 @@ EOS
     end
     
   end
+
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
   
+  def self.launch(mdarray, cols = nil)
+
+    Webview.mdarray = mdarray
+    Webview.cols = cols
+
+    super()
+
+  end
+
 end
 
   
