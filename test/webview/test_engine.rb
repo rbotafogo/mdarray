@@ -47,7 +47,7 @@ class WebviewTest < Test::Unit::TestCase
 
     should "access webview engine" do
 
-      dbl = MDArray.double([2, 2], [1, 2, 3, 4])
+      dbl = MDArray.double([4, 2], [1, 2, 2, 4, 3, 9, 4, 16])
       
       wv = Webview.launch(dbl)
 

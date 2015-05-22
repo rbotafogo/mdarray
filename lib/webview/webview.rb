@@ -104,24 +104,28 @@ EOS
 
     scrpt = <<EOS
 
-dcfx.convert();
+      dcfx.convert();
 
-              var ndx = crossfilter(data); 
-var parseDate = d3.time.format("%m/%d/%Y").parse;
-data.forEach(function(d) {
-	d.date = parseDate(d.date);
-	d.total= d.http_404+d.http_200+d.http_302;
-});
+      // Add an anchor for the new chart
+      d3.select("body").append("div").attr("id", "line-chart")
 
-var dateDim = ndx.dimension(function(d) {return d.date;});
-var hits = dateDim.group().reduceSum(function(d) {return d.total;}); 
+      var ndx = crossfilter(data); 
+      var parseDate = d3.time.format("%m/%d/%Y").parse;
+      data.forEach(function(d) {
+	      d.date = parseDate(d.date);
+	      d.total= d.http_404+d.http_200+d.http_302;
+      });
 
-var minDate = dateDim.bottom(1)[0].date;
-var maxDate = dateDim.top(1)[0].date;
+      var dateDim = ndx.dimension(function(d) {return d.date;});
+      var hits = dateDim.group().reduceSum(function(d) {return d.total;}); 
 
-dcfx.line_chart("#chart-line-hitsperday", 500, 400, dateDim, hits, minDate, maxDate);
+      var minDate = dateDim.bottom(1)[0].date;
+      var maxDate = dateDim.top(1)[0].date;
 
-dc.renderAll(); 
+      // Display chart on the anchor added above
+      dcfx.line_chart("#line-chart", 500, 400, dateDim, hits, minDate, maxDate);
+
+      dc.renderAll(); 
 
 EOS
 
@@ -138,7 +142,7 @@ EOS
     browser = WebView.new
     web_engine = browser.getEngine()
     
-    f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/empty_doc.html")
+    f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/config.html")
     fil = f.toURI().toURL().toString()
     web_engine.load(fil)
 
@@ -146,14 +150,47 @@ EOS
     @document = @window.eval("document")
     web_engine.setJavaScriptEnabled(true)
 
+    # Add button to run the script. Later should be removed as the graph is supposed to 
+    # run when the window is loaded
     script_button = build(Button, "Run script")
     script_button.set_on_action { |e| test_script(web_engine) }
 
-    pane = nil
+    # Add a menu bar
+    menu_bar = build(MenuBar)
+    menu_filters = build(Menu, "Filters")
+    # add filters to the filter menu
+    # add_filters
+    menu_bar.get_menus.add_all(menu_filters)
+
     with(stage, title: "Image Viewer") do
       layout_scene(600, 600, :oldlace) do
         pane = border_pane do
+          top menu_bar 
           center browser
+          right script_button
+        end
+      end
+      show
+    end
+
+  end
+
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
+  
+  def self.launch(mdarray, cols = nil)
+
+    Webview.mdarray = mdarray
+    Webview.cols = cols
+
+    super()
+
+  end
+
+end
+
+=begin
 
 	        # This exclamation mark means "yes, normally you would add this to the parent,
 	        # however don't add it, just create a javaFX MenuBar object"
@@ -178,30 +215,7 @@ EOS
           end
           top menu_bar
 
-          right script_button
-
-        end
-      end
-      show
-    end
-    
-  end
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-  
-  def self.launch(mdarray, cols = nil)
-
-    Webview.mdarray = mdarray
-    Webview.cols = cols
-
-    super()
-
-  end
-
-end
-
+=end
   
 =begin
     pane = build(BorderPane)
