@@ -47,9 +47,14 @@ class WebviewTest < Test::Unit::TestCase
 
     should "access webview engine" do
 
-      dbl = MDArray.double([4, 2], [1, 2, 2, 4, 3, 9, 4, 16])
-      
-      wv = Webview.launch(dbl)
+      dbl = MDArray.double([8, 2], 
+                           [-3, 9, -2, 4, -1, 2, 0, 0, 1, 2, 2, 4, 3, 9, 4, 16])
+      columns = MDArray.string([2], ["X Values", "Y Values"])
+
+      # graph = Graph.new(dbl)
+      # graph.plot
+
+      wv = Webview.launch(dbl, columns)
 
 
     end

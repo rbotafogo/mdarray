@@ -22,18 +22,6 @@
 ##########################################################################################
 
 
-class Graph
-
-  def initialize(web_engine)
-
-    p "inside Graph"
-    p web_engine
-    web_engine.executeScript('d3.select("body").append("p").text("New paragraph!");')
-
-  end
-
-end
-
 #==========================================================================================
 #
 #==========================================================================================
@@ -50,58 +38,16 @@ class Webview < JRubyFX::Application
   attr_reader :document
 
   class << self
-    attr_accessor :mdarray
-    attr_accessor :cols
-  end
-
-  #----------------------------------------------------------------------------------------
-  # Converts an MDArray into a javascript array
-  #----------------------------------------------------------------------------------------
-
-  def mdarray_javascript(web_engine, data)
-
-    window.set_member("java_data", data.nc_array)
-
+    attr_accessor :native_array
+    attr_accessor :columns
   end
 
   #----------------------------------------------------------------------------------------
   #
   #----------------------------------------------------------------------------------------
 
-  def set_data(web_engine)
-
-    data = <<EOS
-
-  var data = [
-              {date: "12/27/2012", http_404: 2, http_200: 190, http_302: 100},
-              {date: "12/28/2012", http_404: 2, http_200: 10, http_302: 100},
-              {date: "12/29/2012", http_404: 1, http_200: 300, http_302: 200},
-              {date: "12/30/2012", http_404: 2, http_200: 90, http_302: 0},
-              {date: "12/31/2012", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/01/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/02/2013", http_404: 1, http_200: 10, http_302: 1},
-              {date: "01/03/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/04/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/05/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/06/2013", http_404: 2, http_200: 200, http_302: 1},
-              {date: "01/07/2013", http_404: 1, http_200: 200, http_302: 100}
-              ];
-
-EOS
-
-    web_engine.execute_script(data)
-
-  end
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
-  def test_script(web_engine)
+  def line_chart(web_engine)
     
-    set_data(web_engine)
-    window.setMember("nc_array", Webview.mdarray.nc_array)
-
     scrpt = <<EOS
 
       dcfx.convert();
@@ -109,21 +55,8 @@ EOS
       // Add an anchor for the new chart
       d3.select("body").append("div").attr("id", "line-chart")
 
-      var ndx = crossfilter(data); 
-      var parseDate = d3.time.format("%m/%d/%Y").parse;
-      data.forEach(function(d) {
-	      d.date = parseDate(d.date);
-	      d.total= d.http_404+d.http_200+d.http_302;
-      });
-
-      var dateDim = ndx.dimension(function(d) {return d.date;});
-      var hits = dateDim.group().reduceSum(function(d) {return d.total;}); 
-
-      var minDate = dateDim.bottom(1)[0].date;
-      var maxDate = dateDim.top(1)[0].date;
-
-      // Display chart on the anchor added above
-      dcfx.line_chart("#line-chart", 500, 400, dateDim, hits, minDate, maxDate);
+      // build line-chart
+      dcfx.line_chart2("#line-chart", 500, 400, -4, 4);
 
       dc.renderAll(); 
 
@@ -142,18 +75,23 @@ EOS
     browser = WebView.new
     web_engine = browser.getEngine()
     
+    # Load configuration file
     f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/config.html")
     fil = f.toURI().toURL().toString()
     web_engine.load(fil)
 
     @window = web_engine.executeScript("window")
     @document = @window.eval("document")
+
+    # Intitialize variable nc_array on javascript
+    @window.setMember("native_array", Webview.native_array)
+    @window.setMember("columns", Webview.columns)
     web_engine.setJavaScriptEnabled(true)
 
     # Add button to run the script. Later should be removed as the graph is supposed to 
     # run when the window is loaded
     script_button = build(Button, "Run script")
-    script_button.set_on_action { |e| test_script(web_engine) }
+    script_button.set_on_action { |e| line_chart(web_engine) }
 
     # Add a menu bar
     menu_bar = build(MenuBar)
@@ -179,16 +117,23 @@ EOS
   #
   #----------------------------------------------------------------------------------------
   
-  def self.launch(mdarray, cols = nil)
+  def self.launch(array, columns = nil)
 
-    Webview.mdarray = mdarray
-    Webview.cols = cols
+    if (array.is_a? MDArray)
+      Webview.native_array = array.nc_array
+      Webview.columns = columns.nc_array
+    end
 
     super()
 
   end
 
 end
+
+
+
+
+
 
 =begin
 
@@ -238,4 +183,74 @@ end
     menu_edit = build(Menu, "Edit")
     menu_view = build(Menu, "View")
     menu_bar.get_menus.add_all(menu_file, menu_edit, menu_view)
+=end
+
+=begin
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
+
+  def set_data(web_engine)
+
+    data = <<EOS
+
+  var data = [
+              {date: "12/27/2012", http_404: 2, http_200: 190, http_302: 100},
+              {date: "12/28/2012", http_404: 2, http_200: 10, http_302: 100},
+              {date: "12/29/2012", http_404: 1, http_200: 300, http_302: 200},
+              {date: "12/30/2012", http_404: 2, http_200: 90, http_302: 0},
+              {date: "12/31/2012", http_404: 2, http_200: 90, http_302: 0},
+              {date: "01/01/2013", http_404: 2, http_200: 90, http_302: 0},
+              {date: "01/02/2013", http_404: 1, http_200: 10, http_302: 1},
+              {date: "01/03/2013", http_404: 2, http_200: 90, http_302: 0},
+              {date: "01/04/2013", http_404: 2, http_200: 90, http_302: 0},
+              {date: "01/05/2013", http_404: 2, http_200: 90, http_302: 0},
+              {date: "01/06/2013", http_404: 2, http_200: 200, http_302: 1},
+              {date: "01/07/2013", http_404: 1, http_200: 200, http_302: 100}
+              ];
+
+  var data2 = [
+               {"V0":1,"V1":2},
+               {"V0":2,"V1":4},
+               {"V0":3,"V1":9},
+               {"V0":4,"V1":16}
+              ];
+EOS
+
+    web_engine.execute_script(data)
+
+  end
+
+  def test_script(web_engine)
+    
+    # set_data(web_engine)
+
+    scrpt = <<EOS
+
+      // Add an anchor for the new chart
+      d3.select("body").append("div").attr("id", "line-chart")
+
+      var ndx = crossfilter(data); 
+
+      var parseDate = d3.time.format("%m/%d/%Y").parse;
+
+      data.forEach(function(d) {
+	      d.date = parseDate(d.date);
+	      d.total= d.http_404+d.http_200+d.http_302;
+      });
+
+      var dateDim = ndx.dimension(function(d) {return d.date;});
+      var hits = dateDim.group().reduceSum(function(d) {return d.total;}); 
+
+      var minDate = dateDim.bottom(1)[0].date;
+      var maxDate = dateDim.top(1)[0].date;
+
+      // Display chart on the anchor added above
+      dcfx.line_chart("#line-chart", 500, 400, dateDim, hits, minDate, maxDate);
+
+      dc.renderAll(); 
+
+EOS
+
+end
 =end
