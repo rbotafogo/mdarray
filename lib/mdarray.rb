@@ -21,8 +21,12 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+require 'java'
 require 'map'
+
 require_relative 'env'
+require_relative 'webview/graph'
+
 
 ##########################################################################################
 # Superclass for implementations of multidimensional arrays. An Array has a classType 

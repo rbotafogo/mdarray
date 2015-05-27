@@ -26,43 +26,32 @@
 #
 #==========================================================================================
 
-class Webview < JRubyFX::Application
+class DCFX < JRubyFX::Application
   include_package "javax.script"
 
   #----------------------------------------------------------------------------------------
   #
   #----------------------------------------------------------------------------------------
 
-  attr_reader :web_engine
-  attr_reader :window
-  attr_reader :document
-
   class << self
     attr_accessor :native_array
-    attr_accessor :columns
+    attr_accessor :labels
+    attr_reader :js_spec
+
+    attr_reader :web_engine
+    attr_reader :window
+    attr_reader :document
+
   end
 
   #----------------------------------------------------------------------------------------
   #
   #----------------------------------------------------------------------------------------
 
-  def line_chart(web_engine)
+  def plot
     
-    scrpt = <<EOS
-
-      dcfx.convert();
-
-      // Add an anchor for the new chart
-      d3.select("body").append("div").attr("id", "line-chart")
-
-      // build line-chart
-      dcfx.line_chart2("#line-chart", 500, 400, -4, 4);
-
-      dc.renderAll(); 
-
-EOS
-
-    web_engine.execute_script(scrpt)
+    # Define javascript function to display the graphics
+    @web_engine.executeScript(DCFX.js_spec)
 
   end
 
@@ -73,25 +62,30 @@ EOS
   def start(stage)
 
     browser = WebView.new
-    web_engine = browser.getEngine()
+    @web_engine = browser.getEngine()
     
     # Load configuration file
     f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/config.html")
     fil = f.toURI().toURL().toString()
-    web_engine.load(fil)
+    @web_engine.load(fil)
 
-    @window = web_engine.executeScript("window")
+    @window = @web_engine.executeScript("window")
     @document = @window.eval("document")
 
     # Intitialize variable nc_array on javascript
-    @window.setMember("native_array", Webview.native_array)
-    @window.setMember("columns", Webview.columns)
-    web_engine.setJavaScriptEnabled(true)
+    @window.setMember("native_array", DCFX.native_array)
+    @window.setMember("labels", DCFX.labels)
+
+    @web_engine.setJavaScriptEnabled(true)
+
+    #--------------------------------------------------------------------------------------
+    # User Interface
+    #--------------------------------------------------------------------------------------
 
     # Add button to run the script. Later should be removed as the graph is supposed to 
     # run when the window is loaded
     script_button = build(Button, "Run script")
-    script_button.set_on_action { |e| line_chart(web_engine) }
+    script_button.set_on_action { |e| plot }
 
     # Add a menu bar
     menu_bar = build(MenuBar)
@@ -117,11 +111,13 @@ EOS
   #
   #----------------------------------------------------------------------------------------
   
-  def self.launch(array, columns = nil)
+  def self.launch(array, labels, js_spec)
+
+    @js_spec = js_spec
 
     if (array.is_a? MDArray)
-      Webview.native_array = array.nc_array
-      Webview.columns = columns.nc_array
+      DCFX.native_array = array.nc_array
+      DCFX.labels = labels.nc_array
     end
 
     super()
@@ -190,7 +186,7 @@ end
   #
   #----------------------------------------------------------------------------------------
 
-  def set_data(web_engine)
+  def set_data(@web_engine)
 
     data = <<EOS
 
@@ -217,7 +213,7 @@ end
               ];
 EOS
 
-    web_engine.execute_script(data)
+    @web_engine.execute_script(data)
 
   end
 

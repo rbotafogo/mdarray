@@ -20,6 +20,7 @@ class Csv
   def self.read_numeric(filename, headers = false)
 
     buffer = Array.new
+    heading = Array.new
     lines = 0
     columns = nil
 
@@ -30,6 +31,7 @@ class Csv
 
       if (headers)
         headers = false
+        heading << row
         next
       end
 
@@ -54,7 +56,7 @@ class Csv
 
     end
 
-    [lines, columns, buffer]
+    [lines, columns, buffer, heading]
 
   end
 

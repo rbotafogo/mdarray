@@ -31,9 +31,8 @@ require "test/unit"
 require 'shoulda'
 
 require 'mdarray'
-require 'webview'
 
-class WebviewTest < Test::Unit::TestCase
+class DCFXTest < Test::Unit::TestCase
 
   context "Engine test" do
 
@@ -47,15 +46,27 @@ class WebviewTest < Test::Unit::TestCase
 
     should "access webview engine" do
 
-      dbl = MDArray.double([8, 2], 
-                           [-3, 9, -2, 4, -1, 2, 0, 0, 1, 2, 2, 4, 3, 9, 4, 16])
-      columns = MDArray.string([2], ["X Values", "Y Values"])
+      # Read the data
+      p "Reading data"
+      ndx = MDArray.double("short.csv", true)
+      p "Data read"
 
-      # graph = Graph.new(dbl)
-      # graph.plot
+      # Assing heading to the columns.  We cannot read the header from the file as 
+      # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
+      # it might be better to let Datasets be done in SciCom only.
+      columns = 
+        MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
+                             "Adj Close"])
 
-      wv = Webview.launch(dbl, columns)
+      graph = LineGraph.new(ndx, columns)
+      # graph.date("Date", :time_stamp)
+      graph.width = 700
+      graph.height = 500
+      graph.x = "Date"
+      graph.y = "Open"
 
+      p "plotting"
+      graph.plot
 
     end
     
