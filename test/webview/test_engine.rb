@@ -54,19 +54,33 @@ class DCFXTest < Test::Unit::TestCase
       # Assing heading to the columns.  We cannot read the header from the file as 
       # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
       # it might be better to let Datasets be done in SciCom only.
-      columns = 
+      dimensions_labels = 
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      graph = LineGraph.new(ndx, columns)
-      # graph.date("Date", :time_stamp)
-      graph.width = 700
-      graph.height = 500
-      graph.x = "Date"
-      graph.y = "Open"
+      # db = DashBoard.new(widht, height)
 
+      g1 = LineGraph.new(ndx, dimensions_labels)
+      # graph.date(["Date"])
+      g1.width = 700
+      g1.height = 500
+      g1.x = "Date"
+      g1.y = "Open"
       p "plotting"
-      graph.plot
+
+      # do not add any data to g2.  The data should come from g1.  Need to consider a 
+      # better API.  I still don't like this!
+      g2 = LineGraph.new
+      g2.width = 700
+      g2.height = 500
+      g1.x = "Date"
+      g2.y = "Volume"
+      
+      # add g2 to g1
+      g = g1 + g2
+      
+      # only g1 needs to be plotted
+      g1.plot
 
     end
     

@@ -36,8 +36,9 @@ class DCFX < JRubyFX::Application
   class << self
     attr_accessor :native_array
     attr_accessor :labels
-    attr_reader :js_spec
+    attr_accessor :dashboard
 
+    attr_reader :js_spec
     attr_reader :web_engine
     attr_reader :window
     attr_reader :document
@@ -49,9 +50,8 @@ class DCFX < JRubyFX::Application
   #----------------------------------------------------------------------------------------
 
   def plot
-    
-    # Define javascript function to display the graphics
-    @web_engine.executeScript(DCFX.js_spec)
+
+    DCFX.dashboard.run(@web_engine)
 
   end
 
@@ -69,14 +69,6 @@ class DCFX < JRubyFX::Application
     fil = f.toURI().toURL().toString()
     @web_engine.load(fil)
 
-    @window = @web_engine.executeScript("window")
-    @document = @window.eval("document")
-
-    # Intitialize variable nc_array on javascript
-    @window.setMember("native_array", DCFX.native_array)
-    @window.setMember("labels", DCFX.labels)
-
-    @web_engine.setJavaScriptEnabled(true)
 
     #--------------------------------------------------------------------------------------
     # User Interface
@@ -111,15 +103,9 @@ class DCFX < JRubyFX::Application
   #
   #----------------------------------------------------------------------------------------
   
-  def self.launch(array, labels, js_spec)
+  def self.launch(dashboard)
 
-    @js_spec = js_spec
-
-    if (array.is_a? MDArray)
-      DCFX.native_array = array.nc_array
-      DCFX.labels = labels.nc_array
-    end
-
+    DCFX.dashboard = dashboard
     super()
 
   end
@@ -179,74 +165,4 @@ end
     menu_edit = build(Menu, "Edit")
     menu_view = build(Menu, "View")
     menu_bar.get_menus.add_all(menu_file, menu_edit, menu_view)
-=end
-
-=begin
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
-  def set_data(@web_engine)
-
-    data = <<EOS
-
-  var data = [
-              {date: "12/27/2012", http_404: 2, http_200: 190, http_302: 100},
-              {date: "12/28/2012", http_404: 2, http_200: 10, http_302: 100},
-              {date: "12/29/2012", http_404: 1, http_200: 300, http_302: 200},
-              {date: "12/30/2012", http_404: 2, http_200: 90, http_302: 0},
-              {date: "12/31/2012", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/01/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/02/2013", http_404: 1, http_200: 10, http_302: 1},
-              {date: "01/03/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/04/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/05/2013", http_404: 2, http_200: 90, http_302: 0},
-              {date: "01/06/2013", http_404: 2, http_200: 200, http_302: 1},
-              {date: "01/07/2013", http_404: 1, http_200: 200, http_302: 100}
-              ];
-
-  var data2 = [
-               {"V0":1,"V1":2},
-               {"V0":2,"V1":4},
-               {"V0":3,"V1":9},
-               {"V0":4,"V1":16}
-              ];
-EOS
-
-    @web_engine.execute_script(data)
-
-  end
-
-  def test_script(web_engine)
-    
-    # set_data(web_engine)
-
-    scrpt = <<EOS
-
-      // Add an anchor for the new chart
-      d3.select("body").append("div").attr("id", "line-chart")
-
-      var ndx = crossfilter(data); 
-
-      var parseDate = d3.time.format("%m/%d/%Y").parse;
-
-      data.forEach(function(d) {
-	      d.date = parseDate(d.date);
-	      d.total= d.http_404+d.http_200+d.http_302;
-      });
-
-      var dateDim = ndx.dimension(function(d) {return d.date;});
-      var hits = dateDim.group().reduceSum(function(d) {return d.total;}); 
-
-      var minDate = dateDim.bottom(1)[0].date;
-      var maxDate = dateDim.top(1)[0].date;
-
-      // Display chart on the anchor added above
-      dcfx.line_chart("#line-chart", 500, 400, dateDim, hits, minDate, maxDate);
-
-      dc.renderAll(); 
-
-EOS
-
-end
 =end

@@ -29,12 +29,28 @@ require_relative 'dcfx'
 #
 #==========================================================================================
 
+class GraphData
+  
+  attr_reader :data
+  attr_reader :dimension_labels
+
+  def initialize(data, dimension_labels)
+    @data = data
+    @dimension_labels = dimension_labels
+  end
+
+end
+
+#==========================================================================================
+#
+#==========================================================================================
+
 class Graph
 
-  attr_reader :data
-  attr_reader :labels
+  attr_reader :graph_data
   attr_reader :name
 
+  attr_accessor :web_engine
   attr_accessor :width
   attr_accessor :height
   attr_accessor :x
@@ -44,10 +60,9 @@ class Graph
   #
   #------------------------------------------------------------------------------------
 
-  def initialize(data, labels, name = nil)
+  def initialize(data = nil, dimension_labels = nil, name = nil)
 
-    @data = data
-    @labels = labels
+    @graph_data = GraphData.new(data, dimension_labels) if data
     # @name = name + rand
 
     @width = 800
@@ -55,14 +70,72 @@ class Graph
 
   end
 
+  def +(g)
+    
+  end
+
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
+  def run(web_engine)
+
+    @web_engine = web_engine
+    @window = @web_engine.executeScript("window")
+    @document = @window.eval("document")
+    @web_engine.setJavaScriptEnabled(true)
+
+    add_data
+    new_graph
+    @web_engine.executeScript(js_spec)
+    @web_engine.executeScript(view)
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # adds the data to the javascript environment
+  #------------------------------------------------------------------------------------
+
+  def add_data
+
+    # Intitialize variable nc_array and dimension_labels on javascript
+    @window.setMember("native_array", @graph_data.data.nc_array)
+    @window.setMember("labels", @graph_data.dimension_labels.nc_array)
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def new_graph
+
+    @web_engine.executeScript("graph = new DCGraph();")
+    @web_engine.executeScript("graph.convert([\"Date\"]);")
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def view
+
+<<EOS
+    // build line-chart
+    DCGraph.graph_function("#line-chart");
+
+    dc.renderAll();
+EOS
+
+  end
+
+  #------------------------------------------------------------------------------------
+  # Launches the UI and passes self so that it can add elements to it.
+  #------------------------------------------------------------------------------------
+
   def plot
-
-    DCFX.launch(@data, @labels, js_spec)
-
+    DCFX.launch(self)
   end
 
 end
@@ -83,12 +156,6 @@ class LineGraph < Graph
 
     DCGraph.graph_function = function(reg) {
 
-      graph = new DCGraph();
-      // when we reach this point the data (MDArray or other) has already been sent to
-      // the windows page.  Method convert will convert the java array into a javascript
-      // json specification of the array.  Method convert receives an array of dimensions
-      // that should be converted to a date object
-      graph.convert(["Date"]);
       var data = graph.getData();
       //$('#help').append(JSON.stringify(graph.getData()));
 
@@ -97,10 +164,12 @@ class LineGraph < Graph
       d3.select("body").append("div").attr("id", "line-chart")
 
       var hitslineChart  = dc.lineChart(reg); 
-      
-      ndx = crossfilter(data);
-      xDim = ndx.dimension(function(d) {return d["#{@x}"];});
-      y = xDim.group().reduceSum(function(d) {return d["#{@y}"];});
+      //var hitslineChart  = dc.lineChart("#line-char"); 
+
+      facts = crossfilter(data);
+
+      timeDimension = facts.dimension(function(d) {return d["#{@x}"];});
+      y = timeDimension.group().reduceSum(function(d) {return d["#{@y}"];});
       //$('#help').append("#{@x}");
 
       // find data range
@@ -109,18 +178,13 @@ class LineGraph < Graph
 
       hitslineChart
 	      .width(#{@width}).height(#{@height})
-	      .dimension(xDim)
+	      .dimension(timeDimension)
         .xAxisLabel("#{@x}")
         .yAxisLabel("#{@y}")
 	      .group(y)
 	      .x(d3.time.scale().domain([xMin, xMax])); 
       
     };
-
-    // build line-chart
-    DCGraph.graph_function("#line-chart");
-
-    dc.renderAll(); 
 
 EOF
     
