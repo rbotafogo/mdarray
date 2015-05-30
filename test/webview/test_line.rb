@@ -58,32 +58,43 @@ class DCFXTest < Test::Unit::TestCase
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      # db = DashBoard.new(widht, height)
+      db = Dashboard.new(1000, 700)
+      db.add_data(ndx, dimensions_labels)
 
-      g1 = LineGraph.new(ndx, dimensions_labels)
-      # graph.date(["Date"])
+      g1 = LineGraph.new("DateOpen")
       g1.width = 700
-      g1.height = 500
+      g1.height = 200
       g1.x = "Date"
       g1.y = "Open"
-      p "plotting"
+
+      g1.dimension = %{facts.dimension(function(d) {return d["Date"];});}
 
       # do not add any data to g2.  The data should come from g1.  Need to consider a 
       # better API.  I still don't like this!
-      g2 = LineGraph.new
+      g2 = LineGraph.new("DateVolume")
       g2.width = 700
-      g2.height = 500
-      g1.x = "Date"
+      g2.height = 200
+      g2.x = "Date"
       g2.y = "Volume"
+
+      # do not add any data to g2.  The data should come from g1.  Need to consider a 
+      # better API.  I still don't like this!
+      g3 = LineGraph.new("DateHigh")
+      g3.width = 700
+      g3.height = 200
+      g3.x = "Date"
+      g3.y = "High"
       
-      # add g2 to g1
-      g = g1 + g2
-      
-      # only g1 needs to be plotted
-      g1.plot
+      p "plotting"
+      db.add_graph(g1)
+      db.add_graph(g2)
+      db.add_graph(g3)
+      db.plot
+
 
     end
     
   end
   
 end
+

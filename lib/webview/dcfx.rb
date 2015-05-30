@@ -34,14 +34,11 @@ class DCFX < JRubyFX::Application
   #----------------------------------------------------------------------------------------
 
   class << self
-    attr_accessor :native_array
-    attr_accessor :labels
-    attr_accessor :dashboard
 
-    attr_reader :js_spec
+    attr_accessor :dashboard
+    attr_accessor :width
+    attr_accessor :height
     attr_reader :web_engine
-    attr_reader :window
-    attr_reader :document
 
   end
 
@@ -87,7 +84,7 @@ class DCFX < JRubyFX::Application
     menu_bar.get_menus.add_all(menu_filters)
 
     with(stage, title: "Image Viewer") do
-      layout_scene(600, 600, :oldlace) do
+      layout_scene(DCFX.width, DCFX.height, :oldlace) do
         pane = border_pane do
           top menu_bar 
           center browser
@@ -103,66 +100,14 @@ class DCFX < JRubyFX::Application
   #
   #----------------------------------------------------------------------------------------
   
-  def self.launch(dashboard)
+  def self.launch(dashboard, width, height)
 
     DCFX.dashboard = dashboard
+    DCFX.width = width
+    DCFX.height = height
     super()
 
   end
 
 end
 
-
-
-
-
-
-=begin
-
-	        # This exclamation mark means "yes, normally you would add this to the parent,
-	        # however don't add it, just create a javaFX MenuBar object"
-          menu_bar = menu_bar! do
-            menu("File") do
-              menu_item("Open") do
-                set_on_action do
-                  file_chooser do
-                    file = show_open_dialog(stage)
-                    # pane.center browser # multi_touch_image_view(file.to_uri.to_s)
-                  end
-                end
-              end
-              menu_item("Quit") do
-                set_on_action do
-                  # res = @web_engine.executeScript("$('#demo').html('jquery text')")
-                  # elmt = @document.getElementById("demo")
-                  # elmt.childNodes.item(0).nodeValue = "New text"
-                end
-              end
-            end
-          end
-          top menu_bar
-
-=end
-  
-=begin
-    pane = build(BorderPane)
-
-    menu_bar = build(MenuBar)
-
-    menu_file = build(Menu, "File")
-    open = build(MenuItem, "Open")
-
-    open.set_on_action do
-      file_chooser do
-        file = show_open_dialog(stage)
-        pane.center browser # multi_touch_image_view(file.to_uri.to_s)
-      end
-    end
-
-    quit = build(MenuItem, "Quit")
-    menu_file.get_items.add_all(open, quit)
-
-    menu_edit = build(Menu, "Edit")
-    menu_view = build(Menu, "View")
-    menu_bar.get_menus.add_all(menu_file, menu_edit, menu_view)
-=end

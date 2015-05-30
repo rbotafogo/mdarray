@@ -25,8 +25,7 @@ require 'java'
 require 'map'
 
 require_relative 'env'
-require_relative 'webview/graph'
-
+require_relative 'webview/dashboard'
 
 ##########################################################################################
 # Superclass for implementations of multidimensional arrays. An Array has a classType 
