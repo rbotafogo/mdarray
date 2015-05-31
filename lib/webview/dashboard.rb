@@ -53,14 +53,30 @@ class Dashboard
   end
 
   #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def dimension_param(val)
+    return @dimension_param if !val
+    @dimension_param = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def dimension
+    "var dim = facts.dimension(function(d) {return d[\"#{@dimension_param}\"];});"
+  end
+
+  #------------------------------------------------------------------------------------
   # adds the data to the javascript environment
   #------------------------------------------------------------------------------------
 
   def add_data(data, dimension_labels)
-    
     @data = data
     @dimension_labels = dimension_labels
-
   end
 
   #------------------------------------------------------------------------------------
@@ -69,6 +85,39 @@ class Dashboard
 
   def add_graph(g)
     @datasets << g
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def spec
+
+    spec = <<EOS
+      graph = new DCGraph();
+      graph.convert(["Date"]);
+    
+      // Make variable data accessible to all graphs
+      var data = graph.getData();
+
+      //$('#help').append(JSON.stringify(data));
+      var timeFormat = d3.time.format("%d/%m/%Y");
+
+      // Add data to crossfilter
+      facts = crossfilter(data);
+EOS
+
+    spec << dimension
+
+    @datasets.each do |g|
+      # add spot
+      spec << "d3.select(\"body\").append(\"div\").attr(\"id\", \"#{g.spot}\");"
+      g.dimension("timeDimension")
+      spec << g.spec
+    end
+
+    spec << ";dc.renderAll();"
+
   end
 
   #------------------------------------------------------------------------------------
@@ -98,10 +147,11 @@ class Dashboard
 EOS
 
     graphs_spec = String.new
+
     @datasets.each do |g|
+      # add spot
       graphs_spec << "d3.select(\"body\").append(\"div\").attr(\"id\", \"#{g.spot}\")"
       graphs_spec << g.js_spec
-      # graphs_spec << "DCGraph.graph_function(\"#{g.name}\");"
     end
 
     scrpt += graphs_spec + "dc.renderAll();"

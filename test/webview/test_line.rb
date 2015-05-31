@@ -60,37 +60,29 @@ class DCFXTest < Test::Unit::TestCase
 
       db = Dashboard.new(1000, 700)
       db.add_data(ndx, dimensions_labels)
+      # db.dimension = %{facts.dimension(function(d) {return d["Date"];});}
 
       g1 = LineGraph.new("DateOpen")
-      g1.width = 700
-      g1.height = 200
-      g1.x = "Date"
-      g1.y = "Open"
+      g1.width(700)
+        .height(200)
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .elastic_y(true)
+        .x("Date")
+        .y("Open")
 
-      g1.dimension = %{facts.dimension(function(d) {return d["Date"];});}
-
-      # do not add any data to g2.  The data should come from g1.  Need to consider a 
-      # better API.  I still don't like this!
-      g2 = LineGraph.new("DateVolume")
-      g2.width = 700
-      g2.height = 200
-      g2.x = "Date"
-      g2.y = "Volume"
-
-      # do not add any data to g2.  The data should come from g1.  Need to consider a 
-      # better API.  I still don't like this!
-      g3 = LineGraph.new("DateHigh")
-      g3.width = 700
-      g3.height = 200
-      g3.x = "Date"
-      g3.y = "High"
-      
-      p "plotting"
       db.add_graph(g1)
-      db.add_graph(g2)
-      db.add_graph(g3)
-      db.plot
+      # p db.spec
 
+      g2 = LineGraph.new("DateVolume")
+      g2.width(700).height(200).x("Date").y("Volume")
+      db.add_graph(g2)
+
+      g3 = LineGraph.new("DateHigh")
+      g3.width(700).height(200).x("Date").y("High")
+      db.add_graph(g3)
+
+      p "plotting"
+      db.plot
 
     end
     

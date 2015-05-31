@@ -30,13 +30,7 @@ class Graph
   attr_reader :graph_data
   attr_reader :name
   attr_reader :spot
-
-  attr_accessor :web_engine
-  attr_accessor :width
-  attr_accessor :height
-  attr_accessor :x
-  attr_accessor :y
-  attr_accessor :dimension
+  attr_reader :properties
 
   #------------------------------------------------------------------------------------
   #
@@ -48,7 +42,147 @@ class Graph
     @spot = name + "Chart"
     @width = 800
     @height = 400
+    @properties = Hash.new
 
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def width(val = nil)
+    return @width if !val
+    @properties["width"] = val
+    @width = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def height(val = nil)
+    return @height if !val
+    @properties["height"] = val
+    @height = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def x(val = nil)
+    return @x if !val
+    @properties["x"] = val
+    # set the x label by default to the x column name
+    x_axis_label(val) if !@properties["xAxisLabel"]
+    @x = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def y(val = nil)
+    return @y if !val
+    @properties["y"] = val
+    # set the y label by default to the y column name 
+    y_axis_label(val) if !@properties["yAxisLabel"]
+
+    @y = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def margins(val = nil)
+    return @margins if !val
+    @properties["margins"] = val
+    @margins = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def transition_duration(val = nil)
+    return @properties["transitionDuration"] if !val
+    @properties["transitionDuration"] = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def x_axis_label(val = nil)
+    return @properties["xAxisLabel"] if !val
+    @properties["xAxisLabel"] = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def y_axis_label(val = nil)
+    return @properties["yAxisLabel"] if !val
+    @properties["yAxisLabel"] = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def elastic_y(bool = nil)
+    return @properties["elasticY"] if !bool
+    @properties["elasticY"] = bool
+    return self
+  end
+    
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def props
+
+    # define the type of graph
+    props = "var #{@name} = dc.#{type}(\##{@spot});"
+
+    # start the graph specification
+    props << @name
+    @properties.each_pair do |key, value|
+      value = "\"#{value}\"" if value.is_a? String
+      props << "." + key + "(#{value})"
+    end
+    props
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def spec
+    props
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+
+  #------------------------------------------------------------------------------------
+  # Dimension should not be set by the user, this will be set by the Dashboard
+  #------------------------------------------------------------------------------------
+
+  def dimension(val)
+    @properties["dimension"] = val
   end
 
 end
@@ -58,6 +192,14 @@ end
 #==========================================================================================
 
 class LineGraph < Graph
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+  
+  def type
+    "lineChart"
+  end
 
   #------------------------------------------------------------------------------------
   #
