@@ -60,18 +60,20 @@ class DCFXTest < Test::Unit::TestCase
 
       db = Dashboard.new(1000, 700)
       db.add_data(ndx, dimensions_labels)
-      # db.dimension = %{facts.dimension(function(d) {return d["Date"];});}
+      # prepare the dimension for use in filtering
+      db.prepare_dimension("dateDimension", "Date")
 
       g1 = LineGraph.new("DateOpen")
       g1.width(700)
         .height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .elastic_y(true)
         .x("Date")
         .y("Open")
+        .dimension("dateDimension")
 
       db.add_graph(g1)
       # p db.spec
+=begin
+.margins("{top: 10, right:10, bottom: 50, left: 100}")
 
       g2 = LineGraph.new("DateVolume")
       g2.width(700).height(200).x("Date").y("Volume")
@@ -80,6 +82,7 @@ class DCFXTest < Test::Unit::TestCase
       g3 = LineGraph.new("DateHigh")
       g3.width(700).height(200).x("Date").y("High")
       db.add_graph(g3)
+=end
 
       p "plotting"
       db.plot

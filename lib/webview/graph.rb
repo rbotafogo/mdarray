@@ -74,7 +74,6 @@ class Graph
 
   def x(val = nil)
     return @x if !val
-    @properties["x"] = val
     # set the x label by default to the x column name
     x_axis_label(val) if !@properties["xAxisLabel"]
     @x = val
@@ -87,10 +86,8 @@ class Graph
 
   def y(val = nil)
     return @y if !val
-    @properties["y"] = val
     # set the y label by default to the y column name 
     y_axis_label(val) if !@properties["yAxisLabel"]
-
     @y = val
     return self
   end
@@ -153,23 +150,21 @@ class Graph
   def props
 
     # define the type of graph
-    props = "var #{@name} = dc.#{type}(\##{@spot});"
+    # props = "var #{@name} = dc.lineChart(\"##{@spot}\");"
 
     # start the graph specification
-    props << @name
+    str = @name
     @properties.each_pair do |key, value|
       value = "\"#{value}\"" if value.is_a? String
-      props << "." + key + "(#{value})"
+      str << "." + key + "(#{value})"
     end
-    props
-  end
 
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
+    str << ".dimension(dateDimension)"
+    str << ".group(y)"
+    str << ".x(d3.time.scale().domain([xMin, xMax]))"
+    str << ";"
+    str
 
-  def spec
-    props
   end
 
   #------------------------------------------------------------------------------------
@@ -205,19 +200,43 @@ class LineGraph < Graph
   #
   #------------------------------------------------------------------------------------
 
-  def js_spec
+  def header
 
-    <<EOF
+    <<EOS
 
-    var #{@name} = dc.lineChart(\"##{@spot}\"); 
-
-    //var timeDimension = #{@dimension}
-    var timeDimension = facts.dimension(function(d) {return d["#{@x}"];});
-    y = timeDimension.group().reduceSum(function(d) {return d["#{@y}"];});
+    var #{@name} = dc.#{type}(\"##{@spot}\"); 
+    y = dateDimension.group().reduceSum(function(d) {return d["#{@y}"];});
 
     // find data range
     var xMin = d3.min(data, function(d){ return Math.min(d["#{@x}"]); });
     var xMax = d3.max(data, function(d){ return Math.max(d["#{@x}"]); });
+EOS
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def js_spec
+
+    gr = header + props
+    # p gr
+    gr
+
+  end
+  
+end
+
+
+
+
+=begin
+    //timeDimension = facts.dimension(#{@dimension});
+=end
+
+=begin
+    gr = header + <<EOS
 
     #{@name}
 	    .width(#{@width}).height(#{@height})
@@ -231,12 +250,5 @@ class LineGraph < Graph
 	    .x(d3.time.scale().domain([xMin, xMax]))
       .xAxis().tickFormat();
       
-EOF
-    
-  end
-  
-end
-
-=begin
-    //timeDimension = facts.dimension(#{@dimension});
+EOS
 =end

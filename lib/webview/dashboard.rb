@@ -38,6 +38,7 @@ class Dashboard
 
   attr_reader :data
   attr_reader :dimension_labels
+  attr_reader :base_dimensions  # dimensions used by crossfilter 
 
   #------------------------------------------------------------------------------------
   # Launches the UI and passes self so that it can add elements to it.
@@ -49,16 +50,16 @@ class Dashboard
     @height = height
     @datasets = Array.new
     @graphs = Array.new
+    @base_dimensions = Hash.new
 
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # 
   #------------------------------------------------------------------------------------
 
-  def dimension_param(val)
-    return @dimension_param if !val
-    @dimension_param = val
+  def prepare_dimension(dim_name, dim, expr = "")
+    @base_dimensions[dim_name] = dim + expr
     return self
   end
 
@@ -66,8 +67,14 @@ class Dashboard
   #
   #------------------------------------------------------------------------------------
 
-  def dimension
-    "var dim = facts.dimension(function(d) {return d[\"#{@dimension_param}\"];});"
+  def dimensions_spec
+
+    dim_spec = String.new
+    @base_dimensions.each_pair do |key, value|
+      dim_spec << "var #{key} = facts.dimension(function(d) {return d[\"#{value}\"];});"
+    end
+    dim_spec
+
   end
 
   #------------------------------------------------------------------------------------
@@ -113,10 +120,38 @@ EOS
       # add spot
       spec << "d3.select(\"body\").append(\"div\").attr(\"id\", \"#{g.spot}\");"
       g.dimension("timeDimension")
-      spec << g.spec
+      spec << g.spec + ";\n"
     end
 
-    spec << ";dc.renderAll();"
+    spec << "dc.renderAll();"
+
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def run2(web_engine)
+
+    @web_engine = web_engine
+    @window = @web_engine.executeScript("window")
+    @document = @window.eval("document")
+    @web_engine.setJavaScriptEnabled(true)
+
+    # Intitialize variable nc_array and dimension_labels on javascript
+    @window.setMember("native_array", @data.nc_array)
+    @window.setMember("labels", @dimension_labels.nc_array)
+
+=begin
+    output = File.open( "script.js","w" )
+    output << spec
+    f = Java::JavaIo.File.new("script.js")
+    fil = f.toURI().toURL().toString()
+    p fil
+    @web_engine.load(fil)
+=end
+
+    # @web_engine.executeScript(spec)
 
   end
 
@@ -148,6 +183,8 @@ EOS
 
     graphs_spec = String.new
 
+    graphs_spec << dimensions_spec
+
     @datasets.each do |g|
       # add spot
       graphs_spec << "d3.select(\"body\").append(\"div\").attr(\"id\", \"#{g.spot}\")"
@@ -155,6 +192,8 @@ EOS
     end
 
     scrpt += graphs_spec + "dc.renderAll();"
+
+    p scrpt
 
     @web_engine.executeScript(scrpt)
 
