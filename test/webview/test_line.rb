@@ -58,29 +58,69 @@ class DCFXTest < Test::Unit::TestCase
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      db = Dashboard.new(1000, 700)
+      db = Dashboard.new(1500, 700)
       db.add_data(ndx, dimensions_labels)
-      # prepare the dimension for use in filtering
+      # prepare the dimensions for use in filtering.  Crossfilter does not filter on
+      # the same dimension, so, in order fo the two graphs to react to each other we
+      # need to define the same dimension twice.
       db.prepare_dimension("dateDimension", "Date")
+      db.prepare_dimension("timeDimension", "Date")
+
+      # creates a new grid for adding the graphs
+      grid1 = db.new_grid([2, 2])
+      grid1[0, 0] = "DateHigh"
+      grid1[0, 1] = "DateVolume"
+      grid1[1, 0] = "DateOpen"
+      grid1[1, 1] = "DateClose"
+
+=begin
+      grid2 = db.new_grid([2, 1])
+      grid2[0, 0] = "Hello from grid2"
+      grid1[1, 0] = grid2
+=end
+      db.add_grid(grid1)
+      p db.bootstrap
 
       g1 = LineGraph.new("DateOpen")
-      g1.width(700)
+      g1.width(300)
         .height(200)
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
         .x("Date")
         .y("Open")
         .dimension("dateDimension")
+        .elastic_y(true)
+        .group("dateDimension", "reduceSum") # needs to be defined after y
 
+      g2 = LineGraph.new("DateVolume")
+      g2.width(300)
+        .height(200)
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .x("Date")
+        .y("Volume")
+        .dimension("timeDimension")
+        .elastic_y(true)
+        .group("timeDimension", "reduceSum") # needs to be defined after y
+
+      g3 = LineGraph.new("DateHigh")
+      g3.width(300).height(200)
+        .x("Date")
+        .y("High")
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .dimension("timeDimension")
+        .elastic_y(true)
+        .group("timeDimension", "reduceSum") # needs to be defined after y
+      
       db.add_graph(g1)
+      db.add_graph(g2)
+      db.add_graph(g3)
+
       # p db.spec
 =begin
-.margins("{top: 10, right:10, bottom: 50, left: 100}")
 
       g2 = LineGraph.new("DateVolume")
       g2.width(700).height(200).x("Date").y("Volume")
       db.add_graph(g2)
 
-      g3 = LineGraph.new("DateHigh")
-      g3.width(700).height(200).x("Date").y("High")
       db.add_graph(g3)
 =end
 

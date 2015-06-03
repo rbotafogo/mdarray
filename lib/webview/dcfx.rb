@@ -47,9 +47,7 @@ class DCFX < JRubyFX::Application
   #----------------------------------------------------------------------------------------
 
   def plot
-
     DCFX.dashboard.run(@web_engine)
-
   end
 
   #----------------------------------------------------------------------------------------
@@ -65,7 +63,6 @@ class DCFX < JRubyFX::Application
     f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/config.html")
     fil = f.toURI().toURL().toString()
     @web_engine.load(fil)
-
 
     #--------------------------------------------------------------------------------------
     # User Interface
@@ -101,12 +98,10 @@ class DCFX < JRubyFX::Application
   #----------------------------------------------------------------------------------------
   
   def self.launch(dashboard, width, height)
-
     DCFX.dashboard = dashboard
     DCFX.width = width
     DCFX.height = height
     super()
-
   end
 
 end

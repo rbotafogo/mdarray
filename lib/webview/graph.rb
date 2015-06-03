@@ -50,33 +50,11 @@ class Graph
   #
   #------------------------------------------------------------------------------------
 
-  def width(val = nil)
-    return @width if !val
-    @properties["width"] = val
-    @width = val
-    return self
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
-  def height(val = nil)
-    return @height if !val
-    @properties["height"] = val
-    @height = val
-    return self
-  end
-
-  #------------------------------------------------------------------------------------
-  #
-  #------------------------------------------------------------------------------------
-
   def x(val = nil)
     return @x if !val
+    @x = val
     # set the x label by default to the x column name
     x_axis_label(val) if !@properties["xAxisLabel"]
-    @x = val
     return self
   end
 
@@ -86,9 +64,39 @@ class Graph
 
   def y(val = nil)
     return @y if !val
+    @y = val
     # set the y label by default to the y column name 
     y_axis_label(val) if !@properties["yAxisLabel"]
-    @y = val
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def width(val = nil)
+    return @properties["width"] if !val
+    @properties["width"] = "width(#{val})"
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def height(val = nil)
+    return @properties["width"] if !val
+    @properties["height"] = "height(#{val})"
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def dimension(val = nil)
+    return @properties["dimension"] if !val
+    @properties["dimension"] = "dimension(#{val})"
     return self
   end
 
@@ -97,9 +105,8 @@ class Graph
   #------------------------------------------------------------------------------------
 
   def margins(val = nil)
-    return @margins if !val
-    @properties["margins"] = val
-    @margins = val
+    return @properties["width"] if !val
+    @properties["margins"] = "margins(#{val})"
     return self
   end
 
@@ -109,7 +116,7 @@ class Graph
 
   def transition_duration(val = nil)
     return @properties["transitionDuration"] if !val
-    @properties["transitionDuration"] = val
+    @properties["transitionDuration"] = "transitionDuration(#{val})"
     return self
   end
 
@@ -119,7 +126,7 @@ class Graph
 
   def x_axis_label(val = nil)
     return @properties["xAxisLabel"] if !val
-    @properties["xAxisLabel"] = val
+    @properties["xAxisLabel"] = "xAxisLabel(\"#{val}\")"
     return self
   end
 
@@ -129,7 +136,7 @@ class Graph
 
   def y_axis_label(val = nil)
     return @properties["yAxisLabel"] if !val
-    @properties["yAxisLabel"] = val
+    @properties["yAxisLabel"] = "yAxisLabel(\"#{val}\")"
     return self
   end
 
@@ -139,10 +146,31 @@ class Graph
 
   def elastic_y(bool = nil)
     return @properties["elasticY"] if !bool
-    @properties["elasticY"] = bool
+    @properties["elasticY"] = "elasticY(#{bool})"
+    return self
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def elastic_x(bool = nil)
+    return @properties["elasticX"] if !bool
+    @properties["elasticX"] = "elasticX(#{bool})"
     return self
   end
     
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def group(dim, method)
+    @group_name = @name.downcase! + "Group"
+    @group = "var #{@group_name} = #{dim}.group().#{method}(function(d) {return d[\"#{@y}\"];});"
+    @properties["group"] = "group(#{@group_name})"
+    return self
+  end
+
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
@@ -155,12 +183,9 @@ class Graph
     # start the graph specification
     str = @name
     @properties.each_pair do |key, value|
-      value = "\"#{value}\"" if value.is_a? String
-      str << "." + key + "(#{value})"
+      str << "." + "#{value}"
     end
 
-    str << ".dimension(dateDimension)"
-    str << ".group(y)"
     str << ".x(d3.time.scale().domain([xMin, xMax]))"
     str << ";"
     str
@@ -170,15 +195,6 @@ class Graph
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
-
-
-  #------------------------------------------------------------------------------------
-  # Dimension should not be set by the user, this will be set by the Dashboard
-  #------------------------------------------------------------------------------------
-
-  def dimension(val)
-    @properties["dimension"] = val
-  end
 
 end
 
@@ -205,7 +221,7 @@ class LineGraph < Graph
     <<EOS
 
     var #{@name} = dc.#{type}(\"##{@spot}\"); 
-    y = dateDimension.group().reduceSum(function(d) {return d["#{@y}"];});
+    #{@group}
 
     // find data range
     var xMin = d3.min(data, function(d){ return Math.min(d["#{@x}"]); });
