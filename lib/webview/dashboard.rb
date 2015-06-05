@@ -78,6 +78,14 @@ class Dashboard
   #
   #------------------------------------------------------------------------------------
 
+  def []=(val)
+    @root_grid[0] = val
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
   def dimensions_spec
 
     dim_spec = String.new
@@ -110,16 +118,18 @@ class Dashboard
 
   def bootstrap
     
-    container = "d3.select(\"body\").append(\"div\").attr(\"class\", \"container\")"
+    container = "container = d3.select(\"body\").append(\"div\")"
+    container << ".attr(\"class\", \"container\")"
     container << ".attr(\"style\", \"font: 12px sans-serif;\")"
-    container << ".append(\"div\").attr(\"class\", \"row\")"
 
     val = @root_grid[0]
     if (val.is_a? String) 
+      container << ".append(\"div\").attr(\"class\", \"row\")"
+      container << ".append(\"div\").attr(\"col-sm-12\")"
       container << ".attr(\"id\", \"#{val}\")"
     elsif (val.is_a? StringMDArray)
       raise "Grid should have rank of at most 2" if val.get_rank > 2
-      container << traverse(val, 12)
+      container << ";\n " << traverse(val, 12)
     end
 
     container
@@ -139,23 +149,19 @@ class Dashboard
     if (span < 1)
       raise "Grid specification invalid"
     end
-
-    if (rank == 1)
-      container << ".append(\"div\").attr(\"class\", \"span12\")"
-    end
-
-    line = 0
-    container = String.new
+      
+    row = 0
+    container = "row#{row} = container.append(\"div\").attr(\"class\", \"row\");\n "
     grid.each_with_counter do |val, counter|
-      if (rank == 2 && counter[0] > line)
-        line = counter[0]
-        container << ".append(\"div\").attr(\"class\", \"row\")"
+      if (rank == 2 && counter[0] > row)
+        row = counter[0]
+        container << "row#{row} = container.append(\"div\").attr(\"class\", \"row\");\n "
       end
       if (val.is_a? String)
-        container << ".append(\"div\").attr(\"class\", \"span#{span}\")"
-        container << ".attr(\"id\", \"#{val}Chart\")"
+        container << "row#{row}.append(\"div\").attr(\"class\", \"col-sm-#{span}\")"
+        container << ".attr(\"id\", \"#{val}Chart\");\n "
       elsif (val.is_a? StringMDArray)
-        traverse(val, container, span)
+        container = traverse(val, span)
       end
     end
 
@@ -174,7 +180,7 @@ class Dashboard
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
-
+=begin
   def spec
 
     spec = <<EOS
@@ -191,7 +197,7 @@ class Dashboard
       facts = crossfilter(data);
 EOS
 
-    spec << dimension
+    # spec << dimension
 
     @datasets.each do |g|
       # add spot
@@ -203,12 +209,12 @@ EOS
     spec << "dc.renderAll();"
 
   end
-
+=end
   #------------------------------------------------------------------------------------
   #
   #------------------------------------------------------------------------------------
 
-  def run2(web_engine)
+  def run(web_engine)
 
     @web_engine = web_engine
     @window = @web_engine.executeScript("window")
@@ -230,12 +236,15 @@ EOS
       facts = crossfilter(data);
 EOS
 
+    # add bootstrap container
+    scrpt << bootstrap
+
+    # add graphs
     graphs_spec = String.new
     graphs_spec << dimensions_spec
-
     @datasets.each do |g|
       # add spot
-      graphs_spec << "d3.select(\"body\").append(\"div\").attr(\"id\", \"#{g.spot}\")"
+      # graphs_spec << "d3.select(\"body\").append(\"div\").attr(\"id\", \"#{g.spot}\")"
       # add the graph specification
       graphs_spec << g.js_spec
     end
@@ -258,7 +267,8 @@ EOS
   #------------------------------------------------------------------------------------
 
   def plot
-    DCFX.launch(self, @width, @height)
+    thr = Thread.new { DCFX.launch(self, @width, @height) }
+    thr.join
   end
 
   #------------------------------------------------------------------------------------
@@ -266,7 +276,7 @@ EOS
   # need to define the same dimension twice "dateDimension" and "timeDimension"
   #------------------------------------------------------------------------------------
 
-  def run(web_engine)
+  def run2(web_engine)
 
     @web_engine = web_engine
     @window = @web_engine.executeScript("window")
@@ -288,39 +298,19 @@ var data = graph.getData();
 
 var timeFormat = d3.time.format("%d/%m/%Y");
 facts = crossfilter(data);
-//$('#help').append(JSON.stringify(data));
-
-//<div class='container' style='font: 12px sans-serif;'>
-//  <div class='row'>
-//    <div class='span12'>
 
 // Add bootstrap containers
-
-/*
-d3.select("body")
+container = d3.select("body")
   .append("div").attr("class", "container")
-  .attr("style", "font: 12px sans-serif;")
-  .append("div").attr("class", "row")
-  .append("div").attr("class", "span6").attr("id", "DateOpenChart")
-  .append("div").attr("class", "span6").attr("id", "DateVolumeChart");
-*/
+  .attr("style", "font: 12px sans-serif;");
 
-row1 = d3.select("body")
-  .append("div").attr("class", "container")
-  .attr("style", "font: 12px sans-serif;")
-  .append("div").attr("class", "row")
-row1
-  .append("div").attr("class", "span6").attr("id", "DateOpenChart")
-row1
-  .append("div").attr("class", "span6").attr("id", "DateVolumeChart");
+row0 = container.append("div").attr("class", "row");
+row0.append("div").attr("class", "col-sm-6").attr("id", "blank");
+row0.append("div").attr("class", "col-sm-6").attr("id", "DateOpenChart");
 
-row2 = d3.select("container")
-  .append("div").attr("class", "row")
-row1
-  .append("div").attr("class", "span6").attr("id", "blank").text("blank1")
-row1
-  .append("div").attr("class", "span6").attr("id", "blank").text("blank2");
-
+row1 = container.append("div").attr("class", "row");
+row1.append("div").attr("class", "col-sm-6").attr("id", "DateHighChart");
+row1.append("div").attr("class", "col-sm-6").attr("id", "DateVolumeChart");
 
 var dateDimension = facts.dimension(function(d) {return d["Date"];});
 var timeDimension = facts.dimension(function(d) {return d["Date"];});
@@ -330,10 +320,12 @@ var timeDimension = facts.dimension(function(d) {return d["Date"];});
 // d3.select("body").append("div").attr("id", "DateVolumeChart");
 
 var dateopen = dc.lineChart("#DateOpenChart"); 
-var datevolume = dc.lineChart("#DateVolumeChart"); 
+var datevolume = dc.lineChart("#DateVolumeChart");
+var datehigh = dc.lineChart("#DateHighChart");
 
 var dateopenGroup = dateDimension.group().reduceSum(function(d) {return d["Open"];});
 var datevolumeGroup = timeDimension.group().reduceSum(function(d) {return d["Volume"];});
+var datehighGroup = timeDimension.group().reduceSum(function(d) {return d["High"];});
 
 // find data range
 var xMin = d3.min(data, function(d){ return Math.min(d["Date"]); });
@@ -353,6 +345,14 @@ datevolume
   .width(400).height(200)
   .dimension(dateDimension)
   .group(datevolumeGroup)
+  .elasticY(true)
+  .elasticX(true)
+  .x(d3.time.scale().domain([xMin, xMax]));
+
+datehigh
+  .width(400).height(200)
+  .dimension(dateDimension)
+  .group(datehighGroup)
   .elasticY(true)
   .elasticX(true)
   .x(d3.time.scale().domain([xMin, xMax]));

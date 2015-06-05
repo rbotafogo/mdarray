@@ -44,6 +44,41 @@ class DCFXTest < Test::Unit::TestCase
     #
     #-------------------------------------------------------------------------------------
 
+    should "specify 1 graph dashboard" do
+
+      # Read the data
+      ndx = MDArray.double("short.csv", true)
+      # Assing heading to the columns.  We cannot read the header from the file as 
+      # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
+      # it might be better to let Datasets be done in SciCom only.
+      dimensions_labels = 
+        MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
+                             "Adj Close"])
+
+      db = Dashboard.new(1500, 700)
+      db[] = "DateOpen"
+      db.add_data(ndx, dimensions_labels)
+      db.prepare_dimension("dateDimension", "Date")
+
+      g1 = LineGraph.new("DateOpen")
+      g1.width(300)
+        .height(200)
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .x("Date")
+        .y("Open")
+        .dimension("dateDimension")
+        .elastic_y(true)
+        .group("dateDimension", "reduceSum") # needs to be defined after y
+
+      db.add_graph(g1)
+      db.plot
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+#=begin
     should "access webview engine" do
 
       # Read the data
@@ -58,7 +93,7 @@ class DCFXTest < Test::Unit::TestCase
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      db = Dashboard.new(1500, 700)
+      db = Dashboard.new(1300, 600)
       db.add_data(ndx, dimensions_labels)
       # prepare the dimensions for use in filtering.  Crossfilter does not filter on
       # the same dimension, so, in order fo the two graphs to react to each other we
@@ -68,21 +103,15 @@ class DCFXTest < Test::Unit::TestCase
 
       # creates a new grid for adding the graphs
       grid1 = db.new_grid([2, 2])
-      grid1[0, 0] = "DateHigh"
-      grid1[0, 1] = "DateVolume"
-      grid1[1, 0] = "DateOpen"
-      grid1[1, 1] = "DateClose"
+      grid1[0, 0] = "blank"
+      grid1[0, 1] = "DateOpen"
+      grid1[1, 0] = "DateHigh"
+      grid1[1, 1] = "DateVolume"
 
-=begin
-      grid2 = db.new_grid([2, 1])
-      grid2[0, 0] = "Hello from grid2"
-      grid1[1, 0] = grid2
-=end
       db.add_grid(grid1)
-      p db.bootstrap
 
-      g1 = LineGraph.new("DateOpen")
-      g1.width(300)
+      g1 = LineChart.new("DateOpen")
+      g1.width(400)
         .height(200)
         .margins("{top: 10, right:10, bottom: 50, left: 100}")
         .x("Date")
@@ -91,8 +120,8 @@ class DCFXTest < Test::Unit::TestCase
         .elastic_y(true)
         .group("dateDimension", "reduceSum") # needs to be defined after y
 
-      g2 = LineGraph.new("DateVolume")
-      g2.width(300)
+      g2 = BarChart.new("DateVolume")
+      g2.width(400)
         .height(200)
         .margins("{top: 10, right:10, bottom: 50, left: 100}")
         .x("Date")
@@ -101,8 +130,8 @@ class DCFXTest < Test::Unit::TestCase
         .elastic_y(true)
         .group("timeDimension", "reduceSum") # needs to be defined after y
 
-      g3 = LineGraph.new("DateHigh")
-      g3.width(300).height(200)
+      g3 = LineChart.new("DateHigh")
+      g3.width(400).height(200)
         .x("Date")
         .y("High")
         .margins("{top: 10, right:10, bottom: 50, left: 100}")
@@ -114,21 +143,11 @@ class DCFXTest < Test::Unit::TestCase
       db.add_graph(g2)
       db.add_graph(g3)
 
-      # p db.spec
-=begin
-
-      g2 = LineGraph.new("DateVolume")
-      g2.width(700).height(200).x("Date").y("Volume")
-      db.add_graph(g2)
-
-      db.add_graph(g3)
-=end
-
-      p "plotting"
       db.plot
 
-    end
-    
+   end
+#=end
+
   end
   
 end
