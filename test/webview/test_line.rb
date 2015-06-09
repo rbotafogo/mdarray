@@ -43,8 +43,10 @@ class DCFXTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-
+=begin
     should "specify 1 graph dashboard" do
+
+      p "dashboard with only one chart"
 
       # Read the data
       ndx = MDArray.double("short.csv", true)
@@ -60,8 +62,8 @@ class DCFXTest < Test::Unit::TestCase
       db.add_data(ndx, dimensions_labels)
       db.prepare_dimension("dateDimension", "Date")
 
-      g1 = LineGraph.new("DateOpen")
-      g1.width(300)
+      g1 = MDArray.chart.new(:line_chart, "DateOpen")
+        .width(300)
         .height(200)
         .margins("{top: 10, right:10, bottom: 50, left: 100}")
         .x("Date")
@@ -74,7 +76,7 @@ class DCFXTest < Test::Unit::TestCase
       db.plot
 
     end
-
+=end
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
@@ -82,24 +84,29 @@ class DCFXTest < Test::Unit::TestCase
     should "access webview engine" do
 
       # Read the data
-      p "Reading data"
       ndx = MDArray.double("short.csv", true)
-      p "Data read"
 
-      # Assing heading to the columns.  We cannot read the header from the file as 
+      # Assign heading to the columns.  We cannot read the header from the file as 
       # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
       # it might be better to let Datasets be done in SciCom only.
       dimensions_labels = 
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      db = Dashboard.new(1300, 600)
-      db.add_data(ndx, dimensions_labels)
-      # prepare the dimensions for use in filtering.  Crossfilter does not filter on
-      # the same dimension, so, in order fo the two graphs to react to each other we
-      # need to define the same dimension twice.
-      db.prepare_dimension("dateDimension", "Date")
-      db.prepare_dimension("timeDimension", "Date")
+      db = MDArray::Dashboard.new(1300, 600)
+      # add the data to the dashboard indicating which columns contain date information.
+      # Since MDArray is a homogeneous array, date information has to be coded as 
+      # timestamp
+      db.add_data(ndx, dimensions_labels, ["Date"])
+
+      # Crossfilter does not filter on
+      # the same dimension, so, in order for two graphs to react to each other when they
+      # have the same 'x' column we need to define an alias for this column.  In this case
+      # we are defining Time as an alias for the Date column
+      db.prepare_dimension("Time", "Date")
+
+      # set the time format
+      db.time_format("%d/%m/%Y")
 
       # creates a new grid for adding the graphs
       grid1 = db.new_grid([2, 2])
@@ -110,38 +117,41 @@ class DCFXTest < Test::Unit::TestCase
 
       db.add_grid(grid1)
 
-      g1 = LineChart.new("DateOpen")
-      g1.width(400)
-        .height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .x("Date")
-        .y("Open")
-        .dimension("dateDimension")
-        .elastic_y(true)
-        .group("dateDimension", "reduceSum") # needs to be defined after y
+      # set date to a vector with all dates
+      date = ndx.section([0, 0], [ndx.shape[0], 1])
 
-      g2 = BarChart.new("DateVolume")
-      g2.width(400)
-        .height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .x("Date")
-        .y("Volume")
-        .dimension("timeDimension")
-        .elastic_y(true)
-        .group("timeDimension", "reduceSum") # needs to be defined after y
+      # reset statistics on date so that we can call date.min and date.max
+      date.reset_statistics
 
-      g3 = LineChart.new("DateHigh")
-      g3.width(400).height(200)
-        .x("Date")
-        .y("High")
+      x_scale = MDArray.scale(:time)
+      x_scale.domain([date.min, date.max])
+      x_scale.range([0, 10])
+
+=begin
+      x_scale.nice
+      x_scale.rangeRound
+=end
+
+      g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
+        .width(600).height(200)
         .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .dimension("timeDimension")
         .elastic_y(true)
-        .group("timeDimension", "reduceSum") # needs to be defined after y
-      
-      db.add_graph(g1)
-      db.add_graph(g2)
-      db.add_graph(g3)
+        .group("Date", :reduce_sum)
+        .x(x_scale)   # sets the x scale
+
+      g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
+        .width(600).height(200)
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .elastic_y(true)
+        .group("Time", :reduce_sum)
+        .x(:time, [date.min, date.max])  # sets the x scale
+
+      g3 = db.chart(:line_chart, "Time", "High", "DateHigh")
+        .width(600).height(200)
+        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .elastic_y(true)
+        .group("Time", :reduce_sum)
+        .x(:time, [date.min, date.max])  # sets the x scale
 
       db.plot
 

@@ -38,6 +38,8 @@ class DCFX < JRubyFX::Application
     attr_accessor :dashboard
     attr_accessor :width
     attr_accessor :height
+
+    attr_accessor :launched
     attr_reader :web_engine
 
   end
@@ -80,13 +82,17 @@ class DCFX < JRubyFX::Application
     # add_filters
     menu_bar.get_menus.add_all(menu_filters)
 
-    with(stage, title: "Image Viewer") do
+    with(stage, title: "MDArray Chart Library (based on DC.js)") do
+      Platform.set_implicit_exit(false)
       layout_scene(DCFX.width, DCFX.height, :oldlace) do
         pane = border_pane do
           top menu_bar 
           center browser
           right script_button
         end
+      end
+      set_on_close_request do
+        stage.close
       end
       show
     end
@@ -96,8 +102,17 @@ class DCFX < JRubyFX::Application
   #----------------------------------------------------------------------------------------
   #
   #----------------------------------------------------------------------------------------
+
+  def self.launched?
+    (DCFX.launched)? true : false
+  end
+
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
   
   def self.launch(dashboard, width, height)
+    DCFX.launched = true
     DCFX.dashboard = dashboard
     DCFX.width = width
     DCFX.height = height
