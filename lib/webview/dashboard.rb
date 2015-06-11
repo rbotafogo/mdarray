@@ -26,6 +26,7 @@ require 'jrubyfx'
 require_relative 'dcfx'
 require_relative 'scale'
 require_relative 'interval'
+require_relative 'bootstrap'
 
 #==========================================================================================
 #
@@ -64,6 +65,14 @@ class MDArray
     
   end
   
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def self.dashboard(width, height)
+    return Dashboard.new(width, height)
+  end
+
   #==========================================================================================
   #
   #==========================================================================================
@@ -73,7 +82,8 @@ class MDArray
     attr_reader :width
     attr_reader :height
     attr_reader :datasets
-    attr_reader :graphs
+    attr_reader :charts
+    attr_reader :scene
 
     attr_reader :data
     attr_reader :dimension_labels
@@ -81,7 +91,10 @@ class MDArray
     attr_reader :properties
 
     attr_reader :base_dimensions  # dimensions used by crossfilter
-    attr_reader :root_grid
+
+    # If a javascript script is added to demo_script, then this script will be executed
+    # by the dashboard.
+    attr_reader :demo_script
 
     #------------------------------------------------------------------------------------
     # Launches the UI and passes self so that it can add elements to it.
@@ -91,11 +104,15 @@ class MDArray
 
       @width = width
       @height = height
+
+      # prepare a bootstrap scene specification for this dashboard
+      @scene = Bootstrap.new(width)
       @datasets = Array.new
-      @graphs = Array.new
+      @charts = Array.new
       @properties = Hash.new
       @base_dimensions = Hash.new
-      @root_grid = MDArray.string([1])  # base grid with one row
+
+      @demo_script = false
 
     end
     
@@ -153,14 +170,6 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def []=(val)
-      @root_grid[0] = val
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
     def dimensions_spec
 
       dim_spec = String.new
@@ -172,91 +181,45 @@ class MDArray
     end
 
     #------------------------------------------------------------------------------------
-    # String MDArray is actually an Object MDArray, so, any object can be added to it
-    #------------------------------------------------------------------------------------
-
-    def new_grid(size)
-      MDArray.string(size)
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def add_grid(grid)
-      @root_grid[0] = grid
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def bootstrap
-      
-      container = "container = d3.select(\"body\").append(\"div\")"
-      container << ".attr(\"class\", \"container\")"
-      container << ".attr(\"style\", \"font: 12px sans-serif;\")"
-
-      # added ';' as last character when string!!! 
-      val = @root_grid[0]
-      if (val.is_a? String) 
-        container << ".append(\"div\").attr(\"class\", \"row\")"
-        container << ".append(\"div\").attr(\"col-sm-12\")"
-        container << ".attr(\"id\", \"#{val}\");"
-      elsif (val.is_a? StringMDArray)
-        raise "Grid should have rank of at most 2" if val.get_rank > 2
-        container << ";\n " << traverse(val, 12)
-      end
-
-      container
-
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def traverse(grid, size)
-
-      rank = grid.get_rank
-      shape = grid.get_shape
-
-      span = size/shape[0]
-      if (span < 1)
-        raise "Grid specification invalid"
-      end
-      
-      row = 0
-      container = "row#{row} = container.append(\"div\").attr(\"class\", \"row\");\n "
-      grid.each_with_counter do |val, counter|
-        if (rank == 2 && counter[0] > row)
-          row = counter[0]
-          container << "row#{row} = container.append(\"div\").attr(\"class\", \"row\");\n "
-        end
-        if (val.is_a? String)
-          container << "row#{row}.append(\"div\").attr(\"class\", \"col-sm-#{span}\")"
-          container << ".attr(\"id\", \"#{val}Chart\");\n "
-        elsif (val.is_a? StringMDArray)
-          container = traverse(val, span)
-        end
-      end
-
-      container
-
-    end
-
-    #------------------------------------------------------------------------------------
-    #
+    # Prepare dashboard data and properties
     #------------------------------------------------------------------------------------
 
     def props
 
-      str = String.new
+      # convert the data to JSON format
+      scrpt = <<EOS
+
+      graph = new DCGraph();
+      graph.convert(#{@date_columns});
+      // Make variable data accessible to all charts
+      var data = graph.getData();
+      //$('#help').append(JSON.stringify(data));
+      // add data to crossfilter and call it 'facts'.
+      facts = crossfilter(data);
+EOS
+
       @properties.each_pair do |key, value|
-        str << value
+        scrpt << value
       end
 
-      str
+      scrpt
+
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def prepare_engine(web_engine)
+
+      @web_engine = web_engine
+      @window = @web_engine.executeScript("window")
+      @document = @window.eval("document")
+      @web_engine.setJavaScriptEnabled(true)
+
+      # Intitialize variable nc_array and dimension_labels on javascript side
+      @window.setMember("native_array", @data.nc_array)
+      @window.setMember("labels", @dimension_labels.nc_array)
 
     end
 
@@ -266,43 +229,30 @@ class MDArray
 
     def run(web_engine)
 
-      @web_engine = web_engine
-      @window = @web_engine.executeScript("window")
-      @document = @window.eval("document")
-      @web_engine.setJavaScriptEnabled(true)
+      prepare_engine(web_engine)
 
-      # Intitialize variable nc_array and dimension_labels on javascript
-      @window.setMember("native_array", @data.nc_array)
-      @window.setMember("labels", @dimension_labels.nc_array)
-
-      # convert the data to JSON format
-      scrpt = <<EOS
-
-      graph = new DCGraph();
-      graph.convert(#{@date_columns});
-      // Make variable data accessible to all graphs
-      var data = graph.getData();
-      //$('#help').append(JSON.stringify(data));
-      facts = crossfilter(data);
-EOS
-
-      # add dashboard properties
-      scrpt << props
-
-      # add bootstrap container
-      scrpt << bootstrap
-
-      # add graphs
-      graphs_spec = String.new
-      graphs_spec << dimensions_spec
-      @datasets.each do |g|
-        p g.dimension
-        # add the graph specification
-        graphs_spec << g.js_spec
+      if (@demo_script)
+        @web_engine.executeScript(scrpt + @demo_script)
+        return
       end
 
-      scrpt += graphs_spec + "dc.renderAll();"
+      # scrpt will have the javascript specification
+      scrpt = String.new
+      # add dashboard properties
+      scrpt << props
+      # add bootstrap container
+      scrpt << @scene.bootstrap
+      # add dimensions (the x dimension)
+      scrpt << dimensions_spec
+      # add charts
+      @datasets.each do |g|
+        # add the graph specification
+        scrpt << g.js_spec
+      end
+      # render all charts
+      scrpt += "dc.renderAll();"
 
+      # for testing purposes, print to the console the javascript
       p scrpt
 
       @web_engine.executeScript(scrpt)
@@ -322,97 +272,11 @@ EOS
     end
 
     #------------------------------------------------------------------------------------
-    # Plots two line graphs.  In order to get them to react to each other, there is the
-    # need to define the same dimension twice "dateDimension" and "timeDimension"
+    #
     #------------------------------------------------------------------------------------
 
-    def run2(web_engine)
-
-      @web_engine = web_engine
-      @window = @web_engine.executeScript("window")
-      @document = @window.eval("document")
-      @web_engine.setJavaScriptEnabled(true)
-
-      # Intitialize variable nc_array and dimension_labels on javascript
-      @window.setMember("native_array", @data.nc_array)
-      @window.setMember("labels", @dimension_labels.nc_array)
-
-      scrpt = <<EOS
-
-graph = new DCGraph();
-// converts the data to JSON format
-graph.convert(["Date"]);
-
-// Make variable data accessible to all graphs
-var data = graph.getData();
-
-var timeFormat = d3.time.format("%d/%m/%Y");
-facts = crossfilter(data);
-
-// Add bootstrap containers
-container = d3.select("body")
-  .append("div").attr("class", "container")
-  .attr("style", "font: 12px sans-serif;");
-
-row0 = container.append("div").attr("class", "row");
-row0.append("div").attr("class", "col-sm-6").attr("id", "blank");
-row0.append("div").attr("class", "col-sm-6").attr("id", "DateOpenChart");
-
-row1 = container.append("div").attr("class", "row");
-row1.append("div").attr("class", "col-sm-6").attr("id", "DateHighChart");
-row1.append("div").attr("class", "col-sm-6").attr("id", "DateVolumeChart");
-
-var dateDimension = facts.dimension(function(d) {return d["Date"];});
-var timeDimension = facts.dimension(function(d) {return d["Date"];});
-
-// DateOpenChart
-// d3.select("body").append("div").attr("id", "DateOpenChart");
-// d3.select("body").append("div").attr("id", "DateVolumeChart");
-
-var dateopen = dc.lineChart("#DateOpenChart"); 
-var datevolume = dc.lineChart("#DateVolumeChart");
-var datehigh = dc.lineChart("#DateHighChart");
-
-var dateopenGroup = dateDimension.group().reduceSum(function(d) {return d["Open"];});
-var datevolumeGroup = timeDimension.group().reduceSum(function(d) {return d["Volume"];});
-var datehighGroup = timeDimension.group().reduceSum(function(d) {return d["High"];});
-
-// find data range
-var xMin = d3.min(data, function(d){ return Math.min(d["Date"]); });
-var xMax = d3.max(data, function(d){ return Math.max(d["Date"]); });
-
-dateopen
-  .width(400).height(200)
-  .dimension(dateDimension)
-  .group(dateopenGroup)
-  .elasticY(true)
-  .elasticX(true)
-  .x(d3.time.scale().domain([xMin, xMax]));
-
-// DateVolumeChart
-
-datevolume
-  .width(400).height(200)
-  .dimension(dateDimension)
-  .group(datevolumeGroup)
-  .elasticY(true)
-  .elasticX(true)
-  .x(d3.time.scale().domain([xMin, xMax]));
-
-datehigh
-  .width(400).height(200)
-  .dimension(dateDimension)
-  .group(datehighGroup)
-  .elasticY(true)
-  .elasticX(true)
-  .x(d3.time.scale().domain([xMin, xMax]));
-
-dc.renderAll();
-
-EOS
-      
-      @web_engine.executeScript(scrpt)
-      
+    def set_demo_script(scrpt)
+      @demo_script = scrpt
     end
     
   end

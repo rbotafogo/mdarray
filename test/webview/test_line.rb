@@ -93,7 +93,7 @@ class DCFXTest < Test::Unit::TestCase
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      db = MDArray::Dashboard.new(1300, 600)
+      db = MDArray.dashboard(1300, 600)
       # add the data to the dashboard indicating which columns contain date information.
       # Since MDArray is a homogeneous array, date information has to be coded as 
       # timestamp
@@ -109,13 +109,14 @@ class DCFXTest < Test::Unit::TestCase
       db.time_format("%d/%m/%Y")
 
       # creates a new grid for adding the graphs
-      grid1 = db.new_grid([2, 2])
+      scene = db.scene
+      scene.title = "Ações da Vale no período de 2006 a 2007"
+      grid1 = scene.new_grid([2, 2])
       grid1[0, 0] = "blank"
       grid1[0, 1] = "DateOpen"
       grid1[1, 0] = "DateHigh"
       grid1[1, 1] = "DateVolume"
-
-      db.add_grid(grid1)
+      scene.add_grid(grid1)
 
       # set date to a vector with all dates
       date = ndx.section([0, 0], [ndx.shape[0], 1])

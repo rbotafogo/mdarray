@@ -19,26 +19,3 @@ chart = db.chart(:line_chart, "Run", "Speed", "RunSpeed").width(768)
 db.plot
 
 
-=begin
-      var chart = dc.lineChart("#test");
-
-
-          chart
-              .width(768)
-              .height(480)
-              .x(d3.scale.linear().domain([1,20]))
-              .margins({left: 50, top: 10, right: 10, bottom: 20})
-              .renderArea(true)
-              .brushOn(false)
-              .renderDataPoints(true)
-              .clipPadding(10)
-              .yAxisLabel("This is the Y Axis!")
-              .dimension(runDimension)
-              .group(speedSumGroup, "1", sel_stack('1'));
-
-          for(var i = 2; i<6; ++i)
-              chart.stack(speedSumGroup, ''+i, sel_stack(i));
-          chart.render();
-
-      });
-=end
