@@ -81,7 +81,6 @@ class MDArray
 
     attr_reader :width
     attr_reader :height
-    attr_reader :datasets
     attr_reader :charts
     attr_reader :scene
 
@@ -107,8 +106,7 @@ class MDArray
 
       # prepare a bootstrap scene specification for this dashboard
       @scene = Bootstrap.new(width)
-      @datasets = Array.new
-      @charts = Array.new
+      @charts = Hash.new
       @properties = Hash.new
       @base_dimensions = Hash.new
 
@@ -155,15 +153,33 @@ class MDArray
     end
 
     #------------------------------------------------------------------------------------
+    # 
+    #------------------------------------------------------------------------------------
+
+    def title=(title)
+      @scene.title=(title)
+    end
+
+    #------------------------------------------------------------------------------------
     #
     #------------------------------------------------------------------------------------
     
     def chart(type, x_column, y_column, name)
+
       dimension = x_column + "Dimension"
       prepare_dimension(x_column, x_column) if (@base_dimensions[dimension] == nil)
       chart = MDArray::Chart.new(type, dimension, y_column, name)
-      @datasets << chart
+
+      # Set chart defaults. Should preferably be read from a config file 
+      chart.elastic_y(true)
+      chart.x_axis_label(x_column)
+      chart.y_axis_label(y_column)
+      # p "type: #{type}, x_column #{x_column}, y_column #{y_column}, name #{name}"
+      chart.group(x_column, :reduce_sum)
+
+      @charts[name] = chart
       chart
+
     end
 
     #------------------------------------------------------------------------------------
@@ -241,13 +257,14 @@ EOS
       # add dashboard properties
       scrpt << props
       # add bootstrap container
+      @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
       scrpt << @scene.bootstrap
       # add dimensions (the x dimension)
       scrpt << dimensions_spec
       # add charts
-      @datasets.each do |g|
+      @charts.each do |name, chart|
         # add the graph specification
-        scrpt << g.js_spec
+        scrpt << chart.js_spec if !chart.nil?
       end
       # render all charts
       scrpt += "dc.renderAll();"

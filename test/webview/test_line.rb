@@ -108,49 +108,41 @@ class DCFXTest < Test::Unit::TestCase
       # set the time format
       db.time_format("%d/%m/%Y")
 
-      # creates a new grid for adding the graphs
-      scene = db.scene
-      scene.title = "Ações da Vale no período de 2006 a 2007"
-      grid1 = scene.new_grid([2, 2])
-      grid1[0, 0] = "blank"
-      grid1[0, 1] = "DateOpen"
-      grid1[1, 0] = "DateHigh"
-      grid1[1, 1] = "DateVolume"
-      scene.add_grid(grid1)
+      # Add title to the scene
+      db.title = "Ações da Vale no período de 2006 a 2007"
+      # specify the scene. If not specified, a scene will be automatically specified.
+      # scene.create_grid(3, ["DateOpen", "DateHigh", "DateVolume"])
 
-      # set date to a vector with all dates
+      # set date to a vector with all dates so that we can find the scale of the charts
       date = ndx.section([0, 0], [ndx.shape[0], 1])
-
       # reset statistics on date so that we can call date.min and date.max
       date.reset_statistics
 
       x_scale = MDArray.scale(:time)
       x_scale.domain([date.min, date.max])
       x_scale.range([0, 10])
-
 =begin
       x_scale.nice
       x_scale.rangeRound
 =end
 
+      # minimal chart.  No options are set
       g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
         .width(600).height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .elastic_y(true)
-        .group("Date", :reduce_sum)
         .x(x_scale)   # sets the x scale
 
+      # maximal chart... all options availabe explicitly set
       g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
         .width(600).height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
+        .margins("{top: 10, right:10, bottom: 50, left: 80}")
         .elastic_y(true)
         .group("Time", :reduce_sum)
+        .x_axis_label("Data em dias")
+        .y_axis_label("Volumen em milhões (R$)")
         .x(:time, [date.min, date.max])  # sets the x scale
 
       g3 = db.chart(:line_chart, "Time", "High", "DateHigh")
         .width(600).height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .elastic_y(true)
         .group("Time", :reduce_sum)
         .x(:time, [date.min, date.max])  # sets the x scale
 

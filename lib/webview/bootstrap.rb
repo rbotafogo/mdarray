@@ -88,26 +88,20 @@ class MDArray
     # store all charts. The columns width will be as large as possible.
     #------------------------------------------------------------------------------------
 
-    def create_grid(charts_num, cols, names)
+    def create_grid(charts_num, names, cols = 2)
 
       raise "Then number of columns has to be an integer and not #{cols}" if 
         !cols.is_a? Integer
 
-      columns_width = Math.floor(@max_width / cols)
-      rows = Math.ceil(charts_num / cols)
+      columns_width = (@max_width / cols).floor
+      rows = (charts_num.to_f / cols).ceil
       grid = new_grid([rows, cols])
-      grid.each_with_index do |cel, i|
-        p i
+      grid.each_with_counter do |cel, count|
+        i = rows * count[0] + count[1]
+        grid[*count] = (i < names.size)? names[i] : "__bootstrap_empty__"
       end
+      add_grid(grid)
 
-=begin
-      grid1 = scene.new_grid([2, 2])
-      grid1[0, 0] = "blank"
-      grid1[0, 1] = "DateOpen"
-      grid1[1, 0] = "DateHigh"
-      grid1[1, 1] = "DateVolume"
-      scene.add_grid(grid1)
-=end
     end
 
     #------------------------------------------------------------------------------------

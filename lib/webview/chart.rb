@@ -179,13 +179,22 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
+    def grouped?
+      @group != nil
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
     def group(column, method)
       
-      @group_name = @name.downcase! + "Group"
+      @group_name = @name.downcase + "Group"
       @group = 
         "var #{@group_name} = #{column + "Dimension"}.group().#{MDArray.camelcase(method.to_s)}(function(d) {return d[\"#{@y_column}\"];});"
       @properties["group"] = "group(#{@group_name})"
       return self
+
     end
 
     #------------------------------------------------------------------------------------
