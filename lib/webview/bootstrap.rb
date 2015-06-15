@@ -75,14 +75,6 @@ class MDArray
     end
 
     #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def add_grid(grid)
-      @root_grid[0] = grid
-    end
-
-    #------------------------------------------------------------------------------------
     # Creates a grid of the appropriate size for storing the specified number of charts
     # and name them.  The grid will have cols columns and as many rows as necessary to 
     # store all charts. The columns width will be as large as possible.
@@ -93,13 +85,20 @@ class MDArray
       raise "Then number of columns has to be an integer and not #{cols}" if 
         !cols.is_a? Integer
 
-      columns_width = (@max_width / cols).floor
-      rows = (charts_num.to_f / cols).ceil
-      grid = new_grid([rows, cols])
-      grid.each_with_counter do |cel, count|
-        i = rows * count[0] + count[1]
-        grid[*count] = (i < names.size)? names[i] : "__bootstrap_empty__"
+      # Not used yet... 
+      # columns_width = (@max_width / cols).floor
+
+      if (charts_num <= cols)
+        grid = new_grid([charts_num])
+      else
+        rows = (charts_num.to_f / cols).ceil
+        grid = new_grid([rows, cols])
+        grid.each_with_counter do |cel, count|
+          i = rows * count[0] + count[1]
+          grid[*count] = (i < names.size)? names[i] : "__bootstrap_empty__"
+        end
       end
+
       add_grid(grid)
 
     end
@@ -118,23 +117,25 @@ class MDArray
 
     def bootstrap
       
+      container = "// Add new Bootstrap Container"
       container = "container = d3.select(\"body\").append(\"div\")"
       container << ".attr(\"class\", \"container\")"
-      container << ".attr(\"style\", \"font: 12px sans-serif;\");"
+      container << ".attr(\"style\", \"font: 12px sans-serif;\");\n\n"
 
       # Add a title row
-      container << "var title = container.append(\"div\").attr(\"class\", \"row\");"
+      container << "// Add a row for the dashboard title\n"
+      container << "var title = container.append(\"div\").attr(\"class\", \"row\");\n"
       container << "title.attr(\"class\", \"col-sm-12\")"
-      container << ".attr(\"id\", \"title\");"
-      container << "title.attr(\"align\", \"center\");\n"
+      container << ".attr(\"id\", \"title\")"
+      container << ".attr(\"align\", \"center\");\n"
       container << @title if @title
 
-      val = @root_grid[0]
-      if (val.is_a? String) 
-        raise "ooops... should not be here"
-      elsif (val.is_a? StringMDArray)
-        raise "Grid should have rank of at most 2" if val.get_rank > 2
-        container << "\n " << traverse(val, 12)
+      grid = @root_grid[0]
+      if (grid.is_a? StringMDArray)
+        raise "Grid should have rank of at most 2" if grid.get_rank > 2
+        container << "\n " << traverse(grid, 12)
+      elsif
+        raise "Something wrong happened! Sorry."
       end
 
       container
@@ -145,33 +146,64 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def traverse(grid, size)
+    def traverse(grid, size, gr = "container", g = 1)
 
       rank = grid.get_rank
       shape = grid.get_shape
+      span = size/shape[1]
 
-      span = size/shape[0]
-      if (span < 1)
-        raise "Grid specification invalid"
+      if (span < 1 || rank != 2)
+        raise "Grid specification invalid with rank: #{rank} and span #{span}"
       end
       
       row = 0
-      container = "row#{row} = container.append(\"div\").attr(\"class\", \"row\");\n "
+      col = 0
+      cel = "g#{g}_#{row}"
+      container = "var #{cel} = #{gr}.append(\"div\").attr(\"class\", \"row\");\n"
+      # gr = cel
+      push = String.new
+
       grid.each_with_counter do |val, counter|
-        if (rank == 2 && counter[0] > row)
+        # new row
+        if (counter[0] > row)
           row = counter[0]
-          container << "row#{row} = container.append(\"div\").attr(\"class\", \"row\");\n "
+          cel = "g#{g}_#{row}_#{col}"
+          container << "#{cel} = #{gr}.append(\"div\").attr(\"class\", \"row\");\n"
+          gr = cel
         end
+        # new column?
+        if (shape[1] > 1 && counter[1] >= col)
+          col = counter[1]
+          cel = "g#{g}_#{row}_#{col}"
+          container << "var #{cel} = #{gr}.append(\"div\").attr(\"class\", \"col-sm-#{span}\");\n"
+        end
+
         if (val.is_a? String)
-          container << "row#{row}.append(\"div\").attr(\"class\", \"col-sm-#{span}\")"
-          container << ".attr(\"id\", \"#{val}Chart\");\n "
+          # leaf cel
+          container << "#{cel}.attr(\"id\", \"#{val}Chart\");\n "
         elsif (val.is_a? StringMDArray)
-          container = traverse(val, span)
+          # new grid
+          # p "calling traverse with #{g + 1}"
+          push << traverse(val, span, cel, g + 1)
         end
       end
 
-      container
+      container + push
 
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    # private
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def add_grid(grid)
+      @root_grid[0] = grid
     end
 
   end

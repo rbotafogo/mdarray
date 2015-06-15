@@ -161,7 +161,9 @@ class MDArray
     end
 
     #------------------------------------------------------------------------------------
-    #
+    # Create a new chart of the given type and name, usign x_column for the x_axis and 
+    # y_column for the Y axis.  Set the default values for the chart.  Those values can
+    # be changed by the user later.
     #------------------------------------------------------------------------------------
     
     def chart(type, x_column, y_column, name)
@@ -256,7 +258,7 @@ EOS
       scrpt = String.new
       # add dashboard properties
       scrpt << props
-      # add bootstrap container
+      # add bootstrap container if it wasn't specified by the user
       @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
       scrpt << @scene.bootstrap
       # add dimensions (the x dimension)

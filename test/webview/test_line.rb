@@ -43,6 +43,93 @@ class DCFXTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
+
+    should "specify grid with 1 chart" do
+
+      db = MDArray.dashboard(1500, 700)
+      # need to check this method... might not have a date column
+      # db.add_data(ndx, dimensions_labels, ["Date"])
+
+      scene = db.scene
+      scene.title = "One Chart Grid"
+
+      grid = scene.new_grid([1, 1])
+      grid[0, 0] = "Chart1"
+      scene.add_grid(grid)
+
+      p scene.bootstrap
+      p
+      p
+
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "allow complex grid specification" do
+
+      # Read the data
+      ndx = MDArray.double("short.csv", true)
+      # Assing heading to the columns.  We cannot read the header from the file as 
+      # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
+      # it might be better to let Datasets be done in SciCom only.
+      dimensions_labels = 
+        MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
+                             "Adj Close"])
+
+      db = MDArray.dashboard(1500, 700)
+      db.add_data(ndx, dimensions_labels, ["Date"])
+      db.prepare_dimension("Time", "Date")
+
+      scene = db.scene
+      scene.title = "Complex scene"
+
+      grid_external = scene.new_grid([1, 2])
+
+      grid1 = scene.new_grid([2, 1])
+      grid1[0, 0] = "DateOpen"
+      grid1[1, 0] = "DateClose"
+
+      grid_external[0, 0] = grid1
+      grid_external[0, 1] = "DateVolume"
+
+      scene.add_grid(grid_external)
+
+      date = ndx.section([0, 0], [ndx.shape[0], 1])
+      date.reset_statistics
+
+      x_scale = MDArray.scale(:time)
+      x_scale.domain([date.min, date.max])
+
+      # minimal chart.  No options are set
+      g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
+        .width(600).height(200)
+        .x(x_scale)
+        #.description("Preço de abertura das ações. Observer que está ocorrendo uma clara tendência de queda no período.")
+
+      # maximal chart... all options availabe explicitly set
+      g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
+        .width(600).height(600)
+        .margins("{top: 10, right:10, bottom: 50, left: 80}")
+        .elastic_y(true)
+        .group("Time", :reduce_sum)
+        .x_axis_label("Data em dias")
+        .y_axis_label("Volumen em milhões (R$)")
+        .x(:time, [date.min, date.max])  # sets the x scale
+
+      g3 = db.chart(:line_chart, "Time", "High", "DateHigh")
+        .width(600).height(200)
+        .group("Time", :reduce_sum)
+        .x(:time, [date.min, date.max])  # sets the x scale
+
+      db.plot
+
+    end
+    
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
 =begin
     should "specify 1 graph dashboard" do
 
@@ -57,22 +144,15 @@ class DCFXTest < Test::Unit::TestCase
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      db = Dashboard.new(1500, 700)
-      db[] = "DateOpen"
-      db.add_data(ndx, dimensions_labels)
-      db.prepare_dimension("dateDimension", "Date")
+      db = MDArray.dashboard(1500, 700)
+      db.add_data(ndx, dimensions_labels, ["Date"])
 
-      g1 = MDArray.chart.new(:line_chart, "DateOpen")
+      g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
         .width(300)
         .height(200)
         .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .x("Date")
-        .y("Open")
-        .dimension("dateDimension")
         .elastic_y(true)
-        .group("dateDimension", "reduceSum") # needs to be defined after y
 
-      db.add_graph(g1)
       db.plot
 
     end
@@ -80,7 +160,7 @@ class DCFXTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-#=begin
+=begin
     should "access webview engine" do
 
       # Read the data
@@ -121,15 +201,12 @@ class DCFXTest < Test::Unit::TestCase
       x_scale = MDArray.scale(:time)
       x_scale.domain([date.min, date.max])
       x_scale.range([0, 10])
-=begin
-      x_scale.nice
-      x_scale.rangeRound
-=end
 
       # minimal chart.  No options are set
       g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
         .width(600).height(200)
-        .x(x_scale)   # sets the x scale
+        .x(x_scale)
+        #.description("Preço de abertura das ações. Observer que está ocorrendo uma clara tendência de queda no período.")
 
       # maximal chart... all options availabe explicitly set
       g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
@@ -149,7 +226,7 @@ class DCFXTest < Test::Unit::TestCase
       db.plot
 
    end
-#=end
+=end
 
   end
   
