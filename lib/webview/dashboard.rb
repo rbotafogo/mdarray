@@ -259,7 +259,7 @@ EOS
       # add dashboard properties
       scrpt << props
       # add bootstrap container if it wasn't specified by the user
-      @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
+      # @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
       scrpt << @scene.bootstrap
       # add dimensions (the x dimension)
       scrpt << dimensions_spec

@@ -70,8 +70,14 @@ class MDArray
     # String MDArray is actually an Object MDArray, so, any object can be added to it
     #------------------------------------------------------------------------------------
 
-    def new_grid(size)
-      MDArray.string(size)
+    def new_grid(shape)
+
+      if (shape.size != 2)
+        raise "Grid specification invalid - rank must be 2 and not: #{rank}"
+      end
+
+      MDArray.string(shape)
+
     end
 
     #------------------------------------------------------------------------------------
@@ -130,11 +136,15 @@ class MDArray
       container << ".attr(\"align\", \"center\");\n"
       container << @title if @title
 
+      container << "var main = container.append(\"div\").attr(\"class\", \"row\");\n"
+      container << "main.attr(\"class\", \"col-sm-12\")"
+
       grid = @root_grid[0]
       if (grid.is_a? StringMDArray)
         raise "Grid should have rank of at most 2" if grid.get_rank > 2
-        container << "\n " << traverse(grid, 12)
+        container << "\n " << traverse(grid, 12, "main")
       elsif
+        p grid
         raise "Something wrong happened! Sorry."
       end
 
@@ -146,7 +156,7 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def traverse(grid, size, gr = "container", g = 1)
+    def traverse(grid, size, parent = "container", g = 1)
 
       rank = grid.get_rank
       shape = grid.get_shape
@@ -156,26 +166,32 @@ class MDArray
         raise "Grid specification invalid with rank: #{rank} and span #{span}"
       end
       
-      row = 0
-      col = 0
-      cel = "g#{g}_#{row}"
-      container = "var #{cel} = #{gr}.append(\"div\").attr(\"class\", \"row\");\n"
-      # gr = cel
+      row = -1
+      col = -1
+      # cel = "g#{g}_#{row}"
+      # container = "var #{cel} = #{parent}.append(\"div\").attr(\"class\", \"row\");\n"
+      # parent = cel
+      container = String.new
       push = String.new
+      row_spec = String.new
+      cel = String.new
 
       grid.each_with_counter do |val, counter|
         # new row
         if (counter[0] > row)
+          col = -1    # reset the column counter
           row = counter[0]
-          cel = "g#{g}_#{row}_#{col}"
-          container << "#{cel} = #{gr}.append(\"div\").attr(\"class\", \"row\");\n"
-          gr = cel
+          row_spec = "g#{g}_#{row}"
+          container << "var #{row_spec} = #{parent}.append(\"div\").attr(\"class\", \"row\");\n"
+          # cel = row_spec
+          # parent = cel
         end
         # new column?
-        if (shape[1] > 1 && counter[1] >= col)
+        # if (shape[1] > 1 && counter[1] > col)
+        if (counter[1] > col)
           col = counter[1]
-          cel = "g#{g}_#{row}_#{col}"
-          container << "var #{cel} = #{gr}.append(\"div\").attr(\"class\", \"col-sm-#{span}\");\n"
+          cel = "#{row_spec}_#{col}"
+          container << "var #{cel} = #{row_spec}.append(\"div\").attr(\"class\", \"col-sm-#{span}\");\n"
         end
 
         if (val.is_a? String)
@@ -203,6 +219,7 @@ class MDArray
     #------------------------------------------------------------------------------------
 
     def add_grid(grid)
+      @specified = true
       @root_grid[0] = grid
     end
 

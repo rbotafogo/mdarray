@@ -43,7 +43,7 @@ class DCFXTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-
+=begin
     should "specify grid with 1 chart" do
 
       db = MDArray.dashboard(1500, 700)
@@ -60,6 +60,28 @@ class DCFXTest < Test::Unit::TestCase
       p scene.bootstrap
       p
       p
+
+    end
+=end
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    def specify_scene
+
+=begin
+      grid_external = scene.new_grid([2, 1])
+
+      grid1 = scene.new_grid([1, 2])
+      grid1[0, 0] = "DateOpen"
+      grid1[0, 1] = "DateClose"
+
+      grid_external[0, 0] = grid1
+      grid_external[1, 0] = "DateVolume"
+
+      scene.add_grid(grid_external)
+      p scene.bootstrap
+=end
 
     end
 
@@ -84,17 +106,19 @@ class DCFXTest < Test::Unit::TestCase
 
       scene = db.scene
       scene.title = "Complex scene"
-
+#=begin
       grid_external = scene.new_grid([1, 2])
 
       grid1 = scene.new_grid([2, 1])
       grid1[0, 0] = "DateOpen"
-      grid1[1, 0] = "DateClose"
+      grid1[1, 0] = "DateHigh"
 
       grid_external[0, 0] = grid1
       grid_external[0, 1] = "DateVolume"
 
       scene.add_grid(grid_external)
+      p scene.bootstrap
+#=end
 
       date = ndx.section([0, 0], [ndx.shape[0], 1])
       date.reset_statistics
@@ -110,7 +134,7 @@ class DCFXTest < Test::Unit::TestCase
 
       # maximal chart... all options availabe explicitly set
       g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
-        .width(600).height(600)
+        .width(600).height(400)
         .margins("{top: 10, right:10, bottom: 50, left: 80}")
         .elastic_y(true)
         .group("Time", :reduce_sum)
