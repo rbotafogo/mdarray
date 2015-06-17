@@ -117,7 +117,6 @@ class DCFXTest < Test::Unit::TestCase
       grid_external[0, 1] = "DateVolume"
 
       scene.add_grid(grid_external)
-      p scene.bootstrap
 #=end
 
       date = ndx.section([0, 0], [ndx.shape[0], 1])
@@ -135,16 +134,19 @@ class DCFXTest < Test::Unit::TestCase
       # maximal chart... all options availabe explicitly set
       g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
         .width(600).height(400)
-        .margins("{top: 10, right:10, bottom: 50, left: 80}")
+        .margins(top:10, right: 10, bottom: 50, left: 80)
         .elastic_y(true)
-        .group("Time", :reduce_sum)
+        .group(:reduce_sum)
         .x_axis_label("Data em dias")
         .y_axis_label("Volumen em milhões (R$)")
         .x(:time, [date.min, date.max])  # sets the x scale
 
+      # default_margins are = {top: 10, right: 50, bottom: 30, left: 30}.  Changing one of the four
+      # margins will keep the others as the default.
       g3 = db.chart(:line_chart, "Time", "High", "DateHigh")
         .width(600).height(200)
-        .group("Time", :reduce_sum)
+        .margins(left: 40)
+        .group(:reduce_sum)
         .x(:time, [date.min, date.max])  # sets the x scale
 
       db.plot

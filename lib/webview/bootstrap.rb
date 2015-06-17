@@ -73,7 +73,7 @@ class MDArray
     def new_grid(shape)
 
       if (shape.size != 2)
-        raise "Grid specification invalid - rank must be 2 and not: #{rank}"
+        raise "Grid specification invalid - rank must be 2 and not: #{shape.size}"
       end
 
       MDArray.string(shape)
@@ -95,7 +95,7 @@ class MDArray
       # columns_width = (@max_width / cols).floor
 
       if (charts_num <= cols)
-        grid = new_grid([charts_num])
+        grid = new_grid([charts_num, 1])
       else
         rows = (charts_num.to_f / cols).ceil
         grid = new_grid([rows, cols])

@@ -52,17 +52,17 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def initialize(type, dim, y_column, name)
+    def initialize(type, x_column, y_column, name)
 
       @type = type
-      @dim = dim
+      @dim = x_column + "Dimension"
       @jstype = Chart.chart_map[type]
       @y_column = y_column
       @name = name
       @spot = name + "Chart"
       @properties = Hash.new
 
-      dimension(MDArray.camelcase(dim.to_s))
+      dimension(MDArray.camelcase(@dim.to_s))
       
     end
     
@@ -72,7 +72,7 @@ class MDArray
 
     def width(val = nil)
       return @properties["width"] if !val
-      @properties["width"] = "width(#{val})"
+      @properties["width"] = val
       return self
     end
 
@@ -82,7 +82,7 @@ class MDArray
 
     def height(val = nil)
       return @properties["width"] if !val
-      @properties["height"] = "height(#{val})"
+      @properties["height"] = val
       return self
     end
 
@@ -92,7 +92,7 @@ class MDArray
 
     def dimension(val = nil)
       return @properties["dimension"] if !val
-      @properties["dimension"] = "dimension(#{val})"
+      @properties["dimension"] = val
       return self
     end
 
@@ -100,9 +100,22 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def margins(val = nil)
-      return @properties["width"] if !val
-      @properties["margins"] = "margins(#{val})"
+    def margins(margins_hash = nil)
+
+      return @properties["margins"] if !margins_hash
+
+      default_margins = {top: 10, right: 50, bottom: 30, left: 30}
+      margins_hash = default_margins.merge(margins_hash)
+
+      margins = "{"
+      margins_hash.each_pair do |key, m|
+        margins << "#{key}: #{m}, "
+      end
+      margins << "}"
+      margins[-3] = ""
+      p margins
+      @properties["margins"] = margins
+
       return self
     end
 
@@ -112,7 +125,7 @@ class MDArray
 
     def transition_duration(val = nil)
       return @properties["transitionDuration"] if !val
-      @properties["transitionDuration"] = "transitionDuration(#{val})"
+      @properties["transitionDuration"] = val
       return self
     end
 
@@ -122,7 +135,7 @@ class MDArray
 
     def x_axis_label(val = nil)
       return @properties["xAxisLabel"] if !val
-      @properties["xAxisLabel"] = "xAxisLabel(\"#{val}\")"
+      @properties["xAxisLabel"] = "\"#{val}\""
       return self
     end
 
@@ -132,7 +145,7 @@ class MDArray
 
     def y_axis_label(val = nil)
       return @properties["yAxisLabel"] if !val
-      @properties["yAxisLabel"] = "yAxisLabel(\"#{val}\")"
+      @properties["yAxisLabel"] = "\"#{val}\""
       return self
     end
 
@@ -142,7 +155,7 @@ class MDArray
 
     def elastic_y(bool = nil)
       return @properties["elasticY"] if !bool
-      @properties["elasticY"] = "elasticY(#{bool})"
+      @properties["elasticY"] = bool
       return self
     end
 
@@ -152,7 +165,7 @@ class MDArray
 
     def elastic_x(bool = nil)
       return @properties["elasticX"] if !bool
-      @properties["elasticX"] = "elasticX(#{bool})"
+      @properties["elasticX"] = bool
       return self
     end
 
@@ -169,7 +182,7 @@ class MDArray
         scale.domain(input_domain) if input_domain
         scale.range(input_range) if input_range
       end
-      @properties["x"] = "x(#{scale.spec})"
+      @properties["x"] = scale.spec
 
       return self
 
@@ -187,12 +200,12 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def group(column, method)
+    def group(method)
       
       @group_name = @name.downcase + "Group"
       @group = 
-        "var #{@group_name} = #{column + "Dimension"}.group().#{MDArray.camelcase(method.to_s)}(function(d) {return d[\"#{@y_column}\"];});"
-      @properties["group"] = "group(#{@group_name})"
+        "var #{@group_name} = #{@dim}.group().#{MDArray.camelcase(method.to_s)}(function(d) {return d[\"#{@y_column}\"];});"
+      @properties["group"] = @group_name
       return self
 
     end
@@ -206,7 +219,7 @@ class MDArray
       # start the chart specification
       str = @name
       @properties.each_pair do |key, value|
-        str << "." + "#{value}"
+        str << "." + "#{key}(#{value})"
       end
       str << ";"
       str

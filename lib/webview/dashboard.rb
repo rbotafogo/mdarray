@@ -128,7 +128,7 @@ class MDArray
     # adds the data to the javascript environment
     #------------------------------------------------------------------------------------
 
-    def add_data(data, dimension_labels, date_columns = nil)
+    def add_data(data, dimension_labels, date_columns = [])
       @data = data
       @dimension_labels = dimension_labels
       @date_columns = date_columns
@@ -168,16 +168,16 @@ class MDArray
     
     def chart(type, x_column, y_column, name)
 
-      dimension = x_column + "Dimension"
-      prepare_dimension(x_column, x_column) if (@base_dimensions[dimension] == nil)
-      chart = MDArray::Chart.new(type, dimension, y_column, name)
+      prepare_dimension(x_column, x_column) if (@base_dimensions[x_column + "Dimension"] == nil)
+
+      chart = MDArray::Chart.new(type, x_column, y_column, name)
 
       # Set chart defaults. Should preferably be read from a config file 
       chart.elastic_y(true)
       chart.x_axis_label(x_column)
       chart.y_axis_label(y_column)
       # p "type: #{type}, x_column #{x_column}, y_column #{y_column}, name #{name}"
-      chart.group(x_column, :reduce_sum)
+      chart.group(:reduce_sum)
 
       @charts[name] = chart
       chart
@@ -259,7 +259,7 @@ EOS
       # add dashboard properties
       scrpt << props
       # add bootstrap container if it wasn't specified by the user
-      # @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
+      @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
       scrpt << @scene.bootstrap
       # add dimensions (the x dimension)
       scrpt << dimensions_spec
