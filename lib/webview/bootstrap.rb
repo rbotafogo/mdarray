@@ -93,18 +93,21 @@ class MDArray
 
       # Not used yet... 
       # columns_width = (@max_width / cols).floor
+      rows = 0
 
       if (charts_num <= cols)
-        grid = new_grid([charts_num, 1])
+        rows = 1
+        grid = new_grid([charts_num, rows])
       else
         rows = (charts_num.to_f / cols).ceil
         grid = new_grid([rows, cols])
-        grid.each_with_counter do |cel, count|
-          i = rows * count[0] + count[1]
-          grid[*count] = (i < names.size)? names[i] : "__bootstrap_empty__"
-        end
       end
-
+      
+      grid.each_with_counter do |cel, count|
+        i = rows * count[0] + count[1]
+        grid[*count] = (i < names.size)? names[i] : "__bootstrap_empty__"
+      end
+      
       add_grid(grid)
 
     end

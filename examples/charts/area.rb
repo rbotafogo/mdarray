@@ -11,9 +11,15 @@ chart = db.chart(:line_chart, "Run", "Speed", "RunSpeed")
   .width(768)
   .height(480)
   .x(:linear, [1, 20])
-  .margins("{left: 50, top: 10, right: 10, bottom: 20}")
+  .margins(left: 50, top: 10, right: 10, bottom: 50)
   .y_axis_label("This is the Y Axis!")
-  .group("Run", :reduce_sum);
+  .render_area(true)
+  .render_data_points(true)
+  .clip_padding(10)
+  .brush_on(false)
+  .group(:reduce_sum)
+
+# chart.stack("Run", :reduce_count)
 
 db.plot
 

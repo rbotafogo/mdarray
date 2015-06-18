@@ -21,6 +21,12 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+# Required Mixins for charts
+require_relative "base_chart"
+require_relative "coordinate_chart"
+require_relative "margins"
+require_relative "stack"
+
 #==========================================================================================
 #
 #==========================================================================================
@@ -32,6 +38,23 @@ class MDArray
   #==========================================================================================
 
   class Chart
+    include BaseChart
+
+    def self.build(type, x_column, y_column, name)
+      case type
+      when :line_chart
+        return LineChart.new(type, x_column, y_column, name)
+      when :bar_chart
+        return BarChart.new(type, x_column, y_column, name)
+      else
+        return Chart.new(type, x_column, y_column, name)
+      end
+
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
 
     class << self
       attr_reader :chart_map
@@ -65,151 +88,7 @@ class MDArray
       dimension(MDArray.camelcase(@dim.to_s))
       
     end
-    
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def width(val = nil)
-      return @properties["width"] if !val
-      @properties["width"] = val
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def height(val = nil)
-      return @properties["width"] if !val
-      @properties["height"] = val
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def dimension(val = nil)
-      return @properties["dimension"] if !val
-      @properties["dimension"] = val
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def margins(margins_hash = nil)
-
-      return @properties["margins"] if !margins_hash
-
-      default_margins = {top: 10, right: 50, bottom: 30, left: 30}
-      margins_hash = default_margins.merge(margins_hash)
-
-      margins = "{"
-      margins_hash.each_pair do |key, m|
-        margins << "#{key}: #{m}, "
-      end
-      margins << "}"
-      margins[-3] = ""
-      p margins
-      @properties["margins"] = margins
-
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def transition_duration(val = nil)
-      return @properties["transitionDuration"] if !val
-      @properties["transitionDuration"] = val
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def x_axis_label(val = nil)
-      return @properties["xAxisLabel"] if !val
-      @properties["xAxisLabel"] = "\"#{val}\""
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def y_axis_label(val = nil)
-      return @properties["yAxisLabel"] if !val
-      @properties["yAxisLabel"] = "\"#{val}\""
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def elastic_y(bool = nil)
-      return @properties["elasticY"] if !bool
-      @properties["elasticY"] = bool
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def elastic_x(bool = nil)
-      return @properties["elasticX"] if !bool
-      @properties["elasticX"] = bool
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    # Defines the x scale for the chart
-    #------------------------------------------------------------------------------------
-
-    def x(type, input_domain = nil, input_range = nil)
-
-      if (type.is_a? MDArray::Scale)
-        scale = type
-      else
-        scale = MDArray.scale(type)
-        scale.domain(input_domain) if input_domain
-        scale.range(input_range) if input_range
-      end
-      @properties["x"] = scale.spec
-
-      return self
-
-    end
-    
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def grouped?
-      @group != nil
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def group(method)
-      
-      @group_name = @name.downcase + "Group"
-      @group = 
-        "var #{@group_name} = #{@dim}.group().#{MDArray.camelcase(method.to_s)}(function(d) {return d[\"#{@y_column}\"];});"
-      @properties["group"] = @group_name
-      return self
-
-    end
-
+        
     #------------------------------------------------------------------------------------
     #
     #------------------------------------------------------------------------------------
@@ -252,25 +131,4 @@ EOS
   
 end
 
-
-=begin
-    //timeDimension = facts.dimension(#{@dimension});
-=end
-
-=begin
-    gr = header + <<EOS
-
-    #{@name}
-	    .width(#{@width}).height(#{@height})
-      .margins({top: 10, right: 10, bottom: 50, left: 100})
-	    .dimension(timeDimension)
-      .transitionDuration(500)
-      .xAxisLabel("#{@x}")
-      .yAxisLabel("#{@y}")
-      .elasticY(true)
-	    .group(y)
-	    .x(d3.time.scale().domain([xMin, xMax]))
-      .xAxis().tickFormat();
-      
-EOS
-=end
+require_relative "line_chart"

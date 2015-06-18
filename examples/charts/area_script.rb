@@ -5,7 +5,6 @@ end
 
 require 'mdarray'
 
-
 scrpt = <<EOS
 
 // Add bootstrap containers
@@ -63,7 +62,7 @@ ndx = MDArray.double("morley.csv", true)
 dimensions_labels = 
   MDArray.string([3], ["Expt", "Run", "Speed"])
 
-db = MDArray::Dashboard.new(1300, 600)
+db = MDArray.dashboard(1300, 600)
 db.add_data(ndx, dimensions_labels, [])
 db.set_demo_script(scrpt)
 db.plot

@@ -170,7 +170,7 @@ class MDArray
 
       prepare_dimension(x_column, x_column) if (@base_dimensions[x_column + "Dimension"] == nil)
 
-      chart = MDArray::Chart.new(type, x_column, y_column, name)
+      chart = MDArray::Chart.build(type, x_column, y_column, name)
 
       # Set chart defaults. Should preferably be read from a config file 
       chart.elastic_y(true)
@@ -248,16 +248,16 @@ EOS
     def run(web_engine)
 
       prepare_engine(web_engine)
+      # scrpt will have the javascript specification
+      scrpt = String.new
+      # add dashboard properties
+      scrpt << props
 
       if (@demo_script)
         @web_engine.executeScript(scrpt + @demo_script)
         return
       end
 
-      # scrpt will have the javascript specification
-      scrpt = String.new
-      # add dashboard properties
-      scrpt << props
       # add bootstrap container if it wasn't specified by the user
       @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
       scrpt << @scene.bootstrap
