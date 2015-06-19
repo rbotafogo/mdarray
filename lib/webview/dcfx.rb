@@ -21,6 +21,14 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+class MyClass
+  include javafx.beans.value.ChangeListener
+
+  def changed(ov, old_state, new_state)
+    p "I'm now changed"
+  end
+end
+
 
 #==========================================================================================
 #
@@ -75,6 +83,7 @@ class DCFX < JRubyFX::Application
     script_button = build(Button, "Run script")
     script_button.set_on_action { |e| plot }
 
+
     # Add a menu bar
     menu_bar = build(MenuBar)
     menu_filters = build(Menu, "Filters")
@@ -82,13 +91,18 @@ class DCFX < JRubyFX::Application
     # add_filters
     menu_bar.get_menus.add_all(menu_filters)
 
+    @web_engine.getLoadWorker().stateProperty().
+      addListener(ChangeListener.impl do |ov, old_state, new_state|
+                    DCFX.dashboard.run(@web_engine)
+                  end)
+
     with(stage, title: "MDArray Chart Library (based on DC.js)") do
       Platform.set_implicit_exit(false)
       layout_scene(DCFX.width, DCFX.height, :oldlace) do
         pane = border_pane do
           top menu_bar 
           center browser
-          right script_button
+          # right script_button
         end
       end
       set_on_close_request do
@@ -96,6 +110,14 @@ class DCFX < JRubyFX::Application
       end
       show
     end
+
+=begin
+    @web_engine.set_on_status_changed { |e| p e.toString() }
+    @web_engine.set_on_alert { |e| p e.toString() }
+    @web_engine.set_on_resized { |e| p e.toString() }
+    @web_engine.set_on_visibility_changed { |e| p e.toString() }
+    browser.set_on_mouse_entered { |e| p e.toString() }
+=end
 
   end
 
