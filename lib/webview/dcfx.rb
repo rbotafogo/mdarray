@@ -21,21 +21,77 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-class MyClass
-  include javafx.beans.value.ChangeListener
+#==========================================================================================
+# This class executes on a backgroud thread, not the GUI thread.
+#==========================================================================================
 
-  def changed(ov, old_state, new_state)
-    p "I'm now changed"
+class MyTask < javafx.concurrent.Task
+
+  #----------------------------------------------------------------------------------------
+  #
+  #----------------------------------------------------------------------------------------
+
+  def call
+    begin
+      msg = DCFX.dashboard.queue.take()
+      return msg                             # this is the returned message to the handle
+    rescue java.lang.InterruptedException => e
+      if (is_cancelled)
+        updateMessage("Cancelled")
+      end
+    end
+
   end
+
 end
 
+#==========================================================================================
+# This class executes in the GUI thread.
+#==========================================================================================
+
+class MyHandle
+  include javafx.event.EventHandler
+
+  def initialize(web_engine)
+    @web_engine = web_engine
+    @window = @web_engine.executeScript("window")
+    @document = @window.eval("document")
+    @web_engine.setJavaScriptEnabled(true)
+  end
+
+  def handle(event)
+    method, scrpt = event.getSource().getValue()
+    case method
+    when :eval
+      p "evaluating script"
+      p scrpt
+      @web_engine.executeScript(scrpt)
+    when :print
+      p scrpt
+    else
+      DCFX.dashboard.send(method, @window, scrpt)
+    end
+  end
+
+end
+
+#==========================================================================================
+#
+#==========================================================================================
+
+class MyScheduledService < javafx.concurrent.ScheduledService
+
+  def createTask
+    MyTask.new
+  end
+
+end
 
 #==========================================================================================
 #
 #==========================================================================================
 
 class DCFX < JRubyFX::Application
-  include_package "javax.script"
 
   #----------------------------------------------------------------------------------------
   #
@@ -56,14 +112,6 @@ class DCFX < JRubyFX::Application
   #
   #----------------------------------------------------------------------------------------
 
-  def plot
-    DCFX.dashboard.run(@web_engine)
-  end
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
   def start(stage)
 
     browser = WebView.new
@@ -74,26 +122,30 @@ class DCFX < JRubyFX::Application
     fil = f.toURI().toURL().toString()
     @web_engine.load(fil)
 
+    service = MyScheduledService.new
+    service.set_on_succeeded(MyHandle.new(@web_engine))
+
     #--------------------------------------------------------------------------------------
     # User Interface
     #--------------------------------------------------------------------------------------
 
     # Add button to run the script. Later should be removed as the graph is supposed to 
     # run when the window is loaded
-    script_button = build(Button, "Run script")
-    script_button.set_on_action { |e| plot }
+    # script_button = build(Button, "Run script")
+    # script_button.set_on_action { |e| plot }
 
 
-    # Add a menu bar
-    menu_bar = build(MenuBar)
-    menu_filters = build(Menu, "Filters")
+    # Example on how to: Add a menu bar -- do not delete (yet!)
+    # menu_bar = build(MenuBar)
+    # menu_filters = build(Menu, "Filters")
     # add filters to the filter menu
     # add_filters
-    menu_bar.get_menus.add_all(menu_filters)
+    # menu_bar.get_menus.add_all(menu_filters)
 
     @web_engine.getLoadWorker().stateProperty().
       addListener(ChangeListener.impl do |ov, old_state, new_state|
-                    DCFX.dashboard.run(@web_engine)
+                    DCFX.dashboard.run
+                    service.start()
                   end)
 
     with(stage, title: "MDArray Chart Library (based on DC.js)") do
@@ -143,3 +195,14 @@ class DCFX < JRubyFX::Application
 
 end
 
+
+
+=begin
+class MyClass
+  include javafx.beans.value.ChangeListener
+
+  def changed(ov, old_state, new_state)
+    p "I'm now changed"
+  end
+end
+=end

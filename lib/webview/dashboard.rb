@@ -83,6 +83,9 @@ class MDArray
     attr_reader :height
     attr_reader :charts
     attr_reader :scene
+    attr_reader :script           # automatically generated javascript script for this dashboard
+
+    attr_reader :queue            # communication queue
 
     attr_reader :data
     attr_reader :dimension_labels
@@ -96,6 +99,19 @@ class MDArray
     attr_reader :demo_script
 
     #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def init
+      # prepare a bootstrap scene specification for this dashboard
+      @scene = Bootstrap.new(width)
+      @charts = Hash.new
+      @properties = Hash.new
+      @base_dimensions = Hash.new
+      @demo_script = false
+    end
+
+    #------------------------------------------------------------------------------------
     # Launches the UI and passes self so that it can add elements to it.
     #------------------------------------------------------------------------------------
 
@@ -103,21 +119,33 @@ class MDArray
 
       @width = width
       @height = height
-
-      # prepare a bootstrap scene specification for this dashboard
-      @scene = Bootstrap.new(width)
-      @charts = Hash.new
-      @properties = Hash.new
-      @base_dimensions = Hash.new
-
-      @demo_script = false
+      @queue = java.util.concurrent::LinkedTransferQueue.new
+      # @queue = java.util.concurrent::LinkedBlockingQueue.new(1)
+      init
+      super()
 
     end
-    
+   
+    #------------------------------------------------------------------------------------
+    # Adds a new message to the dashboard.  This message will be consumed by the GUI
+    #------------------------------------------------------------------------------------
+
+    def add_message(message)
+      @queue.add(message)
+    end
+
+    #------------------------------------------------------------------------------------
+    # Method for the GUI to retrieve a message
+    #------------------------------------------------------------------------------------
+
+    def get_message
+      @queue.take()
+    end
+
     #------------------------------------------------------------------------------------
     #
     #------------------------------------------------------------------------------------
-
+ 
     def time_format(val = nil)
       return @properties["timeFormat"] if !val
       @properties["timeFormat"] = "var timeFormat = d3.time.format(\"#{val}\");"
@@ -132,6 +160,18 @@ class MDArray
       @data = data
       @dimension_labels = dimension_labels
       @date_columns = date_columns
+      # inform the GUI to add the data, by callling method _add_data
+      add_message([:_add_data, nil])
+    end
+
+    #------------------------------------------------------------------------------------
+    # This method is to be called only by the GUI
+    #------------------------------------------------------------------------------------
+
+    def _add_data(window, scrpt)
+      # Intitialize variable nc_array and dimension_labels on javascript side
+      window.setMember("native_array", @data.nc_array)
+      window.setMember("labels", @dimension_labels.nc_array)
     end
 
     #------------------------------------------------------------------------------------
@@ -228,33 +268,15 @@ EOS
     #
     #------------------------------------------------------------------------------------
 
-    def prepare_engine(web_engine)
+    def run
 
-      @web_engine = web_engine
-      @window = @web_engine.executeScript("window")
-      @document = @window.eval("document")
-      @web_engine.setJavaScriptEnabled(true)
-
-      # Intitialize variable nc_array and dimension_labels on javascript side
-      @window.setMember("native_array", @data.nc_array)
-      @window.setMember("labels", @dimension_labels.nc_array)
-
-    end
-
-    #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def run(web_engine)
-
-      prepare_engine(web_engine)
       # scrpt will have the javascript specification
       scrpt = String.new
       # add dashboard properties
       scrpt << props
 
       if (@demo_script)
-        @web_engine.executeScript(scrpt + @demo_script)
+        add_message(@demo_script)
         return
       end
 
@@ -271,11 +293,8 @@ EOS
       # render all charts
       scrpt += "dc.renderAll();"
 
-      # for testing purposes, print to the console the javascript
-      p scrpt
-
-      @web_engine.executeScript(scrpt)
-
+      add_message([:eval, scrpt])
+      
     end
     
     #------------------------------------------------------------------------------------
@@ -284,9 +303,10 @@ EOS
     
     def plot
       if !DCFX.launched?
-        DCFX.launch(self, @width, @height) 
+        Thread.new { DCFX.launch(self, @width, @height) }
       else
         p "already lauched"
+        run
       end
     end
 
