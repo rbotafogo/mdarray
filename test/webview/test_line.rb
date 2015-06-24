@@ -151,17 +151,20 @@ class DCFXTest < Test::Unit::TestCase
 
       db.plot
 
-#=begin
+      db.add_message([:eval, "d3.select(\"body\").append(\"div\").text(\"hi there\");"])
+
+=begin
       p "finished plotting first set"
 
       db2 = MDArray.dashboard(1500, 700)
+      db2.add_data(ndx, dimensions_labels, ["Date"])
 
       g = db2.chart(:line_chart, "Date", "Open", "DateOpen")
         .width(600).height(200)
         .x(x_scale)
       
       db2.plot
-#=end
+=end
 
     end
     

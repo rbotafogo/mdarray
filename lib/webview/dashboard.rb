@@ -22,6 +22,7 @@
 ##########################################################################################
 
 require 'jrubyfx'
+require 'singleton'
 
 require_relative 'dcfx'
 require_relative 'scale'
@@ -85,7 +86,7 @@ class MDArray
     attr_reader :scene
     attr_reader :script           # automatically generated javascript script for this dashboard
 
-    attr_reader :queue            # communication queue
+    attr_reader :bridge            # communication channel
 
     attr_reader :data
     attr_reader :dimension_labels
@@ -99,19 +100,6 @@ class MDArray
     attr_reader :demo_script
 
     #------------------------------------------------------------------------------------
-    #
-    #------------------------------------------------------------------------------------
-
-    def init
-      # prepare a bootstrap scene specification for this dashboard
-      @scene = Bootstrap.new(width)
-      @charts = Hash.new
-      @properties = Hash.new
-      @base_dimensions = Hash.new
-      @demo_script = false
-    end
-
-    #------------------------------------------------------------------------------------
     # Launches the UI and passes self so that it can add elements to it.
     #------------------------------------------------------------------------------------
 
@@ -119,9 +107,15 @@ class MDArray
 
       @width = width
       @height = height
-      @queue = java.util.concurrent::LinkedTransferQueue.new
-      # @queue = java.util.concurrent::LinkedBlockingQueue.new(1)
-      init
+
+      @bridge = Bridge.instance
+
+      # prepare a bootstrap scene specification for this dashboard
+      @scene = Bootstrap.new(width)
+      @charts = Hash.new
+      @properties = Hash.new
+      @base_dimensions = Hash.new
+      @demo_script = false
       super()
 
     end
@@ -131,7 +125,7 @@ class MDArray
     #------------------------------------------------------------------------------------
 
     def add_message(message)
-      @queue.add(message)
+      @bridge.queue.put(message)
     end
 
     #------------------------------------------------------------------------------------
@@ -139,7 +133,7 @@ class MDArray
     #------------------------------------------------------------------------------------
 
     def get_message
-      @queue.take()
+      @bridge.queue.take()
     end
 
     #------------------------------------------------------------------------------------
@@ -160,8 +154,6 @@ class MDArray
       @data = data
       @dimension_labels = dimension_labels
       @date_columns = date_columns
-      # inform the GUI to add the data, by callling method _add_data
-      add_message([:_add_data, nil])
     end
 
     #------------------------------------------------------------------------------------
@@ -302,12 +294,21 @@ EOS
     #------------------------------------------------------------------------------------
     
     def plot
+
       if !DCFX.launched?
         Thread.new { DCFX.launch(self, @width, @height) }
+        # Need to stop here until the plot is done!!!
+        # sleep(5)
       else
         p "already lauched"
+        DCFX.dashboard = self
         run
       end
+
+      @bridge.mutex.synchronize {
+        @bridge.cv.wait(@bridge.mutex)
+      }
+
     end
 
     #------------------------------------------------------------------------------------
@@ -319,7 +320,28 @@ EOS
     end
     
   end
-  
+
+  private
+
+  #==========================================================================================
+  #
+  #==========================================================================================
+
+  class Bridge
+    include Singleton
+
+    attr_reader :queue            # comunication queue
+    attr_reader :cv               # conditional variable
+    attr_reader :mutex            # mutex
+
+    def initialize
+      @queue = java.util.concurrent::LinkedBlockingQueue.new(1)
+      @cv = ConditionVariable.new
+      @mutex = Mutex.new
+    end
+    
+  end
+
 end
 
 require_relative 'chart'

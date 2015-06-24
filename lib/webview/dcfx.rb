@@ -33,7 +33,10 @@ class MyTask < javafx.concurrent.Task
 
   def call
     begin
-      msg = DCFX.dashboard.queue.take()
+      # p "reading queue"
+      # p DCFX.dashboard.bridge.queue.size()
+      msg = DCFX.dashboard.get_message
+      # p msg
       return msg                             # this is the returned message to the handle
     rescue java.lang.InterruptedException => e
       if (is_cancelled)
@@ -52,25 +55,33 @@ end
 class MyHandle
   include javafx.event.EventHandler
 
-  def initialize(web_engine)
+  def initialize(web_engine, service)
     @web_engine = web_engine
+    @service = service
+
     @window = @web_engine.executeScript("window")
     @document = @window.eval("document")
     @web_engine.setJavaScriptEnabled(true)
+
+    # Add data to the dashboard.  Needs improvement!!!!!!
+    DCFX.dashboard._add_data(@window, nil)
   end
 
   def handle(event)
     method, scrpt = event.getSource().getValue()
     case method
     when :eval
-      p "evaluating script"
-      p scrpt
       @web_engine.executeScript(scrpt)
     when :print
       p scrpt
     else
       DCFX.dashboard.send(method, @window, scrpt)
     end
+
+    DCFX.dashboard.bridge.mutex.synchronize {
+      DCFX.dashboard.bridge.cv.signal
+    }
+    @service.restart()
   end
 
 end
@@ -79,7 +90,7 @@ end
 #
 #==========================================================================================
 
-class MyScheduledService < javafx.concurrent.ScheduledService
+class MyService < javafx.concurrent.Service
 
   def createTask
     MyTask.new
@@ -122,8 +133,8 @@ class DCFX < JRubyFX::Application
     fil = f.toURI().toURL().toString()
     @web_engine.load(fil)
 
-    service = MyScheduledService.new
-    service.set_on_succeeded(MyHandle.new(@web_engine))
+    service = MyService.new
+    service.set_on_succeeded(MyHandle.new(@web_engine, service))
 
     #--------------------------------------------------------------------------------------
     # User Interface
@@ -144,8 +155,8 @@ class DCFX < JRubyFX::Application
 
     @web_engine.getLoadWorker().stateProperty().
       addListener(ChangeListener.impl do |ov, old_state, new_state|
-                    DCFX.dashboard.run
                     service.start()
+                    DCFX.dashboard.run
                   end)
 
     with(stage, title: "MDArray Chart Library (based on DC.js)") do
