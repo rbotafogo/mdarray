@@ -21,7 +21,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-class MDArray
+class Sol
 
   #------------------------------------------------------------------------------------
   #
@@ -31,11 +31,11 @@ class MDArray
     
     case type
     when :time
-      scale = MDArray::TimeScale.new
+      scale = Sol::TimeScale.new
     when :time_utc
-      scale = MDArray::TimeScale.new(true)
+      scale = Sol::TimeScale.new(true)
     when :linear
-      scale = MDArray::LinearScale.new
+      scale = Sol::LinearScale.new
     when :identity
       identity_scale(domain, range)
     when :power

@@ -26,7 +26,7 @@
 #
 #==========================================================================================
 
-class MDArray
+class Sol
 
   #==========================================================================================
   #
@@ -34,7 +34,6 @@ class MDArray
   
   class Bootstrap
 
-    attr_reader :max_width
     attr_reader :root_grid
     attr_reader :specified
 
@@ -42,8 +41,7 @@ class MDArray
     #
     #------------------------------------------------------------------------------------
 
-    def initialize(max_width)
-      @max_width = max_width
+    def initialize
       @specified = false  # scene has not yet been defined
       @root_grid = MDArray.string([1])  # base grid with one row
     end

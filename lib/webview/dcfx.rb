@@ -25,188 +25,207 @@
 # This class executes on a backgroud thread, not the GUI thread.
 #==========================================================================================
 
-class MyTask < javafx.concurrent.Task
+class Sol
+  
+  class Dashboard
 
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
-  def call
-    begin
-      # p "reading queue"
-      # p DCFX.dashboard.bridge.queue.size()
-      msg = DCFX.dashboard.get_message
-      # p msg
-      return msg                             # this is the returned message to the handle
-    rescue java.lang.InterruptedException => e
-      if (is_cancelled)
-        updateMessage("Cancelled")
-      end
-    end
-
-  end
-
-end
-
-#==========================================================================================
-# This class executes in the GUI thread.
-#==========================================================================================
-
-class MyHandle
-  include javafx.event.EventHandler
-
-  def initialize(web_engine, service)
-    @web_engine = web_engine
-    @service = service
-
-    @window = @web_engine.executeScript("window")
-    @document = @window.eval("document")
-    @web_engine.setJavaScriptEnabled(true)
-
-    # Add data to the dashboard.  Needs improvement!!!!!!
-    DCFX.dashboard._add_data(@window, nil)
-  end
-
-  def handle(event)
-    method, scrpt = event.getSource().getValue()
-    case method
-    when :eval
-      @web_engine.executeScript(scrpt)
-    when :print
-      p scrpt
-    else
-      DCFX.dashboard.send(method, @window, scrpt)
-    end
-
-    DCFX.dashboard.bridge.mutex.synchronize {
-      DCFX.dashboard.bridge.cv.signal
-    }
-    @service.restart()
-  end
-
-end
-
-#==========================================================================================
-#
-#==========================================================================================
-
-class MyService < javafx.concurrent.Service
-
-  def createTask
-    MyTask.new
-  end
-
-end
-
-#==========================================================================================
-#
-#==========================================================================================
-
-class DCFX < JRubyFX::Application
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
-  class << self
-
-    attr_accessor :dashboard
-    attr_accessor :width
-    attr_accessor :height
-
-    attr_accessor :launched
-    attr_reader :web_engine
-
-  end
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
-  def start(stage)
-
-    browser = WebView.new
-    @web_engine = browser.getEngine()
+    private
     
-    # Load configuration file
-    f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/config.html")
-    fil = f.toURI().toURL().toString()
-    @web_engine.load(fil)
+    class MyTask < javafx.concurrent.Task
+      
+      def initialize
+        @bridge = Bridge.instance
+      end
 
-    service = MyService.new
-    service.set_on_succeeded(MyHandle.new(@web_engine, service))
-
-    #--------------------------------------------------------------------------------------
-    # User Interface
-    #--------------------------------------------------------------------------------------
-
-    # Add button to run the script. Later should be removed as the graph is supposed to 
-    # run when the window is loaded
-    # script_button = build(Button, "Run script")
-    # script_button.set_on_action { |e| plot }
-
-
-    # Example on how to: Add a menu bar -- do not delete (yet!)
-    # menu_bar = build(MenuBar)
-    # menu_filters = build(Menu, "Filters")
-    # add filters to the filter menu
-    # add_filters
-    # menu_bar.get_menus.add_all(menu_filters)
-
-    @web_engine.getLoadWorker().stateProperty().
-      addListener(ChangeListener.impl do |ov, old_state, new_state|
-                    service.start()
-                    DCFX.dashboard.run
-                  end)
-
-    with(stage, title: "MDArray Chart Library (based on DC.js)") do
-      Platform.set_implicit_exit(false)
-      layout_scene(DCFX.width, DCFX.height, :oldlace) do
-        pane = border_pane do
-          top menu_bar 
-          center browser
-          # right script_button
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+      
+      def call
+        begin
+          msg = @bridge.take
+          # p msg
+          return msg                             # this is the returned message to the handle
+        rescue java.lang.InterruptedException => e
+          if (is_cancelled)
+            updateMessage("Cancelled")
+          end
         end
+
       end
-      set_on_close_request do
-        stage.close
-      end
-      show
+
     end
+
+    #==========================================================================================
+    # This class executes in the GUI thread.
+    #==========================================================================================
+
+    class MyHandle
+      include javafx.event.EventHandler
+
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+
+      def initialize(web_engine, service)
+        
+        @web_engine = web_engine
+        @service = service
+
+        @window = @web_engine.executeScript("window")
+        @document = @window.eval("document")
+        @web_engine.setJavaScriptEnabled(true)
+        @bridge = Bridge.instance
+        
+      end
+
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+      
+      def handle(event)
+        
+        # method, scrpt = event.getSource().getValue()
+        receiver, method, *args = event.getSource().getValue()
+        
+        case receiver
+        when :gui
+          receiver = @web_engine
+        when :window
+          receiver = @window
+        end
+        
+        receiver.send(method, *args)
+
+        @bridge.mutex.synchronize {
+          @bridge.cv.signal
+        }
+        @service.restart()
+        
+      end
+
+    end
+
+    #==========================================================================================
+    #
+    #==========================================================================================
+
+    class MyService < javafx.concurrent.Service
+
+      def createTask
+        MyTask.new
+      end
+
+    end
+
+    #==========================================================================================
+    #
+    #==========================================================================================
+
+    class DCFX < JRubyFX::Application
+      
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+
+      class << self
+
+        attr_accessor :dashboard
+        attr_accessor :width
+        attr_accessor :height
+        attr_accessor :launched
+
+      end
+
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+
+      def start(stage)
+
+        browser = WebView.new
+        @web_engine = browser.getEngine()
+        
+        # Load configuration file
+        f = Java::JavaIo.File.new("#{File.dirname(__FILE__)}/config.html")
+        fil = f.toURI().toURL().toString()
+        @web_engine.load(fil)
+
+        service = MyService.new
+        service.set_on_succeeded(MyHandle.new(@web_engine, service))
+
+        #--------------------------------------------------------------------------------------
+        # User Interface
+        #--------------------------------------------------------------------------------------
+
+        # Add button to run the script. Later should be removed as the graph is supposed to 
+        # run when the window is loaded
+        # script_button = build(Button, "Run script")
+        # script_button.set_on_action { |e| plot }
+
+
+        # Example on how to: Add a menu bar -- do not delete (yet!)
+        # menu_bar = build(MenuBar)
+        # menu_filters = build(Menu, "Filters")
+        # add filters to the filter menu
+        # add_filters
+        # menu_bar.get_menus.add_all(menu_filters)
+
+        @web_engine.getLoadWorker().stateProperty().
+          addListener(ChangeListener.impl do |ov, old_state, new_state|
+                        service.start()
+                      end)
+
+        with(stage, title: "Sol Charting Library (based on DC.js)") do
+          Platform.set_implicit_exit(false)
+          layout_scene(DCFX.width, DCFX.height, :oldlace) do
+            pane = border_pane do
+              top menu_bar 
+              center browser
+              # right script_button
+            end
+          end
+          set_on_close_request do
+            stage.close
+          end
+          show
+        end
 
 =begin
-    @web_engine.set_on_status_changed { |e| p e.toString() }
-    @web_engine.set_on_alert { |e| p e.toString() }
-    @web_engine.set_on_resized { |e| p e.toString() }
-    @web_engine.set_on_visibility_changed { |e| p e.toString() }
-    browser.set_on_mouse_entered { |e| p e.toString() }
+        @web_engine.set_on_status_changed { |e| p e.toString() }
+        @web_engine.set_on_alert { |e| p e.toString() }
+        @web_engine.set_on_resized { |e| p e.toString() }
+        @web_engine.set_on_visibility_changed { |e| p e.toString() }
+        browser.set_on_mouse_entered { |e| p e.toString() }
 =end
 
+      end
+
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+
+      def self.launched?
+        (DCFX.launched)? true : false
+      end
+
+      #----------------------------------------------------------------------------------------
+      #
+      #----------------------------------------------------------------------------------------
+      
+      def self.launch(dashboard, width, height)
+        DCFX.launched = true
+        DCFX.dashboard = dashboard
+        DCFX.width = width
+        DCFX.height = height
+        super()
+      end
+
+    end
+
   end
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
-
-  def self.launched?
-    (DCFX.launched)? true : false
-  end
-
-  #----------------------------------------------------------------------------------------
-  #
-  #----------------------------------------------------------------------------------------
   
-  def self.launch(dashboard, width, height)
-    DCFX.launched = true
-    DCFX.dashboard = dashboard
-    DCFX.width = width
-    DCFX.height = height
-    super()
-  end
-
 end
-
-
 
 =begin
 class MyClass

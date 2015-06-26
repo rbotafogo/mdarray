@@ -21,7 +21,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-class MDArray
+class Sol
 
   module Margins
     

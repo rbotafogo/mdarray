@@ -31,7 +31,7 @@ require_relative "stack"
 #
 #==========================================================================================
 
-class MDArray
+class Sol
   
   #==========================================================================================
   #
@@ -85,7 +85,7 @@ class MDArray
       @spot = name + "Chart"
       @properties = Hash.new
 
-      dimension(MDArray.camelcase(@dim.to_s))
+      dimension(Sol.camelcase(@dim.to_s))
       
     end
         

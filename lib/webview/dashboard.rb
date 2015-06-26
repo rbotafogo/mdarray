@@ -33,7 +33,7 @@ require_relative 'bootstrap'
 #
 #==========================================================================================
 
-class MDArray
+class Sol
 
   #------------------------------------------------------------------------------------
   #
@@ -70,8 +70,20 @@ class MDArray
   #
   #------------------------------------------------------------------------------------
 
-  def self.dashboard(width, height)
-    return Dashboard.new(width, height)
+  def self.dashboard(name, data, dimension_labels, date_columns = [])
+    return Dashboard.new(name, data, dimension_labels, date_columns)
+  end
+
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
+  def self.eval(scrpt)
+    Bridge.instance.send(:gui, :executeScript, scrpt)
+  end
+
+  def self.add_data(js_variable, data)
+    Bridge.instance.send(:window, :setMember, js_variable, data)
   end
 
   #==========================================================================================
@@ -80,18 +92,17 @@ class MDArray
   
   class Dashboard
 
-    attr_reader :width
-    attr_reader :height
-    attr_reader :charts
-    attr_reader :scene
-    attr_reader :script           # automatically generated javascript script for this dashboard
-
-    attr_reader :bridge            # communication channel
-
+    attr_reader :name
     attr_reader :data
     attr_reader :dimension_labels
     attr_reader :date_columns     # columns that have date information
     attr_reader :properties
+
+    attr_reader :charts
+    attr_reader :scene
+    attr_reader :script           # automatically generated javascript script for this dashboard
+
+    attr_reader :bridge           # communication channel
 
     attr_reader :base_dimensions  # dimensions used by crossfilter
 
@@ -103,15 +114,17 @@ class MDArray
     # Launches the UI and passes self so that it can add elements to it.
     #------------------------------------------------------------------------------------
 
-    def initialize(width, height)
+    def initialize(name, data, dimension_labels, date_columns = [])
 
-      @width = width
-      @height = height
+      @name = name
+      @data = data
+      @dimension_labels = dimension_labels
+      @date_columns = date_columns
 
+      # Access the bridge to communicate with DCFX. Bridge is a singleton class
       @bridge = Bridge.instance
-
       # prepare a bootstrap scene specification for this dashboard
-      @scene = Bootstrap.new(width)
+      @scene = Bootstrap.new
       @charts = Hash.new
       @properties = Hash.new
       @base_dimensions = Hash.new
@@ -120,22 +133,6 @@ class MDArray
 
     end
    
-    #------------------------------------------------------------------------------------
-    # Adds a new message to the dashboard.  This message will be consumed by the GUI
-    #------------------------------------------------------------------------------------
-
-    def add_message(message)
-      @bridge.queue.put(message)
-    end
-
-    #------------------------------------------------------------------------------------
-    # Method for the GUI to retrieve a message
-    #------------------------------------------------------------------------------------
-
-    def get_message
-      @bridge.queue.take()
-    end
-
     #------------------------------------------------------------------------------------
     #
     #------------------------------------------------------------------------------------
@@ -147,20 +144,10 @@ class MDArray
     end
 
     #------------------------------------------------------------------------------------
-    # adds the data to the javascript environment
-    #------------------------------------------------------------------------------------
-
-    def add_data(data, dimension_labels, date_columns = [])
-      @data = data
-      @dimension_labels = dimension_labels
-      @date_columns = date_columns
-    end
-
-    #------------------------------------------------------------------------------------
     # This method is to be called only by the GUI
     #------------------------------------------------------------------------------------
 
-    def _add_data(window, scrpt)
+    def _add_data(window)
       # Intitialize variable nc_array and dimension_labels on javascript side
       window.setMember("native_array", @data.nc_array)
       window.setMember("labels", @dimension_labels.nc_array)
@@ -171,7 +158,7 @@ class MDArray
     #------------------------------------------------------------------------------------
 
     def prepare_dimension(dim_name, dim)
-      # @base_dimensions[MDArray.camelcase(dim_name.to_s)] = dim
+      # @base_dimensions[Sol.camelcase(dim_name.to_s)] = dim
       @base_dimensions[dim_name + "Dimension"] = dim
       return self
     end
@@ -181,7 +168,7 @@ class MDArray
     #------------------------------------------------------------------------------------
 
     def dimension?(dim_name)
-      !@base_dimension[MDArray.camelcase(dim_name.to_s)].nil?
+      !@base_dimension[Sol.camelcase(dim_name.to_s)].nil?
     end
 
     #------------------------------------------------------------------------------------
@@ -202,7 +189,7 @@ class MDArray
 
       prepare_dimension(x_column, x_column) if (@base_dimensions[x_column + "Dimension"] == nil)
 
-      chart = MDArray::Chart.build(type, x_column, y_column, name)
+      chart = Sol::Chart.build(type, x_column, y_column, name)
 
       # Set chart defaults. Should preferably be read from a config file 
       chart.elastic_y(true)
@@ -222,9 +209,11 @@ class MDArray
 
     def dimensions_spec
 
+      facts = "#{@name.downcase}_facts"
+
       dim_spec = String.new
       @base_dimensions.each_pair do |key, value|
-        dim_spec << "var #{key} = facts.dimension(function(d) {return d[\"#{value}\"];});"
+        dim_spec << "var #{key} = #{facts}.dimension(function(d) {return d[\"#{value}\"];});"
       end
       dim_spec
 
@@ -236,16 +225,19 @@ class MDArray
 
     def props
 
+      dashboard = "#{@name.downcase}_dashboard"
+      facts = "#{@name.downcase}_facts"
+      
       # convert the data to JSON format
       scrpt = <<EOS
 
-      graph = new DCGraph();
-      graph.convert(#{@date_columns});
+      var #{dashboard} = new DCDashboard();
+      #{dashboard}.convert(#{@date_columns});
       // Make variable data accessible to all charts
-      var data = graph.getData();
+      var data = #{dashboard}.getData();
       //$('#help').append(JSON.stringify(data));
       // add data to crossfilter and call it 'facts'.
-      facts = crossfilter(data);
+      #{facts} = crossfilter(data);
 EOS
 
       @properties.each_pair do |key, value|
@@ -279,13 +271,13 @@ EOS
       scrpt << dimensions_spec
       # add charts
       @charts.each do |name, chart|
-        # add the graph specification
+        # add the chart specification
         scrpt << chart.js_spec if !chart.nil?
       end
       # render all charts
       scrpt += "dc.renderAll();"
 
-      add_message([:eval, scrpt])
+      add_message(:gui, :executeScript, scrpt)
       
     end
     
@@ -293,22 +285,21 @@ EOS
     # Launches the UI and passes self so that it can add elements to it.
     #------------------------------------------------------------------------------------
     
-    def plot
+    def plot(width, height)
 
       if !DCFX.launched?
-        Thread.new { DCFX.launch(self, @width, @height) }
-        # Need to stop here until the plot is done!!!
-        # sleep(5)
-      else
-        p "already lauched"
-        DCFX.dashboard = self
+        Thread.new { DCFX.launch(self, width, height) }
+        Sol.add_data("native_array", @data.nc_array)
+        Sol.add_data("labels", @dimension_labels.nc_array)
         run
+      else
+        raise "plot can only be called once in an application."
       end
-
+      
       @bridge.mutex.synchronize {
         @bridge.cv.wait(@bridge.mutex)
       }
-
+      
     end
 
     #------------------------------------------------------------------------------------
@@ -318,11 +309,21 @@ EOS
     def set_demo_script(scrpt)
       @demo_script = scrpt
     end
+
+    private
+    
+    #------------------------------------------------------------------------------------
+    # Adds a new message to the dashboard.  This message will be consumed by the GUI
+    #------------------------------------------------------------------------------------
+    
+    def add_message(*message)
+      @bridge.queue.put(message)
+    end
     
   end
-
+  
   private
-
+  
   #==========================================================================================
   #
   #==========================================================================================
@@ -334,10 +335,30 @@ EOS
     attr_reader :cv               # conditional variable
     attr_reader :mutex            # mutex
 
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+    
     def initialize
       @queue = java.util.concurrent::LinkedBlockingQueue.new(1)
       @cv = ConditionVariable.new
       @mutex = Mutex.new
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def send(*message)
+      @queue.put(message)
+    end
+
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def take
+      @queue.take()
     end
     
   end

@@ -25,9 +25,9 @@
 #
 #==========================================================================================
 
-class MDArray
+class Sol
 
-  class LineChart < MDArray::Chart
+  class LineChart < Sol::Chart
     include CoordinateChart
     include Margins
 
@@ -55,7 +55,7 @@ class MDArray
 
   end
 
-  class BarChart < MDArray::Chart
+  class BarChart < Sol::Chart
     include CoordinateChart
     include Margins
   end

@@ -25,7 +25,7 @@
 #
 #==========================================================================================
 
-class MDArray
+class Sol
   
   module BaseChart
 
@@ -94,7 +94,7 @@ class MDArray
       
       @group_name = @name.downcase + "Group"
       @group = 
-        "var #{@group_name} = #{@dim}.group().#{MDArray.camelcase(method.to_s)}(function(d) {return d[\"#{@y_column}\"];});"
+        "var #{@group_name} = #{@dim}.group().#{Sol.camelcase(method.to_s)}(function(d) {return d[\"#{@y_column}\"];});"
       @properties["group"] = @group_name
       return self
 

@@ -21,7 +21,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-class MDArray
+class Sol
   
   #==========================================================================================
   #
@@ -86,10 +86,10 @@ class MDArray
 
     def x(type, input_domain = nil, input_range = nil)
 
-      if (type.is_a? MDArray::Scale)
+      if (type.is_a? Sol::Scale)
         scale = type
       else
-        scale = MDArray.scale(type)
+        scale = Sol.scale(type)
         scale.domain(input_domain) if input_domain
         scale.range(input_range) if input_range
       end
