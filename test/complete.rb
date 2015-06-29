@@ -21,11 +21,12 @@
 
 $ENVIR = true
 
-require 'env.rb'
+require_relative 'mdarray/test_complete'
+require_relative 'colt/test_complete'
+require_relative 'netcdf/test_complete'
 
-require 'mdarray/test_complete'
-require 'colt/test_complete'
-require 'netcdf/test_complete'
+require_relative 'env.rb'
+
 
 # Temporary tests.  Remove before shipping!
 

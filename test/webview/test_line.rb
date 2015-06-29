@@ -43,56 +43,11 @@ class DCFXTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-=begin
-    should "specify grid with 1 chart" do
 
-      db = Sol.dashboard
-      # need to check this method... might not have a date column
-      # db.add_data(ndx, dimensions_labels, ["Date"])
-
-      scene = db.scene
-      scene.title = "One Chart Grid"
-
-      grid = scene.new_grid([1, 1])
-      grid[0, 0] = "Chart1"
-      scene.add_grid(grid)
-
-      p scene.bootstrap
-      p
-      p
-
-    end
-=end
-    #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-
-    def specify_scene
-
-=begin
-      grid_external = scene.new_grid([2, 1])
-
-      grid1 = scene.new_grid([1, 2])
-      grid1[0, 0] = "DateOpen"
-      grid1[0, 1] = "DateClose"
-
-      grid_external[0, 0] = grid1
-      grid_external[1, 0] = "DateVolume"
-
-      scene.add_grid(grid_external)
-      p scene.bootstrap
-=end
-
-    end
-
-    #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-
-    should "allow complex grid specification" do
+    should "allow complex grid specification and slideshow" do
 
       # Read the data
-      ndx = MDArray.double("short.csv", true)
+      ndx = MDArray.double("VALE_2014.csv", true)
       # Assing heading to the columns.  We cannot read the header from the file as 
       # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
       # it might be better to let Datasets be done in SciCom only.
@@ -103,7 +58,7 @@ class DCFXTest < Test::Unit::TestCase
       # Create a new dashboard.  A dashboard is created with new data and its labels.  If
       # there are columns with date information, then this should be given as an array of
       # columns
-      db = Sol.dashboard("Short", ndx, dimensions_labels, ["Date"])
+      db = Sol.dashboard("VALE_2014", ndx, dimensions_labels, ["Date"])
       
       # Crossfilter does not filter on
       # the same dimension, so, in order for two graphs to react to each other when they
@@ -112,7 +67,7 @@ class DCFXTest < Test::Unit::TestCase
       db.prepare_dimension("Time", "Date")
 
       scene = db.scene
-      scene.title = "Complex scene"
+      scene.title = "VALE 2014"
 
       # Specify how the scene should look like by defining a grid
       grid_external = scene.new_grid([1, 2])
@@ -137,7 +92,6 @@ class DCFXTest < Test::Unit::TestCase
       g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
         .width(600).height(200)
         .x(x_scale)
-        #.description("Preço de abertura das ações. Observer que está ocorrendo uma clara tendência de queda no período.")
 
       # maximal chart... all options availabe explicitly set
       g2 = db.chart(:bar_chart, "Time", "Volume", "DateVolume")
@@ -162,37 +116,30 @@ class DCFXTest < Test::Unit::TestCase
       # Example of executing a javascript inside the GUI window
       Sol.eval("d3.select(\"body\").append(\"div\").text(\"hi there\");")
       
-      # Javascript in a here document (nice Ruby style)
+      # Javascript in a here document (nice Ruby style!)
       Sol.eval(<<EOS)
-               d3.select("body").append("div").text("hi there again!!");
-               d3.select("body").append("div").text("hi there again the third time!!");
+           d3.select("body").append("div").text("hi there again!!");
+           d3.select("body").append("div").text("hi there again the third time!!");
 EOS
 
-      # Sol.eval("d3.select(\"body\").append(\"div\").text(JSON.stringify(data));")
+      # wait three seconds before proceeding, allowing time for charts viewing
+      sleep(3)
 
-=begin
-      p "finished plotting first set"
-
-      db2 = Sol.dashboard("petr", ndx, dimensions_labels, ["Date"])
-
-      g = db2.chart(:line_chart, "Date", "Open", "DateOpen")
+      # Add new chart.  In this version of Sol, adding a new chart to the dashboard and
+      # calling plot, will remove all the other charts.  It is not possible to append to
+      # the dashboard.  This will be changed in future versions.
+      g = db.chart(:line_chart, "Date", "Open", "DateOpen")
         .width(600).height(200)
         .x(x_scale)
+
+      # and plot it
+      db.plot
+
+      sleep(3)
       
-=end
-
-    end
-    
-    #-------------------------------------------------------------------------------------
-    #
-    #-------------------------------------------------------------------------------------
-=begin
-    should "specify 1 graph dashboard" do
-
-      p "dashboard with only one chart"
-
-      # Read the data
-      ndx = MDArray.double("short.csv", true)
+      # Read new data.
+      ndx = MDArray.double("PETR4_2014.csv", true)
+      
       # Assing heading to the columns.  We cannot read the header from the file as 
       # we are storing in an MDArray double.  Could maybe add headers to MDArrays, but
       # it might be better to let Datasets be done in SciCom only.
@@ -200,20 +147,25 @@ EOS
         MDArray.string([7], ["Date", "Open", "High", "Low", "Close", "Volume", 
                              "Adj Close"])
 
-      db = Sol.dashboard(1500, 700)
-      db.add_data(ndx, dimensions_labels, ["Date"])
+      # Create a new dashboard with the new data read.
+      db2 = Sol.dashboard("PETR4_2014", ndx, dimensions_labels, ["Date"])
 
-      g1 = db.chart(:line_chart, "Date", "Open", "DateOpen")
-        .width(300)
-        .height(200)
-        .margins("{top: 10, right:10, bottom: 50, left: 100}")
-        .elastic_y(true)
+      # Calculate the x scale.  Finding min and max for the date column (first one, index
+      # = 0).  Use reset_statistics on the MDArray to allow calling method min and max
+      date = ndx.section([0, 0], [ndx.shape[0], 1])
+      date.reset_statistics
+      x_scale = Sol.scale(:time)
+      x_scale.domain([date.min, date.max])
 
-      db.plot
+      # minimal chart.  No options are set
+      g1 = db2.chart(:line_chart, "Date", "Open", "DateOpen")
+        .width(600).height(200)
+        .x(x_scale)
 
+      db2.plot
+      
     end
-=end
-
+    
   end
   
 end

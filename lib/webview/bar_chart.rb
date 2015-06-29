@@ -26,33 +26,10 @@
 #==========================================================================================
 
 class Sol
-
-  class LineChart < Sol::Chart
+  
+  class BarChart < Sol::Chart
     include CoordinateChart
     include Margins
-
-    #------------------------------------------------------------------------------------
-    # Get or set render area flag. If the flag is set to true then the chart will render 
-    # the area beneath each line and the line chart effectively becomes an area chart.
-    #------------------------------------------------------------------------------------
-
-    def render_area(bool = nil)
-      return @properties["renderArea"] if bool == nil
-      @properties["renderArea"] = bool
-      return self
-    end
-
-    #------------------------------------------------------------------------------------
-    # Get or set render area flag. If the flag is set to true then the chart will render 
-    # the area beneath each line and the line chart effectively becomes an area chart.
-    #------------------------------------------------------------------------------------
-
-    def render_data_points(bool = nil)
-      return @properties["renderDataPoints"] if bool == nil
-      @properties["renderDataPoints"] = bool
-      return self
-    end
-
   end
 
 end

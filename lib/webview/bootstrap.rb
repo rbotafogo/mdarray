@@ -125,7 +125,8 @@ class Sol
     def bootstrap
       
       container = "// Add new Bootstrap Container"
-      container = "container = d3.select(\"body\").append(\"div\")"
+      # container = "container = d3.select(\"body\").append(\"div\")"
+      container = "container = d3.select(\"last\").insert(\"div\")"
       container << ".attr(\"class\", \"container\")"
       container << ".attr(\"style\", \"font: 12px sans-serif;\");\n\n"
 

@@ -82,8 +82,24 @@ class Sol
     Bridge.instance.send(:gui, :executeScript, scrpt)
   end
 
+  #------------------------------------------------------------------------------------
+  #
+  #------------------------------------------------------------------------------------
+
   def self.add_data(js_variable, data)
     Bridge.instance.send(:window, :setMember, js_variable, data)
+  end
+
+  #------------------------------------------------------------------------------------
+  # Remove everything from the GUI
+  #------------------------------------------------------------------------------------
+
+  def self.delete_all
+
+    eval(<<EOS)
+      d3.selectAll(\"div\").remove();
+EOS
+    
   end
 
   #==========================================================================================
@@ -128,7 +144,9 @@ class Sol
       @charts = Hash.new
       @properties = Hash.new
       @base_dimensions = Hash.new
+      @has_data = false           # initialy dashboard has no data
       @demo_script = false
+      
       super()
 
     end
@@ -141,16 +159,6 @@ class Sol
       return @properties["timeFormat"] if !val
       @properties["timeFormat"] = "var timeFormat = d3.time.format(\"#{val}\");"
       return self
-    end
-
-    #------------------------------------------------------------------------------------
-    # This method is to be called only by the GUI
-    #------------------------------------------------------------------------------------
-
-    def _add_data(window)
-      # Intitialize variable nc_array and dimension_labels on javascript side
-      window.setMember("native_array", @data.nc_array)
-      window.setMember("labels", @dimension_labels.nc_array)
     end
 
     #------------------------------------------------------------------------------------
@@ -227,6 +235,7 @@ class Sol
 
       dashboard = "#{@name.downcase}_dashboard"
       facts = "#{@name.downcase}_facts"
+      data = "#{@name.downcase}_data"
       
       # convert the data to JSON format
       scrpt = <<EOS
@@ -234,10 +243,10 @@ class Sol
       var #{dashboard} = new DCDashboard();
       #{dashboard}.convert(#{@date_columns});
       // Make variable data accessible to all charts
-      var data = #{dashboard}.getData();
-      //$('#help').append(JSON.stringify(data));
+      var #{data} = #{dashboard}.getData();
+      //$('#help').append(JSON.stringify(#{data}));
       // add data to crossfilter and call it 'facts'.
-      #{facts} = crossfilter(data);
+      #{facts} = crossfilter(#{data});
 EOS
 
       @properties.each_pair do |key, value|
@@ -278,22 +287,59 @@ EOS
       scrpt += "dc.renderAll();"
 
       add_message(:gui, :executeScript, scrpt)
+
+    end
+    
+    #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+    
+    def re_run
+
+      # add bootstrap container if it wasn't specified by the user
+      @scene.create_grid((keys = @charts.keys).size, keys) if !@scene.specified?
+
+      scrpt = String.new
+      scrpt << @scene.bootstrap
+      # add charts
+      @charts.each do |name, chart|
+        # add the chart specification
+        scrpt << chart.js_spec if !chart.nil?
+      end
+      # render all charts
+      scrpt += "dc.renderAll();"
+
+      add_message(:gui, :executeScript, scrpt)
       
     end
     
     #------------------------------------------------------------------------------------
+    #
+    #------------------------------------------------------------------------------------
+
+    def clean
+      @scene = Bootstrap.new
+      @charts = Hash.new
+    end
+
+    #------------------------------------------------------------------------------------
     # Launches the UI and passes self so that it can add elements to it.
     #------------------------------------------------------------------------------------
     
-    def plot(width, height)
+    def plot(width = 1000, height = 500)
 
-      if !DCFX.launched?
-        Thread.new { DCFX.launch(self, width, height) }
-        Sol.add_data("native_array", @data.nc_array)
-        Sol.add_data("labels", @dimension_labels.nc_array)
+      Thread.new { DCFX.launch(self, width, height) }  if !DCFX.launched?
+
+      # Remove all elements from the dashboard.  This could be changed in future releases
+      # of the library.
+      Sol.delete_all
+
+      if (!@has_data)
+        add_data
         run
+        clean
       else
-        raise "plot can only be called once in an application."
+        re_run
       end
       
       @bridge.mutex.synchronize {
@@ -312,6 +358,16 @@ EOS
 
     private
     
+    #------------------------------------------------------------------------------------
+    # This method is to be called only by the GUI
+    #------------------------------------------------------------------------------------
+
+    def add_data
+      Sol.add_data("native_array", @data.nc_array)
+      Sol.add_data("labels", @dimension_labels.nc_array)
+      @has_data = true
+    end
+
     #------------------------------------------------------------------------------------
     # Adds a new message to the dashboard.  This message will be consumed by the GUI
     #------------------------------------------------------------------------------------

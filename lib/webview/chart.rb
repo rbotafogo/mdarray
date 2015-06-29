@@ -132,3 +132,4 @@ EOS
 end
 
 require_relative "line_chart"
+require_relative "bar_chart"
