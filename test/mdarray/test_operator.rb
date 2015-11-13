@@ -224,6 +224,10 @@ class MDArrayTest < Test::Unit::TestCase
 
       result = @g & 13
       # although we can coerce arithmetic operations we cannot coerce bitwise operations
+      p "this is where the error is"
+      result.print
+      
+      p 13 & @g
       assert_raise ( TypeError ) { result = 13 & @g }
 
     end

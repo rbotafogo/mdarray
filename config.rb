@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'java'
 
 ##########################################################################################
 # Configuration. Remove setting before publishing Gem.
@@ -173,3 +174,26 @@ if ($DVLP == true)
   end
 
 end
+
+##########################################################################################
+# Load necessary jar files
+##########################################################################################
+
+#Dir["#{File.dirname(__FILE__)}/vendor/*.jar"].each do |jar|
+Dir["#{MDArray.vendor_dir}/*.jar"].each do |jar|
+  require jar
+end
+
+Dir["#{MDArray.target_dir}/*.jar"].each do |jar|
+  require jar
+end
+
+##########################################################################################
+# Tmp directory for data storage
+##########################################################################################
+
+$TMP_TEST_DIR = MDArray.home_dir + "/test/tmp"
+#Colt test directory
+$COLT_TEST_DIR = MDArray.home_dir + "/test/colt"
+# NetCDF test directory
+$NETCDF_TEST_DIR = MDArray.home_dir + "/test/netcdf"

@@ -24,7 +24,7 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
-require_relative '../env.rb'
+require_relative '../../config'
 
 require 'mdarray'
 
@@ -42,8 +42,9 @@ class MDArrayTest < Test::Unit::TestCase
 
     should "Read CSV Data" do
       # res = Csv.read_numeric("VALE_2014.csv")
-      res = Csv.read_file("VALE_2014.csv", headers: true, dimensions:["Date"])
-      p res
+      res = Csv.read_file("VALE_2014.csv", col_sep: ";", dimensions:["Symbol"])
+      # arr = MDArray.double([res[0], res[1]-1], res[2])
+      # arr.print
     end
 
   end

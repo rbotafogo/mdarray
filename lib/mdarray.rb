@@ -21,10 +21,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-require 'java'
-require 'map'
-
-require_relative 'env'
+require_relative '../config'
 require_relative 'webview/dashboard'
 
 ##########################################################################################
@@ -65,6 +62,8 @@ require_relative 'webview/dashboard'
 # long/doubles. If this is the case, you should probably synchronize your calls. 
 # Presumably 64-bit CPUs will make those operations atomic also.
 ##########################################################################################
+
+require 'map'
 
 class MDArray
   include_package "ucar.ma2"

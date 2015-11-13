@@ -21,10 +21,12 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
+
 if !(defined? $ENVIR)
   $ENVIR = true
   require_relative '../env.rb'
 end
+
 
 require 'rubygems'
 require "test/unit"

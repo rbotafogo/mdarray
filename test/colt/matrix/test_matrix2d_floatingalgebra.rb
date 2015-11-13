@@ -30,10 +30,9 @@ class MDMatrixTest < Test::Unit::TestCase
   context "Colt Matrix" do
 
     setup do
-
    
     end
-#=begin
+
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
@@ -79,12 +78,38 @@ class MDMatrixTest < Test::Unit::TestCase
       assert_raise ( RuntimeError ) { c = a / a }
       assert_raise ( RuntimeError ) { c = a / b }
 
-      p "Matrix division"
+
+      # p "Matrix division"
       b.generate_non_singular!
       c = a / b
-      c.print
-      printf("\n\n")
+      assert_equal(0.2927527646129542, c[0, 0])
+      assert_equal(0.026165086887835726, c[3, 3])
 
+    end
+
+    #-------------------------------------------------------------------------------------
+    #
+    #-------------------------------------------------------------------------------------
+
+    should "do float algebra" do
+
+      a = MDMatrix.float([2, 3], [1.5, 2.7, 3.2, 4.8, 5.9, 6.345])
+      a.print
+      print "\n"
+      p a.class
+      print "\n\n"
+      
+      b = MDMatrix.float([3, 1], [4.3456, 5.8878, 6.98766])
+      b.print
+      print "\n"      
+      p b.class
+      print "\n\n"
+
+      b = a * b
+      b.print
+      print "\n"
+      p b.class
+      
     end
 
     #-------------------------------------------------------------------------------------
@@ -180,7 +205,7 @@ class MDMatrixTest < Test::Unit::TestCase
       assert_equal(1, arange[1])
 
     end
-
+#=begin
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
@@ -387,7 +412,6 @@ class MDMatrixTest < Test::Unit::TestCase
       result.mdarray.print
 
     end
-#=end
 
     #-------------------------------------------------------------------------------------
     #
