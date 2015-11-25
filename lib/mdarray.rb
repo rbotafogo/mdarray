@@ -22,7 +22,6 @@
 ##########################################################################################
 
 require_relative '../config'
-require_relative 'webview/dashboard'
 
 ##########################################################################################
 # Superclass for implementations of multidimensional arrays. An Array has a classType 

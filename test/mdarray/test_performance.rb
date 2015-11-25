@@ -2,8 +2,9 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 require 'jruby/profiler'
-
 require 'benchmark'
+
+require '../../config' if @platform == nil
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase

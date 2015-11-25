@@ -19,15 +19,11 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-if !(defined? $ENVIR)
-  $ENVIR = true
-  require_relative '../env.rb'
-end
-
 require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
+require '../../config' if @platform == nil
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase
@@ -221,15 +217,22 @@ class MDArrayTest < Test::Unit::TestCase
       assert_equal("240 ", result.to_string)
       result = @g >> 2
       assert_equal("15 ", result.to_string)
-
       result = @g & 13
-      # although we can coerce arithmetic operations we cannot coerce bitwise operations
-      p "this is where the error is"
+      assert_equal("12 ", result.to_string)
+
+
+
+      result = 13 & @g
+      p result
+      # assert_equal("12 ", result.to_string)
+
+      tt = MDArray.byte([2], [60, 70])
+      result = tt & 7
+      result.print
+
+      result = 7 & tt
       result.print
       
-      p 13 & @g
-      assert_raise ( TypeError ) { result = 13 & @g }
-
     end
 
     #-------------------------------------------------------------------------------------
