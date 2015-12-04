@@ -27,6 +27,8 @@ class NumericalMDArray < MDArray
 
   def coerce(num)
     coerced_mdarray = coerced_build(@type, @nc_array)
+    # coerced_mdarray.print
+    # p coerced_mdarray
     [coerced_mdarray, num]
   end
 

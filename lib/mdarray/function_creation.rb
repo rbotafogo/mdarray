@@ -26,7 +26,9 @@
 module FunctionCreation
 
   #------------------------------------------------------------------------------------
-  #
+  # name is the name of the function being created
+  # exec_type is the execution type.  The following execution types are defined default
+  # in_place, fill and reduce 
   #------------------------------------------------------------------------------------
 
   def make_binary_op(name, exec_type, func, helper_class, force_type = nil, 

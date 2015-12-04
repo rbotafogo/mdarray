@@ -159,7 +159,7 @@ class BinaryOperator < Operator
         # if type is integer, then make it the smaller possible integer and then let upcast
         # do its work
         if (@op2.integer?)
-          type = "short"
+          type = "byte"
         else
           type = "double"
         end

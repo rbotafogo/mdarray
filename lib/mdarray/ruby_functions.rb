@@ -34,7 +34,9 @@ module RubyFunctions
   @unary_helper = Java::RbMdarrayLoopsUnops
 
   #------------------------------------------------------------------------------------
-  #
+  # Creates the default and in_place type of methods.  The default method will
+  # generate a new array as result and the implace method will overwrite the first
+  # array with the result.
   #------------------------------------------------------------------------------------
 
   def make_binary_operators(name, func, default = true, in_place = true)
@@ -49,7 +51,7 @@ module RubyFunctions
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Creates a single type of method.
   #------------------------------------------------------------------------------------
 
   def make_binary_operator(name, type, func)
@@ -57,7 +59,9 @@ module RubyFunctions
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Creates the default and in_place type of methods.  The default method will
+  # generate a new array as result and the implace method will overwrite the first
+  # array with the result.
   #------------------------------------------------------------------------------------
 
   def make_unary_operators(name, func, default = true, in_place = true)
@@ -72,7 +76,7 @@ module RubyFunctions
   end
 
   #------------------------------------------------------------------------------------
-  #
+  # Creates a single type of method.
   #------------------------------------------------------------------------------------
 
   def make_unary_operator(name, type, func)

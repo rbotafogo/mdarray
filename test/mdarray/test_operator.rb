@@ -25,6 +25,7 @@ require 'shoulda'
 
 require '../../config' if @platform == nil
 require 'mdarray'
+# require 'pry'
 
 class MDArrayTest < Test::Unit::TestCase
 
@@ -60,7 +61,7 @@ class MDArrayTest < Test::Unit::TestCase
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
-
+=begin
     should "work properly with nil" do
 
       a = MDArray.int([5, 3, 5])
@@ -198,13 +199,14 @@ class MDArrayTest < Test::Unit::TestCase
       assert_equal("-41.14 -138.88 -217.56 -303.68 ", result.to_string)
 
     end
-
+=end
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
     
     should "do bitwise operations" do
 
+=begin      
       result = @g & @h
       assert_equal("12 ", result.to_string)
       result = @g | @h
@@ -219,22 +221,30 @@ class MDArrayTest < Test::Unit::TestCase
       assert_equal("15 ", result.to_string)
       result = @g & 13
       assert_equal("12 ", result.to_string)
+=end
 
-
-
-      result = 13 & @g
-      p result
-      # assert_equal("12 ", result.to_string)
-
+      result = @d & 10
+      result = 10 & @d
+      result.print
+      
       tt = MDArray.byte([2], [60, 70])
       result = tt & 7
       result.print
 
+      # binding.pry
+      
+      p "coercing 13"
+      result = (13 & @g)
+      p result
+      # assert_equal("12 ", result.to_string)
+
+      p "coercing 7"
       result = 7 & tt
-      result.print
+      p result
+      # result.print
       
     end
-
+=begin
     #-------------------------------------------------------------------------------------
     #
     #-------------------------------------------------------------------------------------
@@ -378,9 +388,9 @@ class MDArrayTest < Test::Unit::TestCase
 
     end
     
-#=end
+=end
     
   end
-
-
+  
+  
 end
