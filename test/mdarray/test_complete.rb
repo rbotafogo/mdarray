@@ -60,7 +60,7 @@ require_relative 'test_counter'
 require_relative 'test_trigonometry'
 require_relative 'test_views'
 require_relative 'test_printing'
-require_relative 'test_lazy'
+#require_relative 'test_lazy'
 require_relative 'test_sections'
 #require_relative 'test_performance'
 #=end

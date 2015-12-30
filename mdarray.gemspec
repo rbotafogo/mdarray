@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require 'rubygems/platform'
 
-require_relative 'version'
+require './version'
 
 
 Gem::Specification.new do |gem|

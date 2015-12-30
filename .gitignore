@@ -6,3 +6,4 @@ doc
 .yardoc
 src/build/
 *.nc
+Gemfile.lock
