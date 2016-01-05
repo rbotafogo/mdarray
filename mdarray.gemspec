@@ -34,12 +34,11 @@ EOF
   gem.homepage = 'http://github.com/rbotafogo/mdarray/wiki'
   gem.license = 'BSD 2-clause'
 
-  gem.add_dependency('map', [">= 6.3.0"])
-  gem.add_dependency('jrubyfx',[">= 1.1.1"])
-  gem.add_development_dependency('shoulda')
-  gem.add_development_dependency('simplecov', [">= 0.7.1"])
-  gem.add_development_dependency('yard', [">= 0.8.5.2"])
-  gem.add_development_dependency('kramdown', [">= 1.0.1"])
+  gem.add_dependency('map', "~> 6.5")
+  gem.add_development_dependency('shoulda', "~> 3.5")
+  gem.add_development_dependency('simplecov', "~> 0.11")
+  gem.add_development_dependency('yard', "~> 0.8")
+  gem.add_development_dependency('kramdown', "~> 1.0")
 
   # ensure the gem is built out of versioned files
   gem.files = Dir['Rakefile', 'version.rb', 'config.rb', '{lib,test}/**/*.rb', 'test/**/*.csv',
