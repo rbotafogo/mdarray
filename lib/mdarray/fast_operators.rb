@@ -200,7 +200,7 @@ class FastUnaryOperator < UnaryOperator
   #---------------------------------------------------------------------------------------
 
   def default(*args)
-    
+
     calc = nil
     get_args(*args) do |op1, shape, *other_args|
       calc = MDArray.build(@type, shape)

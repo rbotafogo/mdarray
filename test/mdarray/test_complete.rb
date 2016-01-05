@@ -19,10 +19,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-if !(defined? $ENVIR)
-  $ENVIR = true
-  require_relative '../env.rb'
-end
+require '../../config' if @platform == nil
 
 # MDArray main object is the homogeneous multidimensional array. It is a table
 # of elements (usually numbers), all of the same type, indexed by a tuple of 
@@ -63,7 +60,7 @@ require_relative 'test_counter'
 require_relative 'test_trigonometry'
 require_relative 'test_views'
 require_relative 'test_printing'
-require_relative 'test_lazy'
+#require_relative 'test_lazy'
 require_relative 'test_sections'
 #require_relative 'test_performance'
 #=end

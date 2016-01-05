@@ -23,6 +23,7 @@ require 'rubygems'
 require "test/unit"
 require 'shoulda'
 
+require '../../config' if @platform == nil
 require 'mdarray'
 
 class MDArrayTest < Test::Unit::TestCase

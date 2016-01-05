@@ -21,8 +21,7 @@
 # OR MODIFICATIONS.
 ##########################################################################################
 
-require 'map'
-require_relative 'env'
+require_relative '../config'
 
 ##########################################################################################
 # Superclass for implementations of multidimensional arrays. An Array has a classType 
@@ -62,6 +61,8 @@ require_relative 'env'
 # long/doubles. If this is the case, you should probably synchronize your calls. 
 # Presumably 64-bit CPUs will make those operations atomic also.
 ##########################################################################################
+
+require 'map'
 
 class MDArray
   include_package "ucar.ma2"
@@ -272,6 +273,8 @@ class MDArray
                           pre_condition = nil, post_condition = nil)
 
     define_method(name) do |op2, requested_type = nil, *args|
+      # @type will never be "lazy" as support for lazy was removed from this version
+      # this was left here if we want to readd suppor for lazy later on.
       if (@type == "lazy" || ((op2.is_a? MDArray) && op2.type == "lazy"))
         binary_op = LazyBinaryOperator
       else
@@ -480,7 +483,7 @@ require_relative 'mdarray/views'
 require_relative 'mdarray/printing'
 require_relative 'mdarray/counter'
 require_relative 'mdarray/ruby_stats'
-require_relative 'mdarray/lazy_mdarray'
+# require_relative 'mdarray/lazy_mdarray'
 require_relative 'mdarray/csv'
 require_relative 'mdarray/section'
 

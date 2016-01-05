@@ -1,19 +1,17 @@
 require 'rbconfig'
+require 'java'
 
-##########################################################################################
-# Configuration. Remove setting before publishing Gem.
-##########################################################################################
+#
+# In principle should not be in this file.  The right way of doing this is by executing
+# bundler exec, but I don't know how to do this from inside emacs.  So, should comment
+# the next line before publishing the GEM.  If not commented, this should be harmless
+# anyway.
+#
 
-# set to true if development environment
-# $DVLP = true
-
-# Set to 'cygwin' when in cygwin
-# $ENV = 'cygwin'
-
-# Dependencies that are not yet installed (still in development)
-$DEPEND = Array.new
-
-##########################################################################################
+begin
+  require 'bundler/setup'
+rescue LoadError
+end
 
 # the platform
 @platform = 
@@ -31,59 +29,6 @@ $DEPEND = Array.new
     end
   else 'default'
   end
-
-#---------------------------------------------------------------------------------------
-# Add path to load path
-#---------------------------------------------------------------------------------------
-
-def mklib(path, home_path = true)
-  
-  if (home_path)
-    lib = path + "/lib"
-  else
-    lib = path
-  end
-  
-  $LOAD_PATH << lib
-  
-end
-
-##########################################################################################
-# Prepare environment to work inside Cygwin
-##########################################################################################
-
-if $ENV == 'cygwin'
-  
-  #---------------------------------------------------------------------------------------
-  # Return the cygpath of a path
-  #---------------------------------------------------------------------------------------
-  
-  def set_path(path)
-    `cygpath -a -p -m #{path}`.tr("\n", "")
-  end
-  
-else
-  
-  #---------------------------------------------------------------------------------------
-  # Return  the path
-  #---------------------------------------------------------------------------------------
-  
-  def set_path(path)
-    path
-  end
-  
-end
-
-#---------------------------------------------------------------------------------------
-# Set dependencies
-#---------------------------------------------------------------------------------------
-
-def depend(name)
-  
-  dependency_dir = MDArray.project_dir + "/" + name
-  mklib(dependency_dir)
-  
-end
 
 #---------------------------------------------------------------------------------------
 # Set the project directories
@@ -130,34 +75,23 @@ class MDArray
 end
 
 ##########################################################################################
-# Config gem
+# Load necessary jar files
 ##########################################################################################
 
-if ($DVLP == true)
-
-  mklib(MDArray.home_dir)
-  
-  # Add dependencies here
-  # depend(<other_gems>)
-  $DEPEND.each do |dep|
-    depend(dep)
-  end if $DEPEND
-  
-  #----------------------------------------------------------------------------------------
-  # If we need to test for coverage
-  #----------------------------------------------------------------------------------------
-  
-  if $COVERAGE == 'true'
-  
-    require 'simplecov'
-    
-    SimpleCov.start do
-      @filters = []
-      add_group "MDArray", "lib/mdarray"
-      add_group "Colt", "lib/colt"
-      add_group "NetCDF", "lib/netcdf"
-    end
-    
-  end
-
+Dir["#{MDArray.vendor_dir}/*.jar"].each do |jar|
+  require jar
 end
+
+Dir["#{MDArray.target_dir}/*.jar"].each do |jar|
+  require jar
+end
+
+##########################################################################################
+# Tmp directory for data storage
+##########################################################################################
+
+$TMP_TEST_DIR = MDArray.home_dir + "/test/tmp"
+#Colt test directory
+$COLT_TEST_DIR = MDArray.home_dir + "/test/colt"
+# NetCDF test directory
+$NETCDF_TEST_DIR = MDArray.home_dir + "/test/netcdf"

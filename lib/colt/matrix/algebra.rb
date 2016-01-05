@@ -42,10 +42,10 @@ class Colt
 
     def mult(other_val, from = 0, length = other_val.size)
 
-      p "mult"
-      @mdarray.print
-      other_val.mdarray.print
-      printf("\n\n")
+      # p "mult"
+      # @mdarray.print
+      # other_val.mdarray.print
+      # printf("\n\n")
 
       if (other_val.is_a? Numeric)
         MDMatrix.from_mdarray(@mdarray * other_val)
@@ -54,7 +54,7 @@ class Colt
           MDMatrix
             .from_colt_matrix(other_val.transpose.colt_matrix.zMult(@colt_matrix, nil))
         else
-          p "other_val.rank = #{other_val.rank}"
+          # p "other_val.rank = #{other_val.rank}"
           @colt_matrix.zDotProduct(other_val.colt_matrix, from, length)
         end
       else
