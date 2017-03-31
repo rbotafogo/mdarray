@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-require 'rubygems/platform'
 
+require 'rubygems/platform'
 require './version'
 
 
@@ -35,6 +35,7 @@ EOF
   gem.license = 'BSD 2-clause'
 
   gem.add_dependency('map', "~> 6.5")
+  
   gem.add_development_dependency('shoulda', "~> 3.5")
   gem.add_development_dependency('simplecov', "~> 0.11")
   gem.add_development_dependency('yard', "~> 0.8")

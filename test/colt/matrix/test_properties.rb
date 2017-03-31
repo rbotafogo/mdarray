@@ -62,7 +62,7 @@ class MDArrayTest < Test::Unit::TestCase
 
       # diagonaly dominant matrix by row and column
       diag_dominant = MDMatrix.fromfunction("double", [4, 4]) do |x, y|
-        (x == y)? 5 * (x +1) + 5 * (y + 1) : x + y 
+        (x == y)? 5 * (x + 1) + 5 * (y + 1) : x + y 
       end
 
       # upper diagonal matrix
@@ -210,7 +210,7 @@ class MDArrayTest < Test::Unit::TestCase
       diag_dominant = MDMatrix
         .from_mdarray(MDArray.fromfunction("float", [4, 4]) do |x, y|
                         if (x == y)
-                          5 * (x +1) + 5 * (y + 1)
+                          5 * (x + 1) + 5 * (y + 1)
                         else
                           x + y 
                         end
@@ -365,7 +365,7 @@ class MDArrayTest < Test::Unit::TestCase
       diag_dominant = MDMatrix
         .from_mdarray(MDArray.fromfunction("long", [4, 4]) do |x, y|
                         if (x == y)
-                          5 * (x +1) + 5 * (y + 1)
+                          5 * (x + 1) + 5 * (y + 1)
                         else
                           x + y 
                         end
@@ -521,7 +521,7 @@ class MDArrayTest < Test::Unit::TestCase
       diag_dominant = MDMatrix
         .from_mdarray(MDArray.fromfunction("int", [4, 4]) do |x, y|
                         if (x == y)
-                          5 * (x +1) + 5 * (y + 1)
+                          5 * (x + 1) + 5 * (y + 1)
                         else
                           x + y 
                         end
